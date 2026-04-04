@@ -18,44 +18,47 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 16px;
         }
 
         .kiro-container {
             width: 100%;
             max-width: 800px;
-            height: 90vh;
+            height: 100%;
+            max-height: 95vh;
             background: #0a0a0f;
             border-radius: 24px;
-            border: 1px solid rgba(0, 212, 255, 0.15);
+            border: 1px solid rgba(0, 212, 255, 0.2);
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
 
         .header {
-            padding: 20px 24px 12px;
+            padding: 16px 20px 8px;
             text-align: center;
             border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+            flex-shrink: 0;
         }
 
         .title {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 600;
             color: #00d4ff;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
         }
 
         .visualizer {
-            height: 40px;
+            height: 36px;
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 3px;
-            padding: 8px 20px;
-            margin: 5px 20px;
-            background: rgba(0, 212, 255, 0.05);
-            border-radius: 20px;
+            padding: 6px 16px;
+            margin: 4px 16px;
+            background: rgba(0, 212, 255, 0.04);
+            border-radius: 18px;
+            flex-shrink: 0;
         }
 
         .bar {
@@ -69,16 +72,17 @@
         .controls {
             display: flex;
             justify-content: center;
-            gap: 8px;
-            padding: 8px 20px;
+            gap: 10px;
+            padding: 8px 16px;
+            flex-shrink: 0;
         }
 
         .btn {
-            padding: 5px 14px;
+            padding: 6px 18px;
             border: none;
-            border-radius: 20px;
+            border-radius: 24px;
             font-weight: 500;
-            font-size: 11px;
+            font-size: 12px;
             cursor: pointer;
             transition: all 0.2s;
             background: #1a1a24;
@@ -93,10 +97,11 @@
         .chat-area {
             flex: 1;
             overflow-y: auto;
-            padding: 16px;
+            padding: 12px 16px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
+            min-height: 0;
         }
 
         .message {
@@ -106,6 +111,7 @@
             font-size: 13px;
             line-height: 1.4;
             animation: fadeIn 0.2s ease;
+            word-wrap: break-word;
         }
 
         @keyframes fadeIn {
@@ -129,23 +135,24 @@
         .message.image {
             align-self: flex-start;
             background: #1a1a24;
-            padding: 8px;
+            padding: 6px;
             border-radius: 12px;
         }
 
         .message.image img {
-            max-width: 180px;
-            max-height: 180px;
+            max-width: 160px;
+            max-height: 160px;
             border-radius: 10px;
             cursor: pointer;
         }
 
         .input-area {
-            padding: 12px;
+            padding: 12px 16px;
             background: #111118;
             display: flex;
-            gap: 8px;
+            gap: 10px;
             border-top: 1px solid rgba(0, 212, 255, 0.1);
+            flex-shrink: 0;
         }
 
         .input-area input {
@@ -175,6 +182,7 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+            z-index: 100;
         }
 
         .mic-btn.listening {
@@ -197,6 +205,25 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 100;
+        }
+
+        .clear-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 90px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #1a1a24;
+            border: 1px solid #ff4444;
+            cursor: pointer;
+            font-size: 16px;
+            color: #ff4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
         }
 
         @keyframes pulse {
@@ -234,6 +261,17 @@
             max-height: 90%;
             border-radius: 12px;
         }
+
+        .historial-btn {
+            background: #1a1a24;
+            border: 1px solid #00d4ff;
+            color: #00d4ff;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -249,6 +287,7 @@
         <button class="btn" id="modoTextoBtn">texto</button>
         <button class="btn" id="modoVozBtn">voz</button>
         <button class="btn" id="toggleVozBtn">🔊</button>
+        <button class="historial-btn" id="historialBtn">📜 historial</button>
     </div>
 
     <div class="chat-area" id="chatArea"></div>
@@ -261,8 +300,10 @@
 
 <button class="mic-btn" id="micBtn">🎤</button>
 <button class="speak-btn" id="speakBtn">🔊</button>
+<button class="clear-btn" id="clearBtn">🗑️</button>
 
 <script>
+    // ==================== CONFIGURACIÓN ====================
     let vozActiva = true;
     let modoTexto = true;
     let escuchando = false;
@@ -270,6 +311,55 @@
     let esperandoRespuesta = false;
     let ultimoMensajeAI = "";
 
+    // Historial
+    let historial = [];
+    const STORAGE_KEY = "kiro_historial";
+
+    // Cargar historial guardado
+    function cargarHistorial() {
+        const guardado = localStorage.getItem(STORAGE_KEY);
+        if (guardado) {
+            historial = JSON.parse(guardado);
+            historial.forEach(msg => {
+                if (msg.tipo === 'user') addMessageToChat('user', msg.texto, false);
+                else if (msg.tipo === 'ai') addMessageToChat('ai', msg.texto, false);
+                else if (msg.tipo === 'image') mostrarImagenEnChat(msg.url, msg.prompt, false);
+            });
+        }
+    }
+
+    // Guardar historial
+    function guardarHistorial() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(historial));
+    }
+
+    // Limpiar historial
+    function limpiarHistorial() {
+        if (confirm('¿Borrar todo el historial?')) {
+            historial = [];
+            localStorage.removeItem(STORAGE_KEY);
+            document.getElementById('chatArea').innerHTML = '';
+            addMessageToChat('ai', 'Historial borrado', true);
+        }
+    }
+
+    // Mostrar diálogo de historial
+    function mostrarHistorial() {
+        if (historial.length === 0) {
+            alert('No hay mensajes guardados');
+            return;
+        }
+        let texto = '📜 HISTORIAL:\n\n';
+        historial.forEach((msg, i) => {
+            if (msg.tipo === 'user') texto += `👤 Tú: ${msg.texto}\n`;
+            else if (msg.tipo === 'ai') texto += `🤖 Kiro: ${msg.texto}\n`;
+            else if (msg.tipo === 'image') texto += `🎨 Imagen: ${msg.prompt}\n`;
+            if (i < historial.length - 1) texto += '\n';
+        });
+        alert(texto);
+    }
+
+    // Elementos
     const chatArea = document.getElementById('chatArea');
     const modoTextoBtn = document.getElementById('modoTextoBtn');
     const modoVozBtn = document.getElementById('modoVozBtn');
@@ -279,8 +369,11 @@
     const sendBtn = document.getElementById('sendBtn');
     const micBtn = document.getElementById('micBtn');
     const speakBtn = document.getElementById('speakBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const historialBtn = document.getElementById('historialBtn');
     const visualizer = document.getElementById('visualizer');
 
+    // Visualizador
     function crearVisualizador() {
         visualizer.innerHTML = '';
         for (let i = 0; i < 20; i++) {
@@ -313,6 +406,7 @@
         bars.forEach(bar => bar.style.height = '8px');
     }
 
+    // Voz
     function hablar(texto) {
         if (!vozActiva || !texto) return;
         if (window.speechSynthesis) window.speechSynthesis.cancel();
@@ -329,6 +423,7 @@
         if (ultimoMensajeAI && vozActiva) hablar(ultimoMensajeAI);
     }
 
+    // Imagen
     async function generarImagen(prompt) {
         let promptLimpio = prompt;
         const palabras = ["genera", "dibuja", "crea", "haz", "una imagen de", "un dibujo de", "imagen de", "dame"];
@@ -339,12 +434,16 @@
         return { url, prompt: promptLimpio };
     }
 
-    function mostrarImagen(url, prompt) {
+    function mostrarImagenEnChat(url, prompt, guardar = true) {
         const div = document.createElement('div');
         div.className = 'message image';
         div.innerHTML = `<img src="${url}" alt="${prompt}" onclick="verImagen(this.src)">`;
         chatArea.appendChild(div);
         div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        if (guardar) {
+            historial.push({ tipo: 'image', url: url, prompt: prompt });
+            guardarHistorial();
+        }
         ultimoMensajeAI = `[imagen] ${prompt}`;
     }
 
@@ -358,6 +457,7 @@
         document.body.appendChild(overlay);
     };
 
+    // IA
     async function preguntarIA(mensaje) {
         try {
             const url = `https://text.pollinations.ai/${encodeURIComponent(mensaje)}`;
@@ -367,16 +467,17 @@
         } catch { return null; }
     }
 
-    function addMessage(sender, text, isImage = false, imgUrl = null) {
-        if (isImage && imgUrl) {
-            mostrarImagen(imgUrl, text);
-            return;
-        }
+    // Mensajes
+    function addMessageToChat(sender, text, guardar = true) {
         const div = document.createElement('div');
         div.className = `message ${sender}`;
         div.textContent = text;
         chatArea.appendChild(div);
         div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        if (guardar) {
+            historial.push({ tipo: sender, texto: text });
+            guardarHistorial();
+        }
         if (sender === 'ai') {
             ultimoMensajeAI = text;
             if (vozActiva) setTimeout(() => hablar(text), 100);
@@ -390,20 +491,20 @@
         
         if (lower.includes('abre youtube')) {
             window.open('https://youtube.com', '_blank');
-            addMessage('ai', 'Abriendo YouTube');
+            addMessageToChat('ai', 'Abriendo YouTube');
             return;
         }
         if (lower.includes('abre google')) {
             window.open('https://google.com', '_blank');
-            addMessage('ai', 'Abriendo Google');
+            addMessageToChat('ai', 'Abriendo Google');
             return;
         }
         
         const palabrasImg = ["genera", "dibuja", "crea", "haz", "imagen de", "dibujo de"];
         if (palabrasImg.some(p => lower.includes(p))) {
             const img = await generarImagen(mensaje);
-            if (img.error) addMessage('ai', img.error);
-            else addMessage('ai', img.prompt, true, img.url);
+            if (img.error) addMessageToChat('ai', img.error);
+            else mostrarImagenEnChat(img.url, img.prompt);
             return;
         }
         
@@ -419,7 +520,7 @@
         if (!respuesta) respuesta = "No entendí. ¿Puedes repetir?";
         
         document.getElementById('thinking')?.remove();
-        addMessage('ai', respuesta);
+        addMessageToChat('ai', respuesta);
         esperandoRespuesta = false;
     }
 
@@ -427,10 +528,11 @@
         const msg = messageInput.value.trim();
         if (!msg) return;
         messageInput.value = '';
-        addMessage('user', msg);
+        addMessageToChat('user', msg);
         await procesar(msg);
     }
 
+    // Voz
     function iniciarReconocimiento() {
         const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRec) return;
@@ -444,7 +546,7 @@
         };
         rec.onresult = async (e) => {
             const texto = e.results[0][0].transcript;
-            addMessage('user', texto);
+            addMessageToChat('user', texto);
             await procesar(texto);
         };
         rec.onerror = () => {};
@@ -457,6 +559,7 @@
         rec.start();
     }
 
+    // Eventos
     modoTextoBtn.onclick = () => {
         modoTexto = true;
         inputArea.style.display = 'flex';
@@ -478,11 +581,17 @@
     messageInput.onkeypress = (e) => { if (e.key === 'Enter') enviar(); };
     micBtn.onclick = () => { if (!modoTexto && !escuchando) iniciarReconocimiento(); };
     speakBtn.onclick = leerUltimo;
+    clearBtn.onclick = limpiarHistorial;
+    historialBtn.onclick = mostrarHistorial;
 
+    // Inicializar
     modoTextoBtn.classList.add('btn-active');
     toggleVozBtn.style.background = '#00d4ff';
     toggleVozBtn.style.color = '#0a0a0f';
     inputArea.style.display = 'flex';
+    
+    // Cargar historial guardado
+    cargarHistorial();
 </script>
 </body>
 </html>
