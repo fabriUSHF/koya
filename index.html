@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIRO</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0f;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .kiro-container {
+            width: 100%;
+            max-width: 800px;
+            height: 90vh;
+            background: #0a0a0f;
+            border-radius: 24px;
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 20px 24px 12px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: 600;
+            color: #00d4ff;
+            letter-spacing: 2px;
+        }
+
+        .visualizer {
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3px;
+            padding: 8px 20px;
+            margin: 5px 20px;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 20px;
+        }
+
+        .bar {
+            width: 4px;
+            height: 10px;
+            background: #00d4ff;
+            border-radius: 2px;
+            transition: height 0.05s ease;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 20px;
+        }
+
+        .btn {
+            padding: 5px 14px;
+            border: none;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #1a1a24;
+            color: #8899bb;
+        }
+
+        .btn-active {
+            background: #00d4ff;
+            color: #0a0a0f;
+        }
+
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 8px 14px;
+            border-radius: 16px;
+            font-size: 13px;
+            line-height: 1.4;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: #00d4ff15;
+            border: 1px solid #00d4ff30;
+            color: #00d4ff;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+            background: #1a1a24;
+            color: #e1e4e8;
+        }
+
+        .message.image {
+            align-self: flex-start;
+            background: #1a1a24;
+            padding: 8px;
+            border-radius: 12px;
+        }
+
+        .message.image img {
+            max-width: 180px;
+            max-height: 180px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .input-area {
+            padding: 12px;
+            background: #111118;
+            display: flex;
+            gap: 8px;
+            border-top: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 24px;
+            background: #1a1a24;
+            color: #e1e4e8;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .mic-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #00d4ff;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #0a0a0f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+        }
+
+        .mic-btn.listening {
+            animation: pulse 1.5s infinite;
+            background: #ff4444;
+        }
+
+        .speak-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #1a1a24;
+            border: 1px solid #00d4ff;
+            cursor: pointer;
+            font-size: 20px;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .chat-area::-webkit-scrollbar {
+            width: 4px;
+        }
+        .chat-area::-webkit-scrollbar-track {
+            background: #1a1a24;
+        }
+        .chat-area::-webkit-scrollbar-thumb {
+            background: #00d4ff;
+            border-radius: 4px;
+        }
+
+        .image-preview {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            cursor: pointer;
+        }
+
+        .image-preview img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="kiro-container">
+    <div class="header">
+        <div class="title">KIRO</div>
+    </div>
+
+    <div class="visualizer" id="visualizer"></div>
+
+    <div class="controls">
+        <button class="btn" id="modoTextoBtn">texto</button>
+        <button class="btn" id="modoVozBtn">voz</button>
+        <button class="btn" id="toggleVozBtn">🔊</button>
+    </div>
+
+    <div class="chat-area" id="chatArea"></div>
+
+    <div class="input-area" id="inputArea">
+        <input type="text" id="messageInput" placeholder="mensaje">
+        <button class="btn" id="sendBtn" style="background:#00d4ff;color:#0a0a0f;">→</button>
+    </div>
+</div>
+
+<button class="mic-btn" id="micBtn">🎤</button>
+<button class="speak-btn" id="speakBtn">🔊</button>
+
+<script>
+    let vozActiva = true;
+    let modoTexto = true;
+    let escuchando = false;
+    let reconocimiento = null;
+    let esperandoRespuesta = false;
+    let ultimoMensajeAI = "";
+
+    const chatArea = document.getElementById('chatArea');
+    const modoTextoBtn = document.getElementById('modoTextoBtn');
+    const modoVozBtn = document.getElementById('modoVozBtn');
+    const toggleVozBtn = document.getElementById('toggleVozBtn');
+    const inputArea = document.getElementById('inputArea');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const micBtn = document.getElementById('micBtn');
+    const speakBtn = document.getElementById('speakBtn');
+    const visualizer = document.getElementById('visualizer');
+
+    function crearVisualizador() {
+        visualizer.innerHTML = '';
+        for (let i = 0; i < 20; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            visualizer.appendChild(bar);
+        }
+    }
+    crearVisualizador();
+    const bars = document.querySelectorAll('.bar');
+
+    let animando = false;
+    function animarVisualizador(intensidad = 0.5) {
+        if (animando) return;
+        animando = true;
+        function animar() {
+            if (!animando) return;
+            bars.forEach((bar, i) => {
+                const angle = (i / bars.length) * Math.PI * 2;
+                const height = 5 + (intensidad * 35) * (0.5 + 0.5 * Math.sin(angle + Date.now() / 120));
+                bar.style.height = `${Math.max(4, Math.min(40, height))}px`;
+            });
+            requestAnimationFrame(animar);
+        }
+        animar();
+    }
+
+    function detenerVisualizador() {
+        animando = false;
+        bars.forEach(bar => bar.style.height = '8px');
+    }
+
+    function hablar(texto) {
+        if (!vozActiva || !texto) return;
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        animarVisualizador(0.6);
+        const utterance = new SpeechSynthesisUtterance(texto);
+        utterance.lang = 'es-ES';
+        utterance.rate = 0.9;
+        utterance.onend = () => detenerVisualizador();
+        utterance.onerror = () => detenerVisualizador();
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function leerUltimo() {
+        if (ultimoMensajeAI && vozActiva) hablar(ultimoMensajeAI);
+    }
+
+    async function generarImagen(prompt) {
+        let promptLimpio = prompt;
+        const palabras = ["genera", "dibuja", "crea", "haz", "una imagen de", "un dibujo de", "imagen de", "dame"];
+        for (const p of palabras) promptLimpio = promptLimpio.replace(p, "");
+        promptLimpio = promptLimpio.trim();
+        if (!promptLimpio) return { error: "¿Qué quieres que dibuje?" };
+        const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptLimpio)}?width=512&height=512&nologo=true`;
+        return { url, prompt: promptLimpio };
+    }
+
+    function mostrarImagen(url, prompt) {
+        const div = document.createElement('div');
+        div.className = 'message image';
+        div.innerHTML = `<img src="${url}" alt="${prompt}" onclick="verImagen(this.src)">`;
+        chatArea.appendChild(div);
+        div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        ultimoMensajeAI = `[imagen] ${prompt}`;
+    }
+
+    window.verImagen = (src) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'image-preview';
+        overlay.onclick = () => overlay.remove();
+        const img = document.createElement('img');
+        img.src = src;
+        overlay.appendChild(img);
+        document.body.appendChild(overlay);
+    };
+
+    async function preguntarIA(mensaje) {
+        try {
+            const url = `https://text.pollinations.ai/${encodeURIComponent(mensaje)}`;
+            const res = await fetch(url);
+            if (res.ok) return await res.text();
+            return null;
+        } catch { return null; }
+    }
+
+    function addMessage(sender, text, isImage = false, imgUrl = null) {
+        if (isImage && imgUrl) {
+            mostrarImagen(imgUrl, text);
+            return;
+        }
+        const div = document.createElement('div');
+        div.className = `message ${sender}`;
+        div.textContent = text;
+        chatArea.appendChild(div);
+        div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        if (sender === 'ai') {
+            ultimoMensajeAI = text;
+            if (vozActiva) setTimeout(() => hablar(text), 100);
+        }
+    }
+
+    async function procesar(mensaje) {
+        if (!mensaje.trim() || esperandoRespuesta) return;
+        
+        const lower = mensaje.toLowerCase();
+        
+        if (lower.includes('abre youtube')) {
+            window.open('https://youtube.com', '_blank');
+            addMessage('ai', 'Abriendo YouTube');
+            return;
+        }
+        if (lower.includes('abre google')) {
+            window.open('https://google.com', '_blank');
+            addMessage('ai', 'Abriendo Google');
+            return;
+        }
+        
+        const palabrasImg = ["genera", "dibuja", "crea", "haz", "imagen de", "dibujo de"];
+        if (palabrasImg.some(p => lower.includes(p))) {
+            const img = await generarImagen(mensaje);
+            if (img.error) addMessage('ai', img.error);
+            else addMessage('ai', img.prompt, true, img.url);
+            return;
+        }
+        
+        esperandoRespuesta = true;
+        const thinking = document.createElement('div');
+        thinking.className = 'message ai';
+        thinking.textContent = '...';
+        thinking.id = 'thinking';
+        chatArea.appendChild(thinking);
+        thinking.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        
+        let respuesta = await preguntarIA(mensaje);
+        if (!respuesta) respuesta = "No entendí. ¿Puedes repetir?";
+        
+        document.getElementById('thinking')?.remove();
+        addMessage('ai', respuesta);
+        esperandoRespuesta = false;
+    }
+
+    async function enviar() {
+        const msg = messageInput.value.trim();
+        if (!msg) return;
+        messageInput.value = '';
+        addMessage('user', msg);
+        await procesar(msg);
+    }
+
+    function iniciarReconocimiento() {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) return;
+        const rec = new SpeechRec();
+        rec.lang = 'es-ES';
+        rec.onstart = () => {
+            escuchando = true;
+            micBtn.classList.add('listening');
+            micBtn.innerHTML = '🎙️';
+            animarVisualizador(0.5);
+        };
+        rec.onresult = async (e) => {
+            const texto = e.results[0][0].transcript;
+            addMessage('user', texto);
+            await procesar(texto);
+        };
+        rec.onerror = () => {};
+        rec.onend = () => {
+            escuchando = false;
+            micBtn.classList.remove('listening');
+            micBtn.innerHTML = '🎤';
+            detenerVisualizador();
+        };
+        rec.start();
+    }
+
+    modoTextoBtn.onclick = () => {
+        modoTexto = true;
+        inputArea.style.display = 'flex';
+        modoTextoBtn.classList.add('btn-active');
+        modoVozBtn.classList.remove('btn-active');
+    };
+    modoVozBtn.onclick = () => {
+        modoTexto = false;
+        inputArea.style.display = 'none';
+        modoTextoBtn.classList.remove('btn-active');
+        modoVozBtn.classList.add('btn-active');
+    };
+    toggleVozBtn.onclick = () => {
+        vozActiva = !vozActiva;
+        toggleVozBtn.style.background = vozActiva ? '#00d4ff' : '#1a1a24';
+        toggleVozBtn.style.color = vozActiva ? '#0a0a0f' : '#8899bb';
+    };
+    sendBtn.onclick = enviar;
+    messageInput.onkeypress = (e) => { if (e.key === 'Enter') enviar(); };
+    micBtn.onclick = () => { if (!modoTexto && !escuchando) iniciarReconocimiento(); };
+    speakBtn.onclick = leerUltimo;
+
+    modoTextoBtn.classList.add('btn-active');
+    toggleVozBtn.style.background = '#00d4ff';
+    toggleVozBtn.style.color = '#0a0a0f';
+    inputArea.style.display = 'flex';
+</script>
+</body>
+</html>
