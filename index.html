@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KIRO - Chats</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>KIRO</title>
     <style>
         * {
             margin: 0;
@@ -14,7 +14,7 @@
 
         body {
             background: #0a0a0f;
-            font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
             height: 100vh;
             overflow: hidden;
             position: fixed;
@@ -29,7 +29,7 @@
             width: 100%;
         }
 
-        /* Header con pestañas de chats */
+        /* Header con pestañas de chats (más pequeño) */
         .tabs-container {
             background: #0a0a0f;
             border-bottom: 1px solid rgba(0, 212, 255, 0.15);
@@ -39,36 +39,35 @@
         .tabs {
             display: flex;
             overflow-x: auto;
-            padding: 8px 12px;
-            gap: 8px;
+            padding: 6px 10px;
+            gap: 6px;
             scrollbar-width: thin;
         }
 
         .tab {
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
+            gap: 4px;
+            padding: 5px 12px;
             background: #1a1a24;
-            border-radius: 24px;
+            border-radius: 20px;
             cursor: pointer;
             white-space: nowrap;
-            transition: all 0.2s;
+            font-size: 12px;
             border: 1px solid transparent;
         }
 
         .tab.active {
             background: #00d4ff;
-            border-color: #00d4ff;
         }
 
         .tab.active .tab-name {
             color: #0a0a0f;
+            font-weight: 600;
         }
 
         .tab-name {
-            font-size: 13px;
-            font-weight: 500;
+            font-size: 12px;
             color: #e1e4e8;
         }
 
@@ -76,27 +75,23 @@
             background: none;
             border: none;
             color: #8899bb;
-            font-size: 16px;
+            font-size: 14px;
             cursor: pointer;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
         }
 
-        .tab-close:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
         .new-tab-btn {
             background: #00d4ff;
             border: none;
-            width: 34px;
-            height: 34px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            font-size: 20px;
+            font-size: 18px;
             cursor: pointer;
             color: #0a0a0f;
             display: flex;
@@ -105,38 +100,52 @@
             flex-shrink: 0;
         }
 
-        /* Panel de chat */
+        /* Visualizador más pequeño */
+        .visualizer {
+            height: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2px;
+            padding: 2px 12px;
+            margin: 4px 12px;
+            background: rgba(0, 212, 255, 0.04);
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+
+        .bar {
+            width: 2.5px;
+            height: 5px;
+            background: #00d4ff;
+            border-radius: 1px;
+            transition: height 0.05s ease;
+        }
+
+        /* Área de chat */
         .chat-panel {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            position: relative;
         }
 
         .chat-container {
             flex: 1;
             overflow-y: auto;
-            padding: 16px;
+            padding: 10px 12px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
         }
 
-        /* Mensajes */
         .message {
             max-width: 85%;
-            padding: 10px 14px;
-            border-radius: 20px;
-            font-size: 14px;
-            line-height: 1.4;
-            animation: fadeIn 0.2s ease;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            line-height: 1.35;
             word-wrap: break-word;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .message.user {
@@ -153,48 +162,45 @@
         }
 
         .message.image {
-            align-self: flex-start;
-            background: #1a1a24;
-            padding: 8px;
-            border-radius: 16px;
+            padding: 4px;
         }
 
         .message.image img {
-            max-width: 160px;
-            max-height: 160px;
-            border-radius: 12px;
+            max-width: 130px;
+            max-height: 130px;
+            border-radius: 10px;
             cursor: pointer;
         }
 
-        /* Input area con botones integrados */
+        /* Input compacto */
         .input-wrapper {
             background: #111118;
             border-top: 1px solid rgba(0, 212, 255, 0.1);
-            padding: 12px 16px;
+            padding: 8px 12px;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
             flex-shrink: 0;
         }
 
         .input-wrapper input {
             flex: 1;
-            padding: 12px 16px;
+            padding: 8px 12px;
             border: none;
-            border-radius: 28px;
+            border-radius: 24px;
             background: #1a1a24;
             color: #e1e4e8;
-            font-size: 15px;
+            font-size: 14px;
             outline: none;
         }
 
         .action-btn {
-            width: 44px;
-            height: 44px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             border: none;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -227,39 +233,17 @@
             50% { transform: scale(1.05); }
         }
 
-        /* Visualizador */
-        .visualizer {
-            height: 28px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 3px;
-            padding: 4px 16px;
-            margin: 0 12px;
-            background: rgba(0, 212, 255, 0.04);
-            border-radius: 14px;
-            flex-shrink: 0;
-        }
-
-        .bar {
-            width: 3px;
-            height: 6px;
-            background: #00d4ff;
-            border-radius: 2px;
-            transition: height 0.05s ease;
-        }
-
         /* Menú lateral */
         .sidebar {
             position: fixed;
             top: 0;
-            left: -280px;
-            width: 280px;
+            left: -260px;
+            width: 260px;
             height: 100%;
             background: #111118;
             border-right: 1px solid rgba(0, 212, 255, 0.2);
             z-index: 200;
-            transition: left 0.3s ease;
+            transition: left 0.25s ease;
             display: flex;
             flex-direction: column;
         }
@@ -269,7 +253,7 @@
         }
 
         .sidebar-header {
-            padding: 20px 16px;
+            padding: 14px 16px;
             border-bottom: 1px solid rgba(0, 212, 255, 0.1);
             display: flex;
             justify-content: space-between;
@@ -278,34 +262,29 @@
 
         .sidebar-header h3 {
             color: #00d4ff;
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .close-sidebar {
             background: none;
             border: none;
             color: #8899bb;
-            font-size: 24px;
+            font-size: 22px;
             cursor: pointer;
         }
 
         .chats-list {
             flex: 1;
             overflow-y: auto;
-            padding: 16px;
+            padding: 12px;
         }
 
         .chat-item {
             background: #1a1a24;
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 8px;
             cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .chat-item:hover {
-            background: #222230;
         }
 
         .chat-item.active {
@@ -313,10 +292,10 @@
         }
 
         .chat-title {
-            font-size: 14px;
+            font-size: 13px;
             color: #e1e4e8;
             font-weight: 500;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
         .chat-preview {
@@ -327,30 +306,30 @@
         .chat-date {
             font-size: 9px;
             color: #00d4ff;
-            margin-top: 6px;
+            margin-top: 5px;
         }
 
         .delete-chat {
             background: none;
             border: none;
             color: #ff4444;
-            font-size: 16px;
+            font-size: 13px;
             cursor: pointer;
-            margin-top: 6px;
+            margin-top: 5px;
             text-align: right;
         }
 
         .menu-btn {
             position: fixed;
-            top: 12px;
-            left: 12px;
-            width: 40px;
-            height: 40px;
+            top: 10px;
+            left: 10px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             background: #1a1a24;
             border: 1px solid #00d4ff;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 18px;
             color: #00d4ff;
             display: flex;
             align-items: center;
@@ -413,17 +392,13 @@
 
 <div class="app">
     <div class="tabs-container">
-        <div class="tabs" id="tabsContainer">
-            <!-- Pestañas dinámicas -->
-        </div>
+        <div class="tabs" id="tabsContainer"></div>
     </div>
 
     <div class="visualizer" id="visualizer"></div>
 
-    <div class="chat-panel" id="chatPanel">
-        <div class="chat-container" id="chatContainer">
-            <!-- Mensajes del chat actual -->
-        </div>
+    <div class="chat-panel">
+        <div class="chat-container" id="chatContainer"></div>
 
         <div class="input-wrapper">
             <button class="action-btn mic-action" id="micBtn">🎤</button>
@@ -441,9 +416,7 @@
         <h3>📜 CHATS</h3>
         <button class="close-sidebar" id="closeSidebar">×</button>
     </div>
-    <div class="chats-list" id="chatsList">
-        <!-- Lista de chats guardados -->
-    </div>
+    <div class="chats-list" id="chatsList"></div>
 </div>
 <div class="overlay" id="overlay"></div>
 
@@ -455,13 +428,10 @@
     let esperandoRespuesta = false;
     let chatActualId = null;
 
-    // Estructura de datos
     let chats = [];
     let nextId = 1;
-
     const STORAGE_KEY = "kiro_chats";
 
-    // Elementos
     const tabsContainer = document.getElementById('tabsContainer');
     const chatContainer = document.getElementById('chatContainer');
     const messageInput = document.getElementById('messageInput');
@@ -478,7 +448,7 @@
     // Visualizador
     function crearVisualizador() {
         visualizer.innerHTML = '';
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 18; i++) {
             const bar = document.createElement('div');
             bar.className = 'bar';
             visualizer.appendChild(bar);
@@ -495,8 +465,8 @@
             if (!animando) return;
             bars.forEach((bar, i) => {
                 const angle = (i / bars.length) * Math.PI * 2;
-                const height = 4 + (intensidad * 30) * (0.5 + 0.5 * Math.sin(angle + Date.now() / 120));
-                bar.style.height = `${Math.max(4, Math.min(35, height))}px`;
+                const height = 3 + (intensidad * 25) * (0.5 + 0.5 * Math.sin(angle + Date.now() / 120));
+                bar.style.height = `${Math.max(3, Math.min(28, height))}px`;
             });
             requestAnimationFrame(animar);
         }
@@ -505,10 +475,9 @@
 
     function detenerVisualizador() {
         animando = false;
-        bars.forEach(bar => bar.style.height = '6px');
+        bars.forEach(bar => bar.style.height = '5px');
     }
 
-    // Voz
     function hablar(texto) {
         if (!vozActiva || !texto) return;
         if (window.speechSynthesis) window.speechSynthesis.cancel();
@@ -521,7 +490,7 @@
         window.speechSynthesis.speak(utterance);
     }
 
-    // ==================== GESTIÓN DE CHATS ====================
+    // Gestión de chats
     function guardarChats() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(chats));
         renderizarTabs();
@@ -545,29 +514,24 @@
     function setChatActual(id) {
         chatActualId = id;
         const chat = chats.find(c => c.id === id);
-        if (chat) {
-            renderizarMensajes(chat);
-        }
+        if (chat) renderizarMensajes(chat);
         renderizarTabs();
         renderizarListaChats();
     }
 
     function eliminarChat(id) {
         if (chats.length === 1) {
-            alert("No puedes eliminar el último chat. Crea uno nuevo primero.");
+            alert("No puedes eliminar el último chat. Crea uno nuevo.");
             return;
         }
         chats = chats.filter(c => c.id !== id);
-        if (chatActualId === id) {
-            setChatActual(chats[0].id);
-        }
+        if (chatActualId === id) setChatActual(chats[0].id);
         guardarChats();
     }
 
     function agregarMensajeAlChat(chatId, texto, esUsuario, esImagen = false, imagenUrl = null) {
         const chat = chats.find(c => c.id === chatId);
         if (!chat) return;
-        
         const mensaje = {
             id: Date.now(),
             texto: texto,
@@ -576,17 +540,11 @@
             esImagen: esImagen,
             imagenUrl: imagenUrl
         };
-        
         chat.mensajes.push(mensaje);
         chat.ultimoMensaje = texto.substring(0, 50);
         chat.fecha = new Date().toLocaleString();
-        
         guardarChats();
-        
-        if (chatId === chatActualId) {
-            renderizarMensajes(chat);
-        }
-        
+        if (chatId === chatActualId) renderizarMensajes(chat);
         return mensaje;
     }
 
@@ -613,10 +571,7 @@
         chats.forEach(chat => {
             const tab = document.createElement('div');
             tab.className = `tab ${chatActualId === chat.id ? 'active' : ''}`;
-            tab.innerHTML = `
-                <span class="tab-name">${chat.nombre}</span>
-                <button class="tab-close" data-id="${chat.id}">×</button>
-            `;
+            tab.innerHTML = `<span class="tab-name">${chat.nombre}</span><button class="tab-close" data-id="${chat.id}">×</button>`;
             tab.onclick = (e) => {
                 if (e.target.classList.contains('tab-close')) return;
                 setChatActual(chat.id);
@@ -628,7 +583,6 @@
             };
             tabsContainer.appendChild(tab);
         });
-        
         const newBtn = document.createElement('button');
         newBtn.className = 'new-tab-btn';
         newBtn.innerHTML = '+';
@@ -652,8 +606,8 @@
                 setChatActual(chat.id);
                 cerrarMenu();
             };
-            const deleteBtn = item.querySelector('.delete-chat');
-            deleteBtn.onclick = (e) => {
+            const delBtn = item.querySelector('.delete-chat');
+            delBtn.onclick = (e) => {
                 e.stopPropagation();
                 eliminarChat(chat.id);
             };
@@ -661,21 +615,20 @@
         });
     }
 
-    // ==================== IA Y PROCESAMIENTO ====================
+    // IA y comandos
     async function generarImagen(prompt) {
-        let promptLimpio = prompt;
+        let limpio = prompt;
         const palabras = ["genera", "dibuja", "crea", "haz", "una imagen de", "un dibujo de", "imagen de", "dame"];
-        for (const p of palabras) promptLimpio = promptLimpio.replace(p, "");
-        promptLimpio = promptLimpio.trim();
-        if (!promptLimpio) return { error: "¿Qué quieres que dibuje?" };
-        const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptLimpio)}?width=512&height=512&nologo=true`;
-        return { url, prompt: promptLimpio };
+        for (const p of palabras) limpio = limpio.replace(p, "");
+        limpio = limpio.trim();
+        if (!limpio) return { error: "¿Qué quieres dibujar?" };
+        const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(limpio)}?width=512&height=512&nologo=true`;
+        return { url, prompt: limpio };
     }
 
     async function preguntarIA(mensaje) {
         try {
-            const url = `https://text.pollinations.ai/${encodeURIComponent(mensaje)}`;
-            const res = await fetch(url);
+            const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(mensaje)}`);
             if (res.ok) return await res.text();
             return null;
         } catch { return null; }
@@ -683,9 +636,7 @@
 
     async function procesarMensaje(texto) {
         if (!texto.trim() || esperandoRespuesta) return;
-        
         const lower = texto.toLowerCase();
-        
         if (lower.includes('abre youtube')) {
             window.open('https://youtube.com', '_blank');
             agregarMensajeAlChat(chatActualId, "Abriendo YouTube", false);
@@ -696,42 +647,26 @@
             agregarMensajeAlChat(chatActualId, "Abriendo Google", false);
             return;
         }
-        
-        const palabrasImg = ["genera", "dibuja", "crea", "haz", "imagen de", "dibujo de"];
-        if (palabrasImg.some(p => lower.includes(p))) {
+        const imgPalabras = ["genera", "dibuja", "crea", "haz", "imagen de", "dibujo de"];
+        if (imgPalabras.some(p => lower.includes(p))) {
             const img = await generarImagen(texto);
-            if (img.error) {
-                agregarMensajeAlChat(chatActualId, img.error, false);
-            } else {
-                agregarMensajeAlChat(chatActualId, img.prompt, false, true, img.url);
-            }
+            if (img.error) agregarMensajeAlChat(chatActualId, img.error, false);
+            else agregarMensajeAlChat(chatActualId, img.prompt, false, true, img.url);
             return;
         }
-        
         esperandoRespuesta = true;
-        
         const thinkingId = Date.now();
-        const mensajePensando = {
-            id: thinkingId,
-            texto: "...",
-            esUsuario: false,
-            timestamp: new Date().toLocaleTimeString(),
-            esImagen: false
-        };
         const chat = chats.find(c => c.id === chatActualId);
         if (chat) {
-            chat.mensajes.push(mensajePensando);
+            chat.mensajes.push({ id: thinkingId, texto: "...", esUsuario: false, esImagen: false });
             renderizarMensajes(chat);
         }
-        
         let respuesta = await preguntarIA(texto);
         if (!respuesta) respuesta = "No entendí. ¿Puedes repetir?";
-        
         if (chat) {
             chat.mensajes = chat.mensajes.filter(m => m.id !== thinkingId);
             agregarMensajeAlChat(chatActualId, respuesta, false);
         }
-        
         esperandoRespuesta = false;
     }
 
@@ -743,7 +678,6 @@
         await procesarMensaje(texto);
     }
 
-    // Reconocimiento de voz
     function iniciarReconocimiento() {
         const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRec) return;
@@ -772,35 +706,26 @@
 
     function leerUltimoMensaje() {
         const chat = chats.find(c => c.id === chatActualId);
-        if (chat && chat.mensajes.length > 0) {
+        if (chat && chat.mensajes.length) {
             const ultimo = chat.mensajes.filter(m => !m.esUsuario && !m.esImagen).pop();
             if (ultimo && vozActiva) hablar(ultimo.texto);
         }
     }
 
     window.verImagen = (src) => {
-        const overlayDiv = document.createElement('div');
-        overlayDiv.className = 'image-preview';
-        overlayDiv.onclick = () => overlayDiv.remove();
+        const div = document.createElement('div');
+        div.className = 'image-preview';
+        div.onclick = () => div.remove();
         const img = document.createElement('img');
         img.src = src;
-        overlayDiv.appendChild(img);
-        document.body.appendChild(overlayDiv);
+        div.appendChild(img);
+        document.body.appendChild(div);
     };
 
-    // Menú lateral
-    function abrirMenu() {
-        sidebar.classList.add('open');
-        overlay.classList.add('show');
-        renderizarListaChats();
-    }
+    // Menú
+    function abrirMenu() { sidebar.classList.add('open'); overlay.classList.add('show'); renderizarListaChats(); }
+    function cerrarMenu() { sidebar.classList.remove('open'); overlay.classList.remove('show'); }
 
-    function cerrarMenu() {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('show');
-    }
-
-    // Eventos
     sendBtn.onclick = enviarMensaje;
     messageInput.onkeypress = (e) => { if (e.key === 'Enter') enviarMensaje(); };
     micBtn.onclick = () => { if (!escuchando) iniciarReconocimiento(); };
@@ -816,22 +741,12 @@
             chats = JSON.parse(guardado);
             nextId = Math.max(...chats.map(c => c.id), 0) + 1;
         }
-        
-        if (chats.length === 0) {
-            const chatInicial = {
-                id: nextId++,
-                nombre: "Chat 1",
-                fecha: new Date().toLocaleString(),
-                mensajes: [],
-                ultimoMensaje: ""
-            };
-            chats.push(chatInicial);
+        if (!chats.length) {
+            chats.push({ id: nextId++, nombre: "Chat 1", fecha: new Date().toLocaleString(), mensajes: [], ultimoMensaje: "" });
             guardarChats();
         }
-        
         setChatActual(chats[0].id);
     }
-    
     init();
 </script>
 </body>
