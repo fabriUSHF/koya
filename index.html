@@ -18,722 +18,589 @@
     }
   </script>
   <style>
-    * { box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: #fafaf9; color: #1a1a1a; }
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #e5e5e5; border-radius: 99px; }
-
-    @keyframes msgIn {
-      from { opacity: 0; transform: translateY(12px); filter: blur(4px); }
-      to { opacity: 1; transform: translateY(0); filter: blur(0); }
-    }
-    .msg-enter { animation: msgIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-    @keyframes dotPulse {
-      0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
-      40% { opacity: 1; transform: scale(1); }
-    }
-    .typing-dot { animation: dotPulse 1.4s infinite; }
-    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); filter: blur(6px); }
-      to { opacity: 1; transform: translateY(0); filter: blur(0); }
-    }
-    .fade-in { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    .fade-in-d { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards; opacity: 0; }
-
-    .input-glow:focus-within { box-shadow: 0 0 0 3px rgba(184, 151, 106, 0.1); }
-
-    .msg-content pre { background: #1a1a1a; color: #e5e5e5; border-radius: 12px; padding: 16px; overflow-x: auto; margin: 12px 0; font-size: 13px; line-height: 1.6; }
-    .msg-content code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; }
-    .msg-content p code { background: #f0eeeb; color: #86623d; padding: 2px 7px; border-radius: 6px; font-size: 12px; }
-    .msg-content ul, .msg-content ol { margin: 8px 0; padding-left: 20px; }
-    .msg-content li { margin: 4px 0; }
-    .msg-content ul li { list-style-type: disc; }
-    .msg-content ol li { list-style-type: decimal; }
-    .msg-content p { margin: 6px 0; }
-    .msg-content strong { font-weight: 600; }
-    .msg-content em { font-style: italic; }
-    .msg-content h1,.msg-content h2,.msg-content h3 { font-weight: 600; margin: 16px 0 8px; }
-    .msg-content h1 { font-size: 1.25rem; }
-    .msg-content h2 { font-size: 1.1rem; }
-    .msg-content h3 { font-size: 1rem; }
-    .msg-content blockquote { border-left: 3px solid #d4d4d4; padding-left: 16px; color: #737373; margin: 12px 0; }
-    .msg-content a { color: #86623d; text-decoration: underline; text-underline-offset: 2px; }
-    .msg-content table { border-collapse: collapse; margin: 12px 0; width: 100%; font-size: 13px; }
-    .msg-content th,.msg-content td { border: 1px solid #e5e5e5; padding: 8px 12px; text-align: left; }
-    .msg-content th { background: #f5f5f4; font-weight: 500; }
-
-    .code-block-wrapper { position: relative; }
-    .copy-code-btn { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.1); border: none; color: #a3a3a3; padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
-    .copy-code-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
-
-    .sidebar-item { transition: all 0.2s ease; }
-    .sidebar-item:hover { background: #f0eeeb; }
-    .sidebar-item.active { background: #f0eeeb; }
-
-    .modal-bg { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
-    .modal-bg.open { opacity: 1; pointer-events: auto; }
-    .modal-box { transform: scale(0.96) translateY(16px); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-    .modal-bg.open .modal-box { transform: scale(1) translateY(0); }
-
-    #user-input { resize: none; min-height: 24px; max-height: 200px; field-sizing: content; }
-    .suggestion-chip { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-    .suggestion-chip:hover { border-color: #1a1a1a; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
-
-    .img-gen-btn { transition: all 0.2s; }
-    .img-gen-btn:hover { background: #f0eeeb; }
-    .img-gen-btn.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
-
-    .generated-image { border-radius: 16px; overflow: hidden; cursor: pointer; transition: transform 0.5s cubic-bezier(0.16,1,0.3,1); }
-    .generated-image:hover { transform: scale(1.02); }
-    .generated-image img { width: 100%; display: block; border-radius: 16px; }
-
-    @media (max-width: 768px) {
-      .sidebar-panel { transform: translateX(-100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-      .sidebar-panel.open { transform: translateX(0); }
-    }
+    *{box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;background:#fafaf9;color:#1a1a1a}
+    ::-webkit-scrollbar{width:4px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:#e5e5e5;border-radius:99px}
+    @keyframes msgIn{from{opacity:0;transform:translateY(12px);filter:blur(4px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
+    .msg-enter{animation:msgIn .5s cubic-bezier(.16,1,.3,1) forwards}
+    @keyframes dotPulse{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+    .typing-dot{animation:dotPulse 1.4s infinite}
+    .typing-dot:nth-child(2){animation-delay:.2s}
+    .typing-dot:nth-child(3){animation-delay:.4s}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(20px);filter:blur(6px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
+    .fade-in{animation:fadeIn .8s cubic-bezier(.16,1,.3,1) forwards}
+    .fade-in-d{animation:fadeIn .8s cubic-bezier(.16,1,.3,1) .15s forwards;opacity:0}
+    .input-glow:focus-within{box-shadow:0 0 0 3px rgba(184,151,106,.1)}
+    .msg-content pre{background:#1a1a1a;color:#e5e5e5;border-radius:12px;padding:16px;overflow-x:auto;margin:12px 0;font-size:13px;line-height:1.6}
+    .msg-content code{font-family:'SF Mono','Fira Code',monospace;font-size:13px}
+    .msg-content p code{background:#f0eeeb;color:#86623d;padding:2px 7px;border-radius:6px;font-size:12px}
+    .msg-content ul,.msg-content ol{margin:8px 0;padding-left:20px}
+    .msg-content li{margin:4px 0}
+    .msg-content ul li{list-style-type:disc}
+    .msg-content ol li{list-style-type:decimal}
+    .msg-content p{margin:6px 0}
+    .msg-content strong{font-weight:600}
+    .msg-content em{font-style:italic}
+    .msg-content h1,.msg-content h2,.msg-content h3{font-weight:600;margin:16px 0 8px}
+    .msg-content h1{font-size:1.25rem}.msg-content h2{font-size:1.1rem}.msg-content h3{font-size:1rem}
+    .msg-content blockquote{border-left:3px solid #d4d4d4;padding-left:16px;color:#737373;margin:12px 0}
+    .msg-content a{color:#86623d;text-decoration:underline;text-underline-offset:2px}
+    .msg-content table{border-collapse:collapse;margin:12px 0;width:100%;font-size:13px}
+    .msg-content th,.msg-content td{border:1px solid #e5e5e5;padding:8px 12px;text-align:left}
+    .msg-content th{background:#f5f5f4;font-weight:500}
+    .code-block-wrapper{position:relative}
+    .copy-code-btn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.1);border:none;color:#a3a3a3;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+    .copy-code-btn:hover{background:rgba(255,255,255,.2);color:#fff}
+    .sidebar-item{transition:all .2s ease}
+    .sidebar-item:hover{background:#f0eeeb}
+    .sidebar-item.active{background:#f0eeeb}
+    .modal-bg{opacity:0;pointer-events:none;transition:opacity .3s ease}
+    .modal-bg.open{opacity:1;pointer-events:auto}
+    .modal-box{transform:scale(.96) translateY(16px);transition:transform .5s cubic-bezier(.16,1,.3,1)}
+    .modal-bg.open .modal-box{transform:scale(1) translateY(0)}
+    #user-input{resize:none;min-height:24px;max-height:200px;field-sizing:content}
+    .suggestion-chip{transition:all .3s cubic-bezier(.16,1,.3,1)}
+    .suggestion-chip:hover{border-color:#1a1a1a;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06)}
+    .generated-image{border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .5s cubic-bezier(.16,1,.3,1)}
+    .generated-image:hover{transform:scale(1.02)}
+    .generated-image img{width:100%;display:block;border-radius:16px}
+    @media(max-width:768px){.sidebar-panel{transform:translateX(-100%);transition:transform .4s cubic-bezier(.16,1,.3,1)}.sidebar-panel.open{transform:translateX(0)}}
   </style>
 </head>
 <body class="antialiased h-screen overflow-hidden">
-  <div class="flex h-screen">
+<div class="flex h-screen">
 
-    <!-- SIDEBAR -->
-    <aside id="sidebar" class="hidden md:flex flex-col w-72 border-r border-neutral-100 bg-white/80 backdrop-blur-sm flex-shrink-0">
-      <div class="h-16 flex items-center justify-between px-5 border-b border-neutral-100/80">
-        <div class="flex items-center gap-2.5">
-          <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center">
-            <span class="text-white text-[10px] font-semibold">K</span>
-          </div>
-          <span class="font-serif text-lg tracking-[0.08em]">Koya</span>
-        </div>
-        <button onclick="newChat()" class="text-neutral-400 hover:text-neutral-600 transition-colors" title="Nuevo chat">
-          <iconify-icon icon="lucide:pen-line" width="16"></iconify-icon>
-        </button>
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="hidden md:flex flex-col w-72 border-r border-neutral-100 bg-white/80 backdrop-blur-sm flex-shrink-0">
+    <div class="h-16 flex items-center justify-between px-5 border-b border-neutral-100/80">
+      <div class="flex items-center gap-2.5">
+        <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center"><span class="text-white text-[10px] font-semibold">K</span></div>
+        <span class="font-serif text-lg tracking-[.08em]">Koya</span>
       </div>
-      <div class="flex-1 overflow-y-auto py-3 px-3">
-        <p class="text-[10px] tracking-[0.15em] uppercase text-neutral-400 font-medium px-2 mb-2">Hoy</p>
-        <div id="chat-list" class="space-y-0.5"></div>
-        <div id="chat-list-empty" class="text-center py-10">
-          <iconify-icon icon="lucide:message-circle" width="28" class="text-neutral-200"></iconify-icon>
-          <p class="text-[11px] text-neutral-300 mt-2">Sin conversaciones</p>
-        </div>
-      </div>
-      <div class="p-4 border-t border-neutral-100/80 space-y-1">
-        <button onclick="openApiKeyModal()" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left">
-          <iconify-icon icon="lucide:key" width="16" class="text-neutral-400"></iconify-icon>
-          <span class="text-sm font-light text-neutral-600">OpenAI (opcional)</span>
-          <span id="api-status-dot" class="ml-auto w-2 h-2 rounded-full bg-neutral-200"></span>
-        </button>
-      </div>
-    </aside>
+      <button onclick="newChat()" class="text-neutral-400 hover:text-neutral-600 transition-colors" title="Nuevo chat"><iconify-icon icon="lucide:pen-line" width="16"></iconify-icon></button>
+    </div>
+    <div class="flex-1 overflow-y-auto py-3 px-3">
+      <p class="text-[10px] tracking-[.15em] uppercase text-neutral-400 font-medium px-2 mb-2">Hoy</p>
+      <div id="chat-list" class="space-y-0.5"></div>
+      <div id="chat-list-empty" class="text-center py-10"><iconify-icon icon="lucide:message-circle" width="28" class="text-neutral-200"></iconify-icon><p class="text-[11px] text-neutral-300 mt-2">Sin conversaciones</p></div>
+    </div>
+    <div class="p-4 border-t border-neutral-100/80">
+      <button onclick="openApiKeyModal()" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left">
+        <iconify-icon icon="lucide:key" width="16" class="text-neutral-400"></iconify-icon>
+        <span class="text-sm font-light text-neutral-600">OpenAI (opcional)</span>
+        <span id="api-status-dot" class="ml-auto w-2 h-2 rounded-full bg-neutral-200"></span>
+      </button>
+    </div>
+  </aside>
 
-    <!-- Mobile sidebar -->
-    <div id="mobile-sidebar-bg" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 hidden md:hidden" onclick="closeMobileSidebar()"></div>
-    <aside id="mobile-sidebar" class="sidebar-panel fixed left-0 top-0 bottom-0 w-72 bg-white z-50 flex flex-col md:hidden">
-      <div class="h-16 flex items-center justify-between px-5 border-b border-neutral-100/80">
-        <div class="flex items-center gap-2.5">
-          <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center">
-            <span class="text-white text-[10px] font-semibold">K</span>
-          </div>
-          <span class="font-serif text-lg tracking-[0.08em]">Koya</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <button onclick="newChat()" class="text-neutral-400 hover:text-neutral-600 transition-colors"><iconify-icon icon="lucide:pen-line" width="16"></iconify-icon></button>
-          <button onclick="closeMobileSidebar()" class="text-neutral-400 hover:text-neutral-600 transition-colors"><iconify-icon icon="lucide:x" width="18"></iconify-icon></button>
-        </div>
+  <!-- Mobile sidebar -->
+  <div id="mobile-sidebar-bg" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 hidden md:hidden" onclick="closeMobileSidebar()"></div>
+  <aside id="mobile-sidebar" class="sidebar-panel fixed left-0 top-0 bottom-0 w-72 bg-white z-50 flex flex-col md:hidden">
+    <div class="h-16 flex items-center justify-between px-5 border-b border-neutral-100/80">
+      <div class="flex items-center gap-2.5">
+        <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center"><span class="text-white text-[10px] font-semibold">K</span></div>
+        <span class="font-serif text-lg tracking-[.08em]">Koya</span>
       </div>
-      <div class="flex-1 overflow-y-auto py-3 px-3">
-        <p class="text-[10px] tracking-[0.15em] uppercase text-neutral-400 font-medium px-2 mb-2">Hoy</p>
-        <div id="mobile-chat-list" class="space-y-0.5"></div>
+      <div class="flex items-center gap-2">
+        <button onclick="newChat()" class="text-neutral-400 hover:text-neutral-600 transition-colors"><iconify-icon icon="lucide:pen-line" width="16"></iconify-icon></button>
+        <button onclick="closeMobileSidebar()" class="text-neutral-400 hover:text-neutral-600 transition-colors"><iconify-icon icon="lucide:x" width="18"></iconify-icon></button>
       </div>
-      <div class="p-4 border-t border-neutral-100/80">
-        <button onclick="openApiKeyModal(); closeMobileSidebar();" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left">
-          <iconify-icon icon="lucide:key" width="16" class="text-neutral-400"></iconify-icon>
-          <span class="text-sm font-light text-neutral-600">OpenAI (opcional)</span>
-          <span class="ml-auto w-2 h-2 rounded-full bg-neutral-200" id="api-status-dot-mobile"></span>
-        </button>
-      </div>
-    </aside>
+    </div>
+    <div class="flex-1 overflow-y-auto py-3 px-3">
+      <p class="text-[10px] tracking-[.15em] uppercase text-neutral-400 font-medium px-2 mb-2">Hoy</p>
+      <div id="mobile-chat-list" class="space-y-0.5"></div>
+    </div>
+    <div class="p-4 border-t border-neutral-100/80">
+      <button onclick="openApiKeyModal();closeMobileSidebar()" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left">
+        <iconify-icon icon="lucide:key" width="16" class="text-neutral-400"></iconify-icon>
+        <span class="text-sm font-light text-neutral-600">OpenAI (opcional)</span>
+        <span class="ml-auto w-2 h-2 rounded-full bg-neutral-200" id="api-status-dot-mobile"></span>
+      </button>
+    </div>
+  </aside>
 
-    <!-- MAIN -->
-    <main class="flex-1 flex flex-col min-w-0 bg-[#fafaf9]">
-      <!-- Header -->
-      <header class="h-16 flex items-center justify-between px-4 md:px-6 border-b border-neutral-100/80 bg-white/60 backdrop-blur-md flex-shrink-0">
-        <div class="flex items-center gap-3">
-          <button onclick="openMobileSidebar()" class="md:hidden text-neutral-500 hover:text-neutral-700 transition-colors"><iconify-icon icon="lucide:menu" width="20"></iconify-icon></button>
-          <div>
-            <h1 id="chat-title" class="text-sm font-medium truncate max-w-[200px] md:max-w-none">Nueva conversación</h1>
-            <div class="flex items-center gap-1.5 mt-0.5">
-              <span id="model-badge" class="text-[10px] text-neutral-400 tracking-wide">Pollinations AI</span>
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center gap-1">
-          <button id="img-toggle-btn" onclick="toggleImageMode()" class="p-2.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-xl transition-all" title="Generar imagen">
-            <iconify-icon icon="lucide:image" width="16"></iconify-icon>
-          </button>
-          <button onclick="clearChat()" class="p-2.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-xl transition-all" title="Limpiar chat">
-            <iconify-icon icon="lucide:trash-2" width="16"></iconify-icon>
-          </button>
-          <button onclick="exportChat()" class="p-2.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-xl transition-all" title="Exportar">
-            <iconify-icon icon="lucide:download" width="16"></iconify-icon>
-          </button>
-        </div>
-      </header>
-
-      <!-- Messages -->
-      <div id="messages-container" class="flex-1 overflow-y-auto">
-        <!-- Welcome -->
-        <div id="welcome-screen" class="h-full flex flex-col items-center justify-center px-6 fade-in">
-          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center mb-6 shadow-lg shadow-[#b8976a]/10">
-            <span class="text-white text-xl font-serif italic">K</span>
-          </div>
-          <h2 class="font-serif text-2xl md:text-3xl tracking-[-0.02em]">Hola, soy Koya</h2>
-          <p class="mt-3 text-sm font-light text-neutral-400 text-center max-w-md leading-relaxed">
-            Tu asistente de IA. Funciona sin configuración — pregúntame lo que quieras.
-          </p>
-          <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg fade-in-d">
-            <button onclick="sendSuggestion('Explícame la teoría de la relatividad de forma sencilla')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white hover:bg-white group">
-              <div class="flex items-start gap-3">
-                <iconify-icon icon="lucide:atom" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon>
-                <p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Explícame la relatividad de forma sencilla</p>
-              </div>
-            </button>
-            <button onclick="sendSuggestion('Escribe un poema corto sobre el silencio')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white hover:bg-white group">
-              <div class="flex items-start gap-3">
-                <iconify-icon icon="lucide:feather" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon>
-                <p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Escribe un poema sobre el silencio</p>
-              </div>
-            </button>
-            <button onclick="sendSuggestion('Dame 5 ideas de startup para 2025')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white hover:bg-white group">
-              <div class="flex items-start gap-3">
-                <iconify-icon icon="lucide:lightbulb" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon>
-                <p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Dame 5 ideas de startup para 2025</p>
-              </div>
-            </button>
-            <button onclick="sendSuggestion('Crea una función en Python para ordenar una lista')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white hover:bg-white group">
-              <div class="flex items-start gap-3">
-                <iconify-icon icon="lucide:code-2" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon>
-                <p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Crea una función en Python para ordenar</p>
-              </div>
-            </button>
-          </div>
-          <div class="mt-8 flex items-center gap-4 text-[11px] text-neutral-300">
-            <span class="flex items-center gap-1.5"><iconify-icon icon="lucide:zap" width="12"></iconify-icon> Sin API Key</span>
-            <span class="flex items-center gap-1.5"><iconify-icon icon="lucide:image" width="12"></iconify-icon> Genera imágenes</span>
-            <span class="flex items-center gap-1.5"><iconify-icon icon="lucide:infinity" width="12"></iconify-icon> Sin límite</span>
-          </div>
-        </div>
-        <!-- Messages list -->
-        <div id="messages" class="max-w-3xl mx-auto px-4 md:px-6 py-6 space-y-6 hidden"></div>
-      </div>
-
-      <!-- Input -->
-      <div class="flex-shrink-0 border-t border-neutral-100/80 bg-white/60 backdrop-blur-md px-4 md:px-6 py-4">
-        <div class="max-w-3xl mx-auto">
-          <!-- Image mode indicator -->
-          <div id="img-mode-bar" class="hidden mb-3 flex items-center gap-2">
-            <div class="flex items-center gap-2 px-3 py-1.5 bg-[#f0eeeb] rounded-full">
-              <iconify-icon icon="lucide:image" width="13" class="text-[#86623d]"></iconify-icon>
-              <span class="text-[11px] text-[#86623d] font-medium tracking-wide">Modo imagen activado</span>
-              <button onclick="toggleImageMode()" class="text-[#86623d] hover:text-[#5c4430] ml-1"><iconify-icon icon="lucide:x" width="12"></iconify-icon></button>
-            </div>
-          </div>
-          <div class="input-glow flex items-end gap-3 bg-white border border-neutral-200 rounded-2xl px-4 py-3 transition-all duration-300">
-            <textarea id="user-input" placeholder="Escribe tu mensaje..." class="flex-1 text-sm font-light bg-transparent border-none placeholder:text-neutral-300 py-0 leading-relaxed focus:outline-none" rows="1" onkeydown="handleKeyDown(event)"></textarea>
-            <button id="send-btn" onclick="sendMessage()" class="p-1.5 text-neutral-300 hover:text-[#1a1a1a] transition-all duration-300 flex-shrink-0 mb-0.5 disabled:opacity-30" disabled>
-              <iconify-icon icon="lucide:arrow-up" width="18"></iconify-icon>
-            </button>
-          </div>
-          <p class="text-center text-[10px] text-neutral-300 mt-3 tracking-wide">Koya usa Pollinations AI · Gratuito y sin registro · <button onclick="openApiKeyModal()" class="underline hover:text-neutral-500 transition-colors">Conectar OpenAI</button></p>
+  <!-- MAIN -->
+  <main class="flex-1 flex flex-col min-w-0 bg-[#fafaf9]">
+    <header class="h-16 flex items-center justify-between px-4 md:px-6 border-b border-neutral-100/80 bg-white/60 backdrop-blur-md flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <button onclick="openMobileSidebar()" class="md:hidden text-neutral-500 hover:text-neutral-700 transition-colors"><iconify-icon icon="lucide:menu" width="20"></iconify-icon></button>
+        <div>
+          <h1 id="chat-title" class="text-sm font-medium truncate max-w-[200px] md:max-w-none">Nueva conversación</h1>
+          <span id="model-badge" class="text-[10px] text-neutral-400 tracking-wide">Pollinations AI</span>
         </div>
       </div>
-    </main>
-  </div>
+      <div class="flex items-center gap-1">
+        <button id="img-toggle-btn" onclick="toggleImageMode()" class="p-2.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-xl transition-all" title="Generar imagen"><iconify-icon icon="lucide:image" width="16"></iconify-icon></button>
+        <button onclick="clearChat()" class="p-2.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-xl transition-all" title="Limpiar"><iconify-icon icon="lucide:trash-2" width="16"></iconify-icon></button>
+        <button onclick="exportChat()" class="p-2.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-xl transition-all" title="Exportar"><iconify-icon icon="lucide:download" width="16"></iconify-icon></button>
+      </div>
+    </header>
 
-  <!-- API KEY MODAL -->
-  <div id="apikey-modal" class="modal-bg fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-center justify-center p-6">
-    <div class="modal-box bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-      <div class="p-8">
-        <div class="flex items-center justify-between mb-6">
-          <div>
-            <h3 class="font-serif text-xl">Conectar OpenAI</h3>
-            <p class="text-xs text-neutral-400 mt-1">Completamente opcional</p>
-          </div>
-          <button onclick="closeApiKeyModal()" class="text-neutral-300 hover:text-neutral-500 transition-colors"><iconify-icon icon="lucide:x" width="20"></iconify-icon></button>
+    <div id="messages-container" class="flex-1 overflow-y-auto">
+      <div id="welcome-screen" class="h-full flex flex-col items-center justify-center px-6 fade-in">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center mb-6 shadow-lg shadow-[#b8976a]/10"><span class="text-white text-xl font-serif italic">K</span></div>
+        <h2 class="font-serif text-2xl md:text-3xl tracking-[-.02em]">Hola, soy Koya</h2>
+        <p class="mt-3 text-sm font-light text-neutral-400 text-center max-w-md leading-relaxed">Tu asistente de IA. Funciona al instante, sin configuración.</p>
+        <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg fade-in-d">
+          <button onclick="sendSuggestion('Explícame la relatividad de forma sencilla')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:atom" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Explícame la relatividad de forma sencilla</p></div></button>
+          <button onclick="sendSuggestion('Escribe un poema corto sobre el silencio')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:feather" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Escribe un poema sobre el silencio</p></div></button>
+          <button onclick="sendSuggestion('Dame 5 ideas de startup para 2025')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:lightbulb" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Dame 5 ideas de startup para 2025</p></div></button>
+          <button onclick="sendSuggestion('Crea una función en Python para ordenar una lista')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:code-2" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Crea una función en Python para ordenar</p></div></button>
         </div>
-        <div class="bg-neutral-50 rounded-xl p-4 mb-6">
-          <p class="text-xs font-light text-neutral-500 leading-relaxed">
-            Koya ya funciona con <strong class="font-medium text-neutral-600">Pollinations AI</strong> sin necesidad de nada. Esto es solo si prefieres usar OpenAI (GPT-4o, etc.) como motor alternativo.
-          </p>
+        <div class="mt-8 flex items-center gap-4 text-[11px] text-neutral-300">
+          <span class="flex items-center gap-1.5"><iconify-icon icon="lucide:zap" width="12"></iconify-icon>Sin API Key</span>
+          <span class="flex items-center gap-1.5"><iconify-icon icon="lucide:image" width="12"></iconify-icon>Genera imágenes</span>
+          <span class="flex items-center gap-1.5"><iconify-icon icon="lucide:infinity" width="12"></iconify-icon>Sin límite</span>
         </div>
-        <div class="space-y-4">
-          <div>
-            <label class="text-[10px] tracking-[0.12em] uppercase text-neutral-400 font-medium">API Key de OpenAI</label>
-            <input id="apikey-input" type="password" placeholder="sk-proj-..." class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light transition-colors focus:outline-none focus:border-neutral-400">
+      </div>
+      <div id="messages" class="max-w-3xl mx-auto px-4 md:px-6 py-6 space-y-6 hidden"></div>
+    </div>
+
+    <div class="flex-shrink-0 border-t border-neutral-100/80 bg-white/60 backdrop-blur-md px-4 md:px-6 py-4">
+      <div class="max-w-3xl mx-auto">
+        <div id="img-mode-bar" class="hidden mb-3 flex items-center gap-2">
+          <div class="flex items-center gap-2 px-3 py-1.5 bg-[#f0eeeb] rounded-full">
+            <iconify-icon icon="lucide:image" width="13" class="text-[#86623d]"></iconify-icon>
+            <span class="text-[11px] text-[#86623d] font-medium tracking-wide">Modo imagen</span>
+            <button onclick="toggleImageMode()" class="text-[#86623d] hover:text-[#5c4430] ml-1"><iconify-icon icon="lucide:x" width="12"></iconify-icon></button>
           </div>
-          <div>
-            <label class="text-[10px] tracking-[0.12em] uppercase text-neutral-400 font-medium">Base URL <span class="normal-case tracking-normal">(solo proxy)</span></label>
-            <input id="baseurl-input" type="text" placeholder="https://api.openai.com/v1" class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light transition-colors focus:outline-none focus:border-neutral-400">
-          </div>
-          <div class="flex gap-3">
-            <button onclick="disconnectAPI()" class="flex-1 py-3 text-[11px] tracking-[0.12em] uppercase font-medium border border-neutral-200 rounded-xl text-neutral-500 hover:border-neutral-400 transition-colors">Desconectar</button>
-            <button onclick="saveApiKey()" class="flex-1 bg-[#1a1a1a] text-white py-3 text-[11px] tracking-[0.12em] uppercase font-medium rounded-xl hover:bg-neutral-800 transition-colors duration-300">Conectar</button>
-          </div>
+        </div>
+        <div class="input-glow flex items-end gap-3 bg-white border border-neutral-200 rounded-2xl px-4 py-3 transition-all duration-300">
+          <textarea id="user-input" placeholder="Escribe tu mensaje..." class="flex-1 text-sm font-light bg-transparent border-none placeholder:text-neutral-300 py-0 leading-relaxed focus:outline-none" rows="1" onkeydown="handleKeyDown(event)"></textarea>
+          <button id="send-btn" onclick="sendMessage()" class="p-1.5 text-neutral-300 hover:text-[#1a1a1a] transition-all duration-300 flex-shrink-0 mb-0.5 disabled:opacity-30" disabled><iconify-icon icon="lucide:arrow-up" width="18"></iconify-icon></button>
+        </div>
+        <p class="text-center text-[10px] text-neutral-300 mt-3 tracking-wide">Koya · Pollinations AI · Gratuito · <button onclick="openApiKeyModal()" class="underline hover:text-neutral-500 transition-colors">OpenAI opcional</button></p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- API KEY MODAL -->
+<div id="apikey-modal" class="modal-bg fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-center justify-center p-6">
+  <div class="modal-box bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+    <div class="p-8">
+      <div class="flex items-center justify-between mb-6">
+        <div><h3 class="font-serif text-xl">Conectar OpenAI</h3><p class="text-xs text-neutral-400 mt-1">Completamente opcional</p></div>
+        <button onclick="closeApiKeyModal()" class="text-neutral-300 hover:text-neutral-500 transition-colors"><iconify-icon icon="lucide:x" width="20"></iconify-icon></button>
+      </div>
+      <div class="bg-neutral-50 rounded-xl p-4 mb-6">
+        <p class="text-xs font-light text-neutral-500 leading-relaxed">Koya ya funciona con <strong class="font-medium text-neutral-600">Pollinations AI</strong> sin configurar nada. Esto es solo si quieres usar OpenAI como motor alternativo.</p>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">API Key</label>
+          <input id="apikey-input" type="password" placeholder="sk-proj-..." class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light transition-colors focus:outline-none focus:border-neutral-400">
+        </div>
+        <div>
+          <label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">Base URL <span class="normal-case tracking-normal">(solo proxy)</span></label>
+          <input id="baseurl-input" type="text" placeholder="https://api.openai.com/v1" class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light transition-colors focus:outline-none focus:border-neutral-400">
+        </div>
+        <div class="flex gap-3">
+          <button onclick="disconnectAPI()" class="flex-1 py-3 text-[11px] tracking-[.12em] uppercase font-medium border border-neutral-200 rounded-xl text-neutral-500 hover:border-neutral-400 transition-colors">Desconectar</button>
+          <button onclick="saveApiKey()" class="flex-1 bg-[#1a1a1a] text-white py-3 text-[11px] tracking-[.12em] uppercase font-medium rounded-xl hover:bg-neutral-800 transition-colors">Conectar</button>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- IMAGE PREVIEW -->
-  <div id="image-preview" class="fixed inset-0 z-[80] bg-black/90 backdrop-blur-sm flex items-center justify-center p-6 hidden cursor-pointer" onclick="closeImagePreview()">
-    <button class="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"><iconify-icon icon="lucide:x" width="24"></iconify-icon></button>
-    <img id="preview-img" src="" alt="" class="max-w-full max-h-[90vh] rounded-2xl shadow-2xl">
-  </div>
+<!-- IMAGE PREVIEW -->
+<div id="image-preview" class="fixed inset-0 z-[80] bg-black/90 backdrop-blur-sm flex items-center justify-center p-6 hidden cursor-pointer" onclick="closeImagePreview()">
+  <button class="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"><iconify-icon icon="lucide:x" width="24"></iconify-icon></button>
+  <img id="preview-img" src="" alt="" class="max-w-full max-h-[90vh] rounded-2xl shadow-2xl">
+</div>
 
-  <div id="toast-container" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[90] flex flex-col gap-2 items-center"></div>
+<div id="toast-container" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[90] flex flex-col gap-2 items-center"></div>
 
-  <script>
-    // ===== STATE =====
-    let API_KEY = localStorage.getItem('koya_apikey') || '';
-    let BASE_URL = localStorage.getItem('koya_baseurl') || 'https://api.openai.com/v1';
-    let MODEL = localStorage.getItem('koya_model') || 'gpt-4o-mini';
-    let SYSTEM_PROMPT = localStorage.getItem('koya_system') || 'Eres Koya, un asistente de IA minimalista, amable y conciso. Respondes en español por defecto. Usas formato markdown cuando es útil.';
-    let TEMPERATURE = parseFloat(localStorage.getItem('koya_temp') || '0.7');
-    let MAX_TOKENS = parseInt(localStorage.getItem('koya_maxtokens') || '4096');
+<script>
+  // ===== STATE =====
+  let API_KEY = localStorage.getItem('koya_apikey') || '';
+  let BASE_URL = localStorage.getItem('koya_baseurl') || 'https://api.openai.com/v1';
+  let MODEL = localStorage.getItem('koya_model') || 'gpt-4o-mini';
+  let SYSTEM_PROMPT = 'Eres Koya, un asistente de IA minimalista, amable y conciso. Respondes en español. Usas markdown cuando ayuda.';
+  let TEMPERATURE = 0.7;
+  let conversations = JSON.parse(localStorage.getItem('koya_conversations') || '[]');
+  let currentConvoId = null;
+  let messages = [];
+  let isStreaming = false;
+  let imageMode = false;
+  let isApiMode = false;
 
-    let conversations = JSON.parse(localStorage.getItem('koya_conversations') || '[]');
-    let currentConvoId = null;
-    let messages = [];
-    let isStreaming = false;
-    let imageMode = false;
-    let isApiMode = false;
-
-    // ===== INIT =====
-    document.addEventListener('DOMContentLoaded', () => {
-      updateApiStatus();
-      updateModeUI();
-      renderChatList();
-      updateSendButton();
-      document.getElementById('user-input').addEventListener('input', updateSendButton);
-      marked.setOptions({
-        highlight: (code, lang) => lang && hljs.getLanguage(lang) ? hljs.highlight(code, { language: lang }).value : hljs.highlightAuto(code).value,
-        breaks: true, gfm: true
-      });
+  // ===== INIT =====
+  document.addEventListener('DOMContentLoaded', () => {
+    updateApiStatus(); updateModeUI(); renderChatList(); updateSendButton();
+    document.getElementById('user-input').addEventListener('input', updateSendButton);
+    marked.setOptions({
+      highlight: (code, lang) => lang && hljs.getLanguage(lang) ? hljs.highlight(code, {language: lang}).value : hljs.highlightAuto(code).value,
+      breaks: true, gfm: true
     });
+  });
 
-    // ===== MODE =====
-    function updateModeUI() {
-      isApiMode = !!API_KEY;
-      document.getElementById('model-badge').textContent = isApiMode ? `OpenAI · ${MODEL}` : 'Pollinations AI';
-    }
+  function updateModeUI() {
+    isApiMode = !!API_KEY;
+    document.getElementById('model-badge').textContent = isApiMode ? 'OpenAI · ' + MODEL : 'Pollinations AI';
+  }
 
-    // ===== IMAGE MODE =====
-    function toggleImageMode() {
-      imageMode = !imageMode;
-      const bar = document.getElementById('img-mode-bar');
-      const btn = document.getElementById('img-toggle-btn');
-      bar.classList.toggle('hidden', !imageMode);
-      btn.classList.toggle('text-[#86623d]', imageMode);
-      btn.classList.toggle('bg-[#f0eeeb]', imageMode);
-      btn.classList.toggle('text-neutral-400', !imageMode);
-      btn.classList.toggle('bg-transparent', !imageMode);
-      if (imageMode) {
-        document.getElementById('user-input').placeholder = 'Describe la imagen que quieres generar...';
-      } else {
-        document.getElementById('user-input').placeholder = 'Escribe tu mensaje...';
-      }
-    }
+  function toggleImageMode() {
+    imageMode = !imageMode;
+    document.getElementById('img-mode-bar').classList.toggle('hidden', !imageMode);
+    const btn = document.getElementById('img-toggle-btn');
+    btn.classList.toggle('text-[#86623d]', imageMode);
+    btn.classList.toggle('bg-[#f0eeeb]', imageMode);
+    btn.classList.toggle('text-neutral-400', !imageMode);
+    document.getElementById('user-input').placeholder = imageMode ? 'Describe la imagen...' : 'Escribe tu mensaje...';
+  }
 
-    // ===== API KEY =====
-    function openApiKeyModal() {
-      document.getElementById('apikey-input').value = API_KEY;
-      document.getElementById('baseurl-input').value = BASE_URL === 'https://api.openai.com/v1' ? '' : BASE_URL;
-      document.getElementById('apikey-modal').classList.add('open');
-    }
-    function closeApiKeyModal() { document.getElementById('apikey-modal').classList.remove('open'); }
-    function saveApiKey() {
-      const key = document.getElementById('apikey-input').value.trim();
-      const url = document.getElementById('baseurl-input').value.trim() || 'https://api.openai.com/v1';
-      if (!key) { showToast('Ingresa una API Key válida', 'warn'); return; }
-      API_KEY = key; BASE_URL = url;
-      localStorage.setItem('koya_apikey', API_KEY);
-      localStorage.setItem('koya_baseurl', BASE_URL);
-      updateApiStatus(); updateModeUI(); closeApiKeyModal();
-      showToast('Conectado a OpenAI ✓');
-    }
-    function disconnectAPI() {
-      API_KEY = '';
-      localStorage.removeItem('koya_apikey');
-      updateApiStatus(); updateModeUI(); closeApiKeyModal();
-      showToast('Usando Pollinations AI — modo gratuito');
-    }
-    function updateApiStatus() {
-      const c = API_KEY ? 'bg-emerald-400' : 'bg-neutral-200';
-      document.querySelectorAll('#api-status-dot, #api-status-dot-mobile').forEach(el => { el.className = `ml-auto w-2 h-2 rounded-full ${c}`; });
-    }
+  // ===== API KEY =====
+  function openApiKeyModal() {
+    document.getElementById('apikey-input').value = API_KEY;
+    document.getElementById('baseurl-input').value = BASE_URL === 'https://api.openai.com/v1' ? '' : BASE_URL;
+    document.getElementById('apikey-modal').classList.add('open');
+  }
+  function closeApiKeyModal() { document.getElementById('apikey-modal').classList.remove('open'); }
+  function saveApiKey() {
+    const key = document.getElementById('apikey-input').value.trim();
+    const url = document.getElementById('baseurl-input').value.trim() || 'https://api.openai.com/v1';
+    if (!key) { showToast('Ingresa una API Key', 'warn'); return; }
+    API_KEY = key; BASE_URL = url;
+    localStorage.setItem('koya_apikey', API_KEY);
+    localStorage.setItem('koya_baseurl', BASE_URL);
+    updateApiStatus(); updateModeUI(); closeApiKeyModal();
+    showToast('Conectado a OpenAI ✓');
+  }
+  function disconnectAPI() {
+    API_KEY = ''; localStorage.removeItem('koya_apikey');
+    updateApiStatus(); updateModeUI(); closeApiKeyModal();
+    showToast('Pollinations AI activado');
+  }
+  function updateApiStatus() {
+    const c = API_KEY ? 'bg-emerald-400' : 'bg-neutral-200';
+    document.querySelectorAll('#api-status-dot,#api-status-dot-mobile').forEach(el => el.className = 'ml-auto w-2 h-2 rounded-full ' + c);
+  }
 
-    // ===== CONVERSATIONS =====
-    function newChat() {
-      currentConvoId = null; messages = [];
-      document.getElementById('chat-title').textContent = 'Nueva conversación';
-      document.getElementById('messages').innerHTML = '';
-      document.getElementById('messages').classList.add('hidden');
-      document.getElementById('welcome-screen').classList.remove('hidden');
-      renderChatList(); closeMobileSidebar();
+  // ===== CONVERSATIONS =====
+  function newChat() {
+    currentConvoId = null; messages = [];
+    document.getElementById('chat-title').textContent = 'Nueva conversación';
+    document.getElementById('messages').innerHTML = '';
+    document.getElementById('messages').classList.add('hidden');
+    document.getElementById('welcome-screen').classList.remove('hidden');
+    renderChatList(); closeMobileSidebar();
+  }
+  function renderChatList() {
+    [document.getElementById('chat-list'), document.getElementById('mobile-chat-list')].forEach(list => {
+      if (!list) return;
+      list.innerHTML = conversations.map(c => `
+        <button onclick="loadConversation('${c.id}')" class="sidebar-item ${c.id===currentConvoId?'active':''} w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left group">
+          <iconify-icon icon="lucide:message-square" width="14" class="text-neutral-300 flex-shrink-0"></iconify-icon>
+          <span class="text-sm font-light text-neutral-600 truncate flex-1">${c.title}</span>
+          <button onclick="event.stopPropagation();deleteConversation('${c.id}')" class="opacity-0 group-hover:opacity-100 text-neutral-300 hover:text-red-400 transition-all p-1"><iconify-icon icon="lucide:x" width="12"></iconify-icon></button>
+        </button>`).join('');
+    });
+    const el = document.getElementById('chat-list-empty');
+    if (el) el.style.display = conversations.length === 0 ? 'block' : 'none';
+  }
+  function saveConversation() {
+    if (messages.length === 0) return;
+    const title = messages[0].content.substring(0, 50) + (messages[0].content.length > 50 ? '…' : '');
+    if (currentConvoId) {
+      const idx = conversations.findIndex(c => c.id === currentConvoId);
+      if (idx !== -1) { conversations[idx].messages = [...messages]; conversations[idx].title = title; }
+    } else {
+      currentConvoId = Date.now().toString();
+      conversations.unshift({ id: currentConvoId, title, messages: [...messages] });
     }
-    function renderChatList() {
-      [document.getElementById('chat-list'), document.getElementById('mobile-chat-list')].forEach(list => {
-        if (!list) return;
-        list.innerHTML = conversations.map(c => `
-          <button onclick="loadConversation('${c.id}')" class="sidebar-item ${c.id === currentConvoId ? 'active' : ''} w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left group">
-            <iconify-icon icon="lucide:message-square" width="14" class="text-neutral-300 flex-shrink-0"></iconify-icon>
-            <span class="text-sm font-light text-neutral-600 truncate flex-1">${c.title}</span>
-            <button onclick="event.stopPropagation(); deleteConversation('${c.id}')" class="opacity-0 group-hover:opacity-100 text-neutral-300 hover:text-red-400 transition-all p-1"><iconify-icon icon="lucide:x" width="12"></iconify-icon></button>
-          </button>
-        `).join('');
-      });
-      const el = document.getElementById('chat-list-empty');
-      if (el) el.style.display = conversations.length === 0 ? 'block' : 'none';
+    document.getElementById('chat-title').textContent = title;
+    localStorage.setItem('koya_conversations', JSON.stringify(conversations));
+    renderChatList();
+  }
+  function loadConversation(id) {
+    const c = conversations.find(x => x.id === id);
+    if (!c) return;
+    currentConvoId = id; messages = [...c.messages];
+    document.getElementById('chat-title').textContent = c.title;
+    document.getElementById('welcome-screen').classList.add('hidden');
+    document.getElementById('messages').classList.remove('hidden');
+    const container = document.getElementById('messages');
+    container.innerHTML = '';
+    messages.forEach(m => {
+      if (m.image) appendImageToDOM(m.image, m.content, false);
+      else appendMessageToDOM(m.role, m.content, false);
+    });
+    scrollToBottom(); renderChatList(); closeMobileSidebar();
+  }
+  function deleteConversation(id) {
+    conversations = conversations.filter(c => c.id !== id);
+    localStorage.setItem('koya_conversations', JSON.stringify(conversations));
+    if (id === currentConvoId) newChat();
+    renderChatList();
+  }
+  function clearChat() { if (messages.length === 0) return; newChat(); showToast('Chat limpiado'); }
+
+  // ===== MESSAGES DOM =====
+  function appendMessageToDOM(role, content, animate) {
+    const container = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = 'flex gap-4 ' + (animate ? 'msg-enter' : '') + (role === 'user' ? ' justify-end' : '');
+    if (role === 'user') {
+      div.innerHTML = '<div class="max-w-[85%] md:max-w-[70%]"><div class="bg-[#1a1a1a] text-white px-5 py-3.5 rounded-2xl rounded-tr-md"><p class="text-sm font-light leading-relaxed whitespace-pre-wrap">' + escapeHTML(content) + '</p></div></div>';
+    } else {
+      div.innerHTML = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[75%] min-w-0"><div class="msg-content text-sm font-light leading-relaxed text-neutral-700">' + renderMarkdown(content) + '</div><div class="flex items-center gap-2 mt-2"><button onclick="copyMessage(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors" title="Copiar"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button></div></div>';
     }
-    function saveConversation() {
-      if (messages.length === 0) return;
-      const title = messages[0].content.substring(0, 50) + (messages[0].content.length > 50 ? '…' : '');
-      if (currentConvoId) {
-        const idx = conversations.findIndex(c => c.id === currentConvoId);
-        if (idx !== -1) { conversations[idx].messages = [...messages]; conversations[idx].title = title; }
-      } else {
-        currentConvoId = Date.now().toString();
-        conversations.unshift({ id: currentConvoId, title, messages: [...messages] });
-      }
-      document.getElementById('chat-title').textContent = title;
-      localStorage.setItem('koya_conversations', JSON.stringify(conversations));
-      renderChatList();
-    }
-    function loadConversation(id) {
-      const c = conversations.find(x => x.id === id);
-      if (!c) return;
-      currentConvoId = id; messages = [...c.messages];
-      document.getElementById('chat-title').textContent = c.title;
-      document.getElementById('welcome-screen').classList.add('hidden');
-      document.getElementById('messages').classList.remove('hidden');
+    container.appendChild(div);
+    addCopyButtons(div);
+  }
+  function appendImageToDOM(imageUrl, prompt, animate) {
+    const container = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = 'flex gap-4 ' + (animate ? 'msg-enter' : '');
+    div.innerHTML = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[60%] min-w-0"><div class="generated-image" onclick="openImagePreview(\'' + imageUrl + '\')"><img src="' + imageUrl + '" alt="' + escapeHTML(prompt) + '" loading="lazy"></div><p class="text-[11px] text-neutral-400 mt-2 italic">"' + escapeHTML(prompt) + '"</p></div>';
+    container.appendChild(div);
+  }
+  function renderMarkdown(t) { try { return marked.parse(t); } catch { return t.replace(/\n/g, '<br>'); } }
+  function escapeHTML(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function addCopyButtons(root) {
+    root.querySelectorAll('pre').forEach(pre => {
+      if (pre.parentElement.classList.contains('code-block-wrapper')) return;
+      const w = document.createElement('div'); w.className = 'code-block-wrapper';
+      pre.parentNode.insertBefore(w, pre); w.appendChild(pre);
+      const b = document.createElement('button'); b.className = 'copy-code-btn'; b.textContent = 'Copiar';
+      b.onclick = function() { navigator.clipboard.writeText(pre.textContent); this.textContent = '¡Copiado!'; setTimeout(() => this.textContent = 'Copiar', 2000); };
+      w.appendChild(b);
+    });
+  }
+  function showTypingIndicator() {
+    const container = document.getElementById('messages');
+    const div = document.createElement('div'); div.id = 'typing-indicator'; div.className = 'flex gap-4 msg-enter';
+    div.innerHTML = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="flex items-center gap-1.5 py-3 px-1"><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div></div>';
+    container.appendChild(div); scrollToBottom();
+  }
+  function removeTypingIndicator() { const el = document.getElementById('typing-indicator'); if (el) el.remove(); }
+
+  function appendStreamingContent(chunk) {
+    let streamEl = document.getElementById('streaming-message');
+    if (!streamEl) {
+      removeTypingIndicator();
       const container = document.getElementById('messages');
-      container.innerHTML = '';
-      messages.forEach(m => {
-        if (m.image) appendImageToDOM(m.image, m.content, false);
-        else appendMessageToDOM(m.role, m.content, false);
-      });
-      scrollToBottom(); renderChatList(); closeMobileSidebar();
+      const div = document.createElement('div'); div.id = 'streaming-message'; div.className = 'flex gap-4 msg-enter';
+      div.innerHTML = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[75%] min-w-0"><div class="msg-content text-sm font-light leading-relaxed text-neutral-700" id="streaming-content"></div></div>';
+      container.appendChild(div); streamEl = document.getElementById('streaming-message');
     }
-    function deleteConversation(id) {
-      conversations = conversations.filter(c => c.id !== id);
-      localStorage.setItem('koya_conversations', JSON.stringify(conversations));
-      if (id === currentConvoId) newChat();
-      renderChatList();
+    const contentEl = document.getElementById('streaming-content');
+    contentEl.dataset.full = (contentEl.dataset.full || '') + chunk;
+    contentEl.innerHTML = renderMarkdown(contentEl.dataset.full);
+    addCopyButtons(contentEl);
+    scrollToBottom();
+  }
+  function finalizeStreaming() {
+    const streamEl = document.getElementById('streaming-message');
+    if (streamEl) streamEl.removeAttribute('id');
+    const contentEl = document.getElementById('streaming-content');
+    if (contentEl) {
+      contentEl.removeAttribute('id'); contentEl.removeAttribute('data-full');
+      const actions = document.createElement('div'); actions.className = 'flex items-center gap-2 mt-2';
+      actions.innerHTML = '<button onclick="copyMessage(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors" title="Copiar"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button>';
+      contentEl.parentElement.appendChild(actions);
     }
-    function clearChat() { if (messages.length === 0) return; newChat(); showToast('Chat limpiado'); }
+  }
 
-    // ===== MESSAGES =====
-    function appendMessageToDOM(role, content, animate = true) {
-      const container = document.getElementById('messages');
-      const div = document.createElement('div');
-      div.className = `flex gap-4 ${animate ? 'msg-enter' : ''} ${role === 'user' ? 'justify-end' : ''}`;
-      if (role === 'user') {
-        div.innerHTML = `<div class="max-w-[85%] md:max-w-[70%]"><div class="bg-[#1a1a1a] text-white px-5 py-3.5 rounded-2xl rounded-tr-md"><p class="text-sm font-light leading-relaxed whitespace-pre-wrap">${escapeHTML(content)}</p></div></div>`;
-      } else {
-        div.innerHTML = `
-          <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div>
-          <div class="max-w-[85%] md:max-w-[75%] min-w-0">
-            <div class="msg-content text-sm font-light leading-relaxed text-neutral-700">${renderMarkdown(content)}</div>
-            <div class="flex items-center gap-2 mt-2">
-              <button onclick="copyMessage(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors" title="Copiar"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button>
-            </div>
-          </div>`;
-      }
-      container.appendChild(div);
-      addCopyButtons(div);
+  // ===== BUILD CONTEXT PROMPT (para GET) =====
+  function buildContextPrompt(userMsg) {
+    let ctx = '';
+    if (SYSTEM_PROMPT) ctx += '[Instrucciones del sistema]: ' + SYSTEM_PROMPT + '\n\n';
+    // Incluir últimas 10 mensajes de historial para contexto
+    const recent = messages.slice(-10);
+    for (const m of recent) {
+      if (m.role === 'user') ctx += '[Usuario]: ' + m.content + '\n';
+      else if (!m.image) ctx += '[Asistente]: ' + m.content + '\n';
     }
+    ctx += '[Usuario]: ' + userMsg + '\n[Asistente]: ';
+    return ctx;
+  }
 
-    function appendImageToDOM(imageUrl, prompt, animate = true) {
-      const container = document.getElementById('messages');
-      const div = document.createElement('div');
-      div.className = `flex gap-4 ${animate ? 'msg-enter' : ''}`;
-      div.innerHTML = `
-        <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div>
-        <div class="max-w-[85%] md:max-w-[60%] min-w-0">
-          <div class="generated-image" onclick="openImagePreview('${imageUrl}')">
-            <img src="${imageUrl}" alt="${escapeHTML(prompt)}" loading="lazy">
-          </div>
-          <p class="text-[11px] text-neutral-400 mt-2 italic">"${escapeHTML(prompt)}"</p>
-        </div>`;
-      container.appendChild(div);
-    }
+  // ===== SEND =====
+  async function sendMessage() {
+    const input = document.getElementById('user-input');
+    const text = input.value.trim();
+    if (!text || isStreaming) return;
+    document.getElementById('welcome-screen').classList.add('hidden');
+    document.getElementById('messages').classList.remove('hidden');
 
-    function renderMarkdown(t) { try { return marked.parse(t); } catch { return t.replace(/\n/g, '<br>'); } }
-    function escapeHTML(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-    function addCopyButtons(root) {
-      root.querySelectorAll('pre').forEach(pre => {
-        if (pre.parentElement.classList.contains('code-block-wrapper')) return;
-        const w = document.createElement('div'); w.className = 'code-block-wrapper';
-        pre.parentNode.insertBefore(w, pre); w.appendChild(pre);
-        const b = document.createElement('button'); b.className = 'copy-code-btn'; b.textContent = 'Copiar';
-        b.onclick = function() { navigator.clipboard.writeText(pre.textContent); this.textContent = '¡Copiado!'; setTimeout(() => this.textContent = 'Copiar', 2000); };
-        w.appendChild(b);
-      });
-    }
-
-    function showTypingIndicator() {
-      const container = document.getElementById('messages');
-      const div = document.createElement('div'); div.id = 'typing-indicator'; div.className = 'flex gap-4 msg-enter';
-      div.innerHTML = `<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div>
-        <div class="flex items-center gap-1.5 py-3 px-1"><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div></div>`;
-      container.appendChild(div); scrollToBottom();
-    }
-    function removeTypingIndicator() { const el = document.getElementById('typing-indicator'); if (el) el.remove(); }
-
-    function appendStreamingContent(chunk) {
-      let streamEl = document.getElementById('streaming-message');
-      if (!streamEl) {
-        removeTypingIndicator();
-        const container = document.getElementById('messages');
-        const div = document.createElement('div'); div.id = 'streaming-message'; div.className = 'flex gap-4 msg-enter';
-        div.innerHTML = `<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div>
-          <div class="max-w-[85%] md:max-w-[75%] min-w-0"><div class="msg-content text-sm font-light leading-relaxed text-neutral-700" id="streaming-content"></div></div>`;
-        container.appendChild(div); streamEl = document.getElementById('streaming-message');
-      }
-      const contentEl = document.getElementById('streaming-content');
-      contentEl.dataset.full = (contentEl.dataset.full || '') + chunk;
-      contentEl.innerHTML = renderMarkdown(contentEl.dataset.full);
-      addCopyButtons(contentEl);
-      scrollToBottom();
-    }
-    function finalizeStreaming() {
-      const streamEl = document.getElementById('streaming-message');
-      if (streamEl) streamEl.removeAttribute('id');
-      const contentEl = document.getElementById('streaming-content');
-      if (contentEl) {
-        contentEl.removeAttribute('id'); contentEl.removeAttribute('data-full');
-        const parentDiv = contentEl.parentElement;
-        const actions = document.createElement('div'); actions.className = 'flex items-center gap-2 mt-2';
-        actions.innerHTML = `<button onclick="copyMessage(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors" title="Copiar"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button>`;
-        parentDiv.appendChild(actions);
-      }
-    }
-
-    // ===== SEND =====
-    async function sendMessage() {
-      const input = document.getElementById('user-input');
-      const text = input.value.trim();
-      if (!text || isStreaming) return;
-
-      document.getElementById('welcome-screen').classList.add('hidden');
-      document.getElementById('messages').classList.remove('hidden');
-
-      // Image mode
-      if (imageMode) {
-        messages.push({ role: 'user', content: text, image: null });
-        appendMessageToDOM('user', text);
-        input.value = ''; input.style.height = 'auto'; updateSendButton(); scrollToBottom();
-        isStreaming = true; updateSendButton(); showTypingIndicator();
-        await generateImage(text);
-        isStreaming = false; updateSendButton();
-        return;
-      }
-
+    if (imageMode) {
       messages.push({ role: 'user', content: text, image: null });
       appendMessageToDOM('user', text);
       input.value = ''; input.style.height = 'auto'; updateSendButton(); scrollToBottom();
-
       isStreaming = true; updateSendButton(); showTypingIndicator();
-
-      if (isApiMode) {
-        await sendToOpenAI();
-      } else {
-        await sendToPollinations();
-      }
+      await generateImage(text);
       isStreaming = false; updateSendButton();
+      return;
     }
 
-    // ===== POLLINATIONS AI =====
-    async function sendToPollinations() {
-      try {
-        const apiMessages = [];
-        if (SYSTEM_PROMPT) apiMessages.push({ role: 'system', content: SYSTEM_PROMPT });
-        apiMessages.push(...messages.map(m => ({ role: m.role, content: m.content })));
+    messages.push({ role: 'user', content: text, image: null });
+    appendMessageToDOM('user', text);
+    input.value = ''; input.style.height = 'auto'; updateSendButton(); scrollToBottom();
+    isStreaming = true; updateSendButton(); showTypingIndicator();
 
-        const res = await fetch('https://text.pollinations.ai/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages: apiMessages,
-            model: 'openai',
-            temperature: TEMPERATURE,
-            seed: Math.floor(Math.random() * 100000)
-          })
-        });
-
-        if (!res.ok) throw new Error(`Error del servicio: ${res.status}`);
-
-        const fullText = await res.text();
-        removeTypingIndicator();
-
-        // Simular streaming palabra a palabra
-        const words = fullText.split(/(\s+)/);
-        let accumulated = '';
-        for (let i = 0; i < words.length; i++) {
-          accumulated += words[i];
-          // Render every few words for performance
-          if (i % 3 === 0 || i === words.length - 1) {
-            appendStreamingContent(words.slice(Math.max(0, i - 2), i + 1).join(''));
-            await sleep(15 + Math.random() * 20);
-          }
-        }
-
-        finalizeStreaming();
-        messages.push({ role: 'assistant', content: fullText, image: null });
-        saveConversation();
-
-      } catch (err) {
-        removeTypingIndicator();
-        appendMessageToDOM('assistant', `Lo siento, hubo un problema de conexión: ${err.message}\n\nIntenta de nuevo en un momento.`);
-      }
+    if (isApiMode) {
+      await sendToOpenAI(text);
+    } else {
+      await sendToPollinations(text);
     }
+    isStreaming = false; updateSendButton();
+  }
 
-    // ===== OPENAI =====
-    async function sendToOpenAI() {
-      let fullResponse = '';
-      try {
-        const apiMessages = [];
-        if (SYSTEM_PROMPT) apiMessages.push({ role: 'system', content: SYSTEM_PROMPT });
-        apiMessages.push(...messages.map(m => ({ role: m.role, content: m.content })));
+  // ===== POLLINATIONS (GET — funciona sin CORS) =====
+  async function sendToPollinations(userMsg) {
+    try {
+      const fullPrompt = buildContextPrompt(userMsg);
+      const url = 'https://text.pollinations.ai/' + encodeURIComponent(fullPrompt) + '?model=openai&seed=' + Math.floor(Math.random() * 999999);
 
-        const res = await fetch(`${BASE_URL}/chat/completions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
-          body: JSON.stringify({ model: MODEL, messages: apiMessages, temperature: TEMPERATURE, max_tokens: MAX_TOKENS, stream: true })
-        });
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error?.message || `Error ${res.status}`);
-        }
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n'); buffer = lines.pop() || '';
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (!trimmed || !trimmed.startsWith('data:')) continue;
-            const data = trimmed.slice(5).trim();
-            if (data === '[DONE]') break;
-            try {
-              const parsed = JSON.parse(data);
-              const delta = parsed.choices?.[0]?.delta?.content;
-              if (delta) { fullResponse += delta; appendStreamingContent(delta); }
-            } catch {}
-          }
-        }
-        finalizeStreaming();
-        messages.push({ role: 'assistant', content: fullResponse, image: null });
-        saveConversation();
-      } catch (err) {
-        removeTypingIndicator();
-        if (err.message.includes('401') || err.message.includes('Incorrect API key')) {
-          API_KEY = ''; localStorage.removeItem('koya_apikey');
-          updateApiStatus(); updateModeUI();
-          appendMessageToDOM('assistant', `API Key inválida. He vuelto a **Pollinations AI** (modo gratuito).\n\nPara reconectar OpenAI, ve al menú lateral.`);
-          showToast('API Key inválida — modo Pollinations activado', 'warn');
-        } else {
-          appendMessageToDOM('assistant', `Error con OpenAI: ${err.message}\n\nIntentando con Pollinations...`);
-          await sendToPollinations();
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Error ' + res.status);
+
+      const fullText = await res.text();
+      removeTypingIndicator();
+
+      // Simular streaming
+      const words = fullText.split(/(\s+)/);
+      let accumulated = '';
+      for (let i = 0; i < words.length; i++) {
+        accumulated += words[i];
+        if (i % 3 === 0 || i === words.length - 1) {
+          appendStreamingContent(words.slice(Math.max(0, i - 2), i + 1).join(''));
+          await sleep(12 + Math.random() * 18);
         }
       }
+      finalizeStreaming();
+      messages.push({ role: 'assistant', content: fullText, image: null });
+      saveConversation();
+    } catch (err) {
+      removeTypingIndicator();
+      appendMessageToDOM('assistant', 'No pude conectar: ' + err.message + '\n\nVerifica tu conexión a internet e intenta de nuevo.');
     }
+  }
 
-    // ===== IMAGE GENERATION =====
-    async function generateImage(prompt) {
-      try {
-        let clean = prompt;
-        ['genera', 'dibuja', 'crea', 'haz', 'una imagen de', 'un dibujo de', 'imagen de', 'dibujo de'].forEach(w => {
-          clean = clean.replace(new RegExp(w, 'gi'), '');
-        });
-        clean = clean.trim();
-        if (!clean) { removeTypingIndicator(); appendMessageToDOM('assistant', '¿Qué imagen quieres que genere?'); return; }
-
-        const seed = Math.floor(Math.random() * 999999);
-        const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(clean)}?width=768&height=768&seed=${seed}&nologo=true&model=flux`;
-
-        removeTypingIndicator();
-        appendImageToDOM(imageUrl, clean);
-        messages.push({ role: 'assistant', content: clean, image: imageUrl });
-        saveConversation();
-      } catch (err) {
-        removeTypingIndicator();
-        appendMessageToDOM('assistant', `No pude generar la imagen: ${err.message}`);
-      }
-    }
-
-    function openImagePreview(src) {
-      document.getElementById('preview-img').src = src;
-      document.getElementById('image-preview').classList.remove('hidden');
-    }
-    function closeImagePreview() {
-      document.getElementById('image-preview').classList.add('hidden');
-    }
-
-    function sendSuggestion(t) { document.getElementById('user-input').value = t; sendMessage(); }
-    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-    // ===== UTILITIES =====
-    function scrollToBottom() { requestAnimationFrame(() => { document.getElementById('messages-container').scrollTop = document.getElementById('messages-container').scrollHeight; }); }
-    function updateSendButton() {
-      const input = document.getElementById('user-input'); const btn = document.getElementById('send-btn');
-      btn.disabled = !input.value.trim() || isStreaming;
-      btn.innerHTML = isStreaming ? '<iconify-icon icon="lucide:loader-2" width="18" class="animate-spin"></iconify-icon>' : '<iconify-icon icon="lucide:arrow-up" width="18"></iconify-icon>';
-    }
-    function handleKeyDown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
-    function copyMessage(btn) {
-      const msgDiv = btn.closest('.max-w-\\[85\\%\\]') || btn.parentElement.previousElementSibling;
-      navigator.clipboard.writeText((msgDiv?.innerText || '').trim()).then(() => showToast('Copiado ✓'));
-    }
-    function exportChat() {
-      if (messages.length === 0) { showToast('No hay mensajes', 'warn'); return; }
-      let t = `# Koya — Conversación\n\n`;
-      messages.forEach(m => {
-        if (m.image) t += `**Koya:** [Imagen: ${m.content}](${m.image})\n\n`;
-        else t += m.role === 'user' ? `**Tú:**\n${m.content}\n\n` : `**Koya:**\n${m.content}\n\n`;
+  // ===== OPENAI (POST con streaming) =====
+  async function sendToOpenAI(userMsg) {
+    let fullResponse = '';
+    try {
+      const apiMessages = [];
+      if (SYSTEM_PROMPT) apiMessages.push({ role: 'system', content: SYSTEM_PROMPT });
+      apiMessages.push(...messages.map(m => ({ role: m.role, content: m.content })));
+      const res = await fetch(BASE_URL + '/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API_KEY },
+        body: JSON.stringify({ model: MODEL, messages: apiMessages, temperature: TEMPERATURE, max_tokens: 4096, stream: true })
       });
-      t += `\n---\nMotor: ${isApiMode ? 'OpenAI ' + MODEL : 'Pollinations AI'} | ${new Date().toLocaleString()}`;
-      const blob = new Blob([t], { type: 'text/markdown' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = `koya-${Date.now()}.md`; a.click(); URL.revokeObjectURL(url);
-      showToast('Exportado ✓');
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error?.message || 'Error ' + res.status);
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n'); buffer = lines.pop() || '';
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed || !trimmed.startsWith('data:')) continue;
+          const data = trimmed.slice(5).trim();
+          if (data === '[DONE]') break;
+          try {
+            const parsed = JSON.parse(data);
+            const delta = parsed.choices?.[0]?.delta?.content;
+            if (delta) { fullResponse += delta; appendStreamingContent(delta); }
+          } catch {}
+        }
+      }
+      finalizeStreaming();
+      messages.push({ role: 'assistant', content: fullResponse, image: null });
+      saveConversation();
+    } catch (err) {
+      removeTypingIndicator();
+      if (err.message.includes('401') || err.message.includes('Incorrect API key')) {
+        API_KEY = ''; localStorage.removeItem('koya_apikey');
+        updateApiStatus(); updateModeUI();
+        appendMessageToDOM('assistant', 'API Key inválida. Volviendo a **Pollinations AI**.\n\nPara reconectar, ve al menú lateral.');
+        showToast('Key inválida — Pollinations activado', 'warn');
+      } else {
+        appendMessageToDOM('assistant', 'Error con OpenAI: ' + err.message + '\n\nIntentando con Pollinations...');
+        await sendToPollinations(userMsg);
+      }
     }
-    function openMobileSidebar() { document.getElementById('mobile-sidebar-bg').classList.remove('hidden'); document.getElementById('mobile-sidebar').classList.add('open'); }
-    function closeMobileSidebar() { document.getElementById('mobile-sidebar-bg').classList.add('hidden'); document.getElementById('mobile-sidebar').classList.remove('open'); }
+  }
 
-    function showToast(message, type = 'success') {
-      const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      const icons = { success: 'lucide:check-circle', warn: 'lucide:alert-circle', info: 'lucide:info' };
-      const colors = { success: 'text-[#b8976a]', warn: 'text-amber-500', info: 'text-neutral-400' };
-      toast.className = 'bg-white rounded-xl shadow-lg border border-neutral-100 px-5 py-3 flex items-center gap-3';
-      toast.style.cssText = 'transform:translateY(16px);opacity:0;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);';
-      toast.innerHTML = `<iconify-icon icon="${icons[type]}" width="16" class="${colors[type]}"></iconify-icon><span class="text-xs font-light text-neutral-600">${message}</span>`;
-      container.appendChild(toast);
-      requestAnimationFrame(() => { toast.style.transform = 'translateY(0)'; toast.style.opacity = '1'; });
-      setTimeout(() => { toast.style.transform = 'translateY(16px)'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 3000);
+  // ===== IMAGE =====
+  async function generateImage(prompt) {
+    try {
+      let clean = prompt;
+      ['genera','dibuja','crea','haz','una imagen de','un dibujo de','imagen de','dibujo de'].forEach(w => { clean = clean.replace(new RegExp(w, 'gi'), ''); });
+      clean = clean.trim();
+      if (!clean) { removeTypingIndicator(); appendMessageToDOM('assistant', '¿Qué imagen quieres generar?'); return; }
+      const seed = Math.floor(Math.random() * 999999);
+      const imageUrl = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(clean) + '?width=768&height=768&seed=' + seed + '&nologo=true&model=flux';
+      removeTypingIndicator();
+      appendImageToDOM(imageUrl, clean);
+      messages.push({ role: 'assistant', content: clean, image: imageUrl });
+      saveConversation();
+    } catch (err) {
+      removeTypingIndicator();
+      appendMessageToDOM('assistant', 'No pude generar la imagen: ' + err.message);
     }
+  }
 
-    document.getElementById('apikey-modal').addEventListener('click', function(e) { if (e.target === this) closeApiKeyModal(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeApiKeyModal(); closeMobileSidebar(); closeImagePreview(); } });
-  </script>
+  function openImagePreview(src) {
+    document.getElementById('preview-img').src = src;
+    document.getElementById('image-preview').classList.remove('hidden');
+  }
+  function closeImagePreview() { document.getElementById('image-preview').classList.add('hidden'); }
+  function sendSuggestion(t) { document.getElementById('user-input').value = t; sendMessage(); }
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+  function scrollToBottom() { requestAnimationFrame(() => { document.getElementById('messages-container').scrollTop = document.getElementById('messages-container').scrollHeight; }); }
+  function updateSendButton() {
+    const input = document.getElementById('user-input'); const btn = document.getElementById('send-btn');
+    btn.disabled = !input.value.trim() || isStreaming;
+    btn.innerHTML = isStreaming ? '<iconify-icon icon="lucide:loader-2" width="18" class="animate-spin"></iconify-icon>' : '<iconify-icon icon="lucide:arrow-up" width="18"></iconify-icon>';
+  }
+  function handleKeyDown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+  function copyMessage(btn) {
+    const msgDiv = btn.closest('.max-w-\\[85\\%\\]') || btn.parentElement.previousElementSibling;
+    navigator.clipboard.writeText((msgDiv?.innerText || '').trim()).then(() => showToast('Copiado ✓'));
+  }
+  function exportChat() {
+    if (messages.length === 0) { showToast('No hay mensajes', 'warn'); return; }
+    let t = '# Koya — Conversación\n\n';
+    messages.forEach(m => { if (m.image) t += '**Koya:** [Imagen: ' + m.content + '](' + m.image + ')\n\n'; else t += m.role === 'user' ? '**Tú:**\n' + m.content + '\n\n' : '**Koya:**\n' + m.content + '\n\n'; });
+    t += '\n---\nMotor: ' + (isApiMode ? 'OpenAI ' + MODEL : 'Pollinations AI') + ' | ' + new Date().toLocaleString();
+    const blob = new Blob([t], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'koya-' + Date.now() + '.md'; a.click(); URL.revokeObjectURL(url);
+    showToast('Exportado ✓');
+  }
+  function openMobileSidebar() { document.getElementById('mobile-sidebar-bg').classList.remove('hidden'); document.getElementById('mobile-sidebar').classList.add('open'); }
+  function closeMobileSidebar() { document.getElementById('mobile-sidebar-bg').classList.add('hidden'); document.getElementById('mobile-sidebar').classList.remove('open'); }
+
+  function showToast(message, type) {
+    type = type || 'success';
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    const icons = { success: 'lucide:check-circle', warn: 'lucide:alert-circle', info: 'lucide:info' };
+    const colors = { success: 'text-[#b8976a]', warn: 'text-amber-500', info: 'text-neutral-400' };
+    toast.className = 'bg-white rounded-xl shadow-lg border border-neutral-100 px-5 py-3 flex items-center gap-3';
+    toast.style.cssText = 'transform:translateY(16px);opacity:0;transition:all .4s cubic-bezier(.16,1,.3,1);';
+    toast.innerHTML = '<iconify-icon icon="' + icons[type] + '" width="16" class="' + colors[type] + '"></iconify-icon><span class="text-xs font-light text-neutral-600">' + message + '</span>';
+    container.appendChild(toast);
+    requestAnimationFrame(() => { toast.style.transform = 'translateY(0)'; toast.style.opacity = '1'; });
+    setTimeout(() => { toast.style.transform = 'translateY(16px)'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 3000);
+  }
+
+  document.getElementById('apikey-modal').addEventListener('click', function(e) { if (e.target === this) closeApiKeyModal(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeApiKeyModal(); closeMobileSidebar(); closeImagePreview(); } });
+</script>
 </body>
 </html>
