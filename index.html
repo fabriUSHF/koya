@@ -15,7 +15,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
     tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif'],serif:['Playfair Display','serif']}}}}
-    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
   </script>
   <style>
     *{box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#fafaf9;color:#1a1a1a}
@@ -38,13 +37,9 @@
     .msg-content h1{font-size:1.25rem}.msg-content h2{font-size:1.1rem}.msg-content h3{font-size:1rem}
     .msg-content blockquote{border-left:3px solid #d4d4d4;padding-left:16px;color:#737373;margin:12px 0}
     .msg-content a{color:#86623d;text-decoration:underline;text-underline-offset:2px}
-    .msg-content table{border-collapse:collapse;margin:12px 0;width:100%;font-size:13px}
-    .msg-content th,.msg-content td{border:1px solid #e5e5e5;padding:8px 12px;text-align:left}
-    .msg-content th{background:#f5f5f4;font-weight:500}
     .code-block-wrapper{position:relative}
-    .code-actions{position:absolute;top:8px;right:8px;display:flex;gap:4px}
-    .code-action-btn{background:rgba(255,255,255,.1);border:none;color:#a3a3a3;padding:4px 8px;border-radius:6px;font-size:10px;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:3px}
-    .code-action-btn:hover{background:rgba(255,255,255,.2);color:#fff}
+    .code-btn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.1);border:none;color:#a3a3a3;padding:4px 8px;border-radius:6px;font-size:10px;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:4px}
+    .code-btn:hover{background:rgba(255,255,255,.2);color:#fff}
     .sidebar-item{transition:all .2s ease}.sidebar-item:hover{background:#f0eeeb}.sidebar-item.active{background:#f0eeeb}
     .modal-bg{opacity:0;pointer-events:none;transition:opacity .3s ease}
     .modal-bg.open{opacity:1;pointer-events:auto}
@@ -55,17 +50,19 @@
     .suggestion-chip:hover{border-color:#1a1a1a;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06)}
     .generated-image{border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .5s cubic-bezier(.16,1,.3,1)}
     .generated-image:hover{transform:scale(1.02)}.generated-image img{width:100%;display:block;border-radius:16px}
+    .mode-btn{transition:all .2s}.mode-btn.active{background:#1a1a1a;color:white;border-color:#1a1a1a}
+    .file-chip{animation:msgIn .3s cubic-bezier(.16,1,.3,1) forwards}
+    .drop-zone{border:2px dashed #d4d4d4;border-radius:16px;transition:all .3s}
+    .drop-zone.drag-over{border-color:#b8976a;background:rgba(184,151,106,.04)}
     .provider-card{transition:all .3s cubic-bezier(.16,1,.3,1);cursor:pointer}
     .provider-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
     .provider-card.selected{border-color:#1a1a1a;background:#fafaf9}
-    .provider-card.selected .provider-radio{background:#1a1a1a;border-color:#1a1a1a}
-    .provider-card.selected .provider-radio-inner{opacity:1}
-    .provider-radio{width:18px;height:18px;border-radius:50%;border:2px solid #d4d4d4;transition:all .2s;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-    .provider-radio-inner{width:8px;height:8px;border-radius:50%;background:white;opacity:0;transition:opacity .2s}
-    .mode-btn{transition:all .2s}.mode-btn.active{background:#1a1a1a;color:white;border-color:#1a1a1a}
-    .file-chip{animation:msgIn .3s cubic-bezier(.16,1,.3,1) forwards}
-    .source-link{transition:all .2s}.source-link:hover{background:#f0eeeb}
-    @media(max-width:768px){.sidebar-panel{transform:translateX(-100%);transition:transform .4s cubic-bezier(.16,1,.3,1)}.sidebar-panel.open{transform:translateX(0)}.mode-bar-inner{gap:2px!important}.mode-btn{padding:4px 8px!important;font-size:10px!important}}
+    .provider-card.selected .p-radio{background:#1a1a1a;border-color:#1a1a1a}
+    .provider-card.selected .p-radio-in{opacity:1}
+    .p-radio{width:18px;height:18px;border-radius:50%;border:2px solid #d4d4d4;transition:all .2s;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+    .p-radio-in{width:8px;height:8px;border-radius:50%;background:white;opacity:0;transition:opacity .2s}
+    .uploaded-preview{max-width:200px;max-height:150px;border-radius:12px;object-fit:cover;border:1px solid #e5e5e5}
+    @media(max-width:768px){.sidebar-panel{transform:translateX(-100%);transition:transform .4s cubic-bezier(.16,1,.3,1)}.sidebar-panel.open{transform:translateX(0)}}
   </style>
 </head>
 <body class="antialiased h-screen overflow-hidden">
@@ -74,10 +71,7 @@
   <!-- SIDEBAR -->
   <aside id="sidebar" class="hidden md:flex flex-col w-72 border-r border-neutral-100 bg-white/80 backdrop-blur-sm flex-shrink-0">
     <div class="h-16 flex items-center justify-between px-5 border-b border-neutral-100/80">
-      <div class="flex items-center gap-2.5">
-        <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center"><span class="text-white text-[10px] font-semibold">K</span></div>
-        <span class="font-serif text-lg tracking-[.08em]">Koya</span>
-      </div>
+      <div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center"><span class="text-white text-[10px] font-semibold">K</span></div><span class="font-serif text-lg tracking-[.08em]">Koya</span></div>
       <button onclick="newChat()" class="text-neutral-400 hover:text-neutral-600 transition-colors"><iconify-icon icon="lucide:pen-line" width="16"></iconify-icon></button>
     </div>
     <div class="flex-1 overflow-y-auto py-3 px-3">
@@ -98,23 +92,11 @@
   <div id="mobile-sidebar-bg" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 hidden md:hidden" onclick="closeMobileSidebar()"></div>
   <aside id="mobile-sidebar" class="sidebar-panel fixed left-0 top-0 bottom-0 w-72 bg-white z-50 flex flex-col md:hidden">
     <div class="h-16 flex items-center justify-between px-5 border-b border-neutral-100/80">
-      <div class="flex items-center gap-2.5">
-        <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center"><span class="text-white text-[10px] font-semibold">K</span></div>
-        <span class="font-serif text-lg tracking-[.08em]">Koya</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <button onclick="newChat()" class="text-neutral-400 hover:text-neutral-600 transition-colors"><iconify-icon icon="lucide:pen-line" width="16"></iconify-icon></button>
-        <button onclick="closeMobileSidebar()" class="text-neutral-400 hover:text-neutral-600 transition-colors"><iconify-icon icon="lucide:x" width="18"></iconify-icon></button>
-      </div>
+      <div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center"><span class="text-white text-[10px] font-semibold">K</span></div><span class="font-serif text-lg tracking-[.08em]">Koya</span></div>
+      <div class="flex items-center gap-2"><button onclick="newChat()" class="text-neutral-400 hover:text-neutral-600 transition-colors"><iconify-icon icon="lucide:pen-line" width="16"></iconify-icon></button><button onclick="closeMobileSidebar()" class="text-neutral-400 hover:text-neutral-600 transition-colors"><iconify-icon icon="lucide:x" width="18"></iconify-icon></button></div>
     </div>
     <div class="flex-1 overflow-y-auto py-3 px-3"><p class="text-[10px] tracking-[.15em] uppercase text-neutral-400 font-medium px-2 mb-2">Hoy</p><div id="mobile-chat-list" class="space-y-0.5"></div></div>
-    <div class="p-4 border-t border-neutral-100/80">
-      <button onclick="openProviderModal();closeMobileSidebar()" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left">
-        <iconify-icon icon="lucide:cpu" width="16" class="text-neutral-400"></iconify-icon>
-        <span class="text-sm font-light text-neutral-600">Motor de IA</span>
-        <span class="ml-auto w-2 h-2 rounded-full bg-amber-300" id="engine-dot-mobile"></span>
-      </button>
-    </div>
+    <div class="p-4 border-t border-neutral-100/80"><button onclick="openProviderModal();closeMobileSidebar()" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left"><iconify-icon icon="lucide:cpu" width="16" class="text-neutral-400"></iconify-icon><span class="text-sm font-light text-neutral-600">Motor de IA</span><span class="ml-auto w-2 h-2 rounded-full bg-amber-300" id="engine-dot-mobile"></span></button></div>
   </aside>
 
   <!-- MAIN -->
@@ -122,68 +104,99 @@
     <header class="h-16 flex items-center justify-between px-4 md:px-6 border-b border-neutral-100/80 bg-white/60 backdrop-blur-md flex-shrink-0">
       <div class="flex items-center gap-3">
         <button onclick="openMobileSidebar()" class="md:hidden text-neutral-500 hover:text-neutral-700 transition-colors"><iconify-icon icon="lucide:menu" width="20"></iconify-icon></button>
-        <div>
-          <h1 id="chat-title" class="text-sm font-medium truncate max-w-[200px] md:max-w-none">Nueva conversación</h1>
-          <span id="model-badge" class="text-[10px] text-neutral-400 tracking-wide">Pollinations AI</span>
-        </div>
+        <div><h1 id="chat-title" class="text-sm font-medium truncate max-w-[180px] md:max-w-none">Nueva conversación</h1><span id="model-badge" class="text-[10px] text-neutral-400 tracking-wide">Pollinations AI</span></div>
       </div>
       <div class="flex items-center gap-1">
-        <button onclick="clearChat()" class="p-2.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-xl transition-all" title="Limpiar"><iconify-icon icon="lucide:trash-2" width="16"></iconify-icon></button>
-        <button onclick="exportChat()" class="p-2.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-xl transition-all" title="Exportar"><iconify-icon icon="lucide:download" width="16"></iconify-icon></button>
+        <button onclick="clearChat()" class="p-2.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-xl transition-all"><iconify-icon icon="lucide:trash-2" width="16"></iconify-icon></button>
+        <button onclick="exportChat()" class="p-2.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-xl transition-all"><iconify-icon icon="lucide:download" width="16"></iconify-icon></button>
       </div>
     </header>
 
+    <!-- Messages -->
     <div id="messages-container" class="flex-1 overflow-y-auto">
       <div id="welcome-screen" class="h-full flex flex-col items-center justify-center px-6 fade-in">
         <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center mb-6 shadow-lg shadow-[#b8976a]/10"><span class="text-white text-xl font-serif italic">K</span></div>
         <h2 class="font-serif text-2xl md:text-3xl tracking-[-.02em]">Hola, soy Koya</h2>
-        <p class="mt-3 text-sm font-light text-neutral-400 text-center max-w-md leading-relaxed">Chat, búsqueda en internet, análisis profundo, código, imágenes, archivos y más.</p>
-        <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg fade-in-d">
-          <button onclick="sendSuggestion('Explícame la relatividad')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:atom" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800">Explícame la relatividad</p></div></button>
-          <button onclick="sendSuggestion('Busca las últimas noticias sobre IA')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:search" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800">Busca noticias sobre IA</p></div></button>
-          <button onclick="sendSuggestion('Crea un juego de snake en Python')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:code-2" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800">Crea un juego snake en Python</p></div></button>
-          <button onclick="document.getElementById('file-input').click()" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:paperclip" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800">Analizar imagen o archivo</p></div></button>
+        <p class="mt-3 text-sm font-light text-neutral-400 text-center max-w-md leading-relaxed">Chat, busca en internet, analiza imágenes y archivos, genera código y descárgalo.</p>
+        <div class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-2 w-full max-w-lg fade-in-d">
+          <button onclick="setMode('chat')" class="mode-btn active flex flex-col items-center gap-1.5 p-3 rounded-xl border border-neutral-200 text-neutral-500 text-[10px] tracking-wide uppercase font-medium"><iconify-icon icon="lucide:message-circle" width="18"></iconify-icon>Chat</button>
+          <button onclick="setMode('search')" class="mode-btn flex flex-col items-center gap-1.5 p-3 rounded-xl border border-neutral-200 text-neutral-500 text-[10px] tracking-wide uppercase font-medium"><iconify-icon icon="lucide:search" width="18"></iconify-icon>Buscar</button>
+          <button onclick="setMode('deep')" class="mode-btn flex flex-col items-center gap-1.5 p-3 rounded-xl border border-neutral-200 text-neutral-500 text-[10px] tracking-wide uppercase font-medium"><iconify-icon icon="lucide:brain" width="18"></iconify-icon>Profundo</button>
+          <button onclick="setMode('code')" class="mode-btn flex flex-col items-center gap-1.5 p-3 rounded-xl border border-neutral-200 text-neutral-500 text-[10px] tracking-wide uppercase font-medium"><iconify-icon icon="lucide:code-2" width="18"></iconify-icon>Código</button>
         </div>
+        <div class="mt-6 flex flex-wrap justify-center gap-2 fade-in-d">
+          <button onclick="sendSuggestion('Explícame la relatividad')" class="suggestion-chip text-left px-4 py-2.5 rounded-xl border border-neutral-200/80 bg-white group"><p class="text-xs font-light text-neutral-500 group-hover:text-neutral-700 transition-colors">Explícame la relatividad</p></button>
+          <button onclick="sendSuggestion('Escribe un poema sobre el silencio')" class="suggestion-chip text-left px-4 py-2.5 rounded-xl border border-neutral-200/80 bg-white group"><p class="text-xs font-light text-neutral-500 group-hover:text-neutral-700 transition-colors">Poema sobre el silencio</p></button>
+          <button onclick="sendSuggestion('Crea una función Python para ordenar')" class="suggestion-chip text-left px-4 py-2.5 rounded-xl border border-neutral-200/80 bg-white group"><p class="text-xs font-light text-neutral-500 group-hover:text-neutral-700 transition-colors">Función Python para ordenar</p></button>
+          <button onclick="sendSuggestion('Busca qué es Groq y para qué sirve')" class="suggestion-chip text-left px-4 py-2.5 rounded-xl border border-neutral-200/80 bg-white group"><p class="text-xs font-light text-neutral-500 group-hover:text-neutral-700 transition-colors">¿Qué es Groq?</p></button>
+        </div>
+        <p class="mt-6 text-[10px] text-neutral-300 flex items-center gap-3">
+          <span class="flex items-center gap-1"><iconify-icon icon="lucide:image" width="11"></iconify-icon>Analiza imágenes</span>
+          <span class="flex items-center gap-1"><iconify-icon icon="lucide:file-text" width="11"></iconify-icon>Lee archivos</span>
+          <span class="flex items-center gap-1"><iconify-icon icon="lucide:download" width="11"></iconify-icon>Descarga código</span>
+        </p>
       </div>
       <div id="messages" class="max-w-3xl mx-auto px-4 md:px-6 py-6 space-y-6 hidden"></div>
     </div>
 
-    <!-- Input area -->
-    <div class="flex-shrink-0 border-t border-neutral-100/80 bg-white/60 backdrop-blur-md px-4 md:px-6 py-4">
+    <!-- Input -->
+    <div class="flex-shrink-0 border-t border-neutral-100/80 bg-white/60 backdrop-blur-md px-4 md:px-6 py-3">
       <div class="max-w-3xl mx-auto">
         <!-- File preview -->
-        <div id="file-preview" class="hidden mb-3"></div>
-        <!-- Mode bar -->
-        <div class="flex items-center gap-2 mb-3 overflow-x-auto pb-1 mode-bar-inner" style="scrollbar-width:none">
-          <button onclick="setMode('chat')" class="mode-btn active flex items-center gap-1.5 px-3 py-1.5 text-[10px] tracking-wider uppercase font-medium border border-neutral-200 rounded-full whitespace-nowrap" data-mode="chat"><iconify-icon icon="lucide:message-circle" width="12"></iconify-icon>Chat</button>
-          <button onclick="setMode('search')" class="mode-btn flex items-center gap-1.5 px-3 py-1.5 text-[10px] tracking-wider uppercase font-medium border border-neutral-200 rounded-full text-neutral-500 whitespace-nowrap" data-mode="search"><iconify-icon icon="lucide:search" width="12"></iconify-icon>Buscar</button>
-          <button onclick="setMode('deep')" class="mode-btn flex items-center gap-1.5 px-3 py-1.5 text-[10px] tracking-wider uppercase font-medium border border-neutral-200 rounded-full text-neutral-500 whitespace-nowrap" data-mode="deep"><iconify-icon icon="lucide:brain" width="12"></iconify-icon>Profundo</button>
-          <button onclick="setMode('code')" class="mode-btn flex items-center gap-1.5 px-3 py-1.5 text-[10px] tracking-wider uppercase font-medium border border-neutral-200 rounded-full text-neutral-500 whitespace-nowrap" data-mode="code"><iconify-icon icon="lucide:code-2" width="12"></iconify-icon>Código</button>
-          <button onclick="setMode('image')" class="mode-btn flex items-center gap-1.5 px-3 py-1.5 text-[10px] tracking-wider uppercase font-medium border border-neutral-200 rounded-full text-neutral-500 whitespace-nowrap" data-mode="image"><iconify-icon icon="lucide:image" width="12"></iconify-icon>Imagen</button>
-        </div>
-        <!-- Input -->
-        <div class="input-glow flex items-end gap-2 bg-white border border-neutral-200 rounded-2xl px-4 py-3 transition-all duration-300">
-          <button onclick="document.getElementById('file-input').click()" class="p-1 text-neutral-300 hover:text-neutral-500 transition-colors flex-shrink-0 mb-0.5" title="Adjuntar archivo o imagen"><iconify-icon icon="lucide:paperclip" width="18"></iconify-icon></button>
-          <input type="file" id="file-input" class="hidden" accept="image/*,.txt,.md,.json,.csv,.js,.py,.html,.css,.ts,.java,.c,.cpp,.xml,.yaml,.yml,.log,.sql,.sh,.bat,.rb,.go,.rs,.php,.pdf" onchange="handleFile(this)">
-          <textarea id="user-input" placeholder="Escribe tu mensaje..." class="flex-1 text-sm font-light bg-transparent border-none placeholder:text-neutral-300 py-0 leading-relaxed focus:outline-none" rows="1" onkeydown="handleKeyDown(event)"></textarea>
+        <div id="file-preview" class="hidden mb-2"></div>
+        <!-- Input row -->
+        <div class="input-glow flex items-end gap-2 bg-white border border-neutral-200 rounded-2xl px-3 py-2.5 transition-all duration-300">
+          <button onclick="triggerFileUpload()" class="p-1.5 text-neutral-300 hover:text-neutral-500 transition-colors flex-shrink-0 mb-0.5" title="Adjuntar imagen o archivo"><iconify-icon icon="lucide:paperclip" width="18"></iconify-icon></button>
+          <button onclick="toggleImageMode()" id="img-toggle" class="p-1.5 text-neutral-300 hover:text-neutral-500 transition-colors flex-shrink-0 mb-0.5" title="Generar imagen"><iconify-icon icon="lucide:image" width="18"></iconify-icon></button>
+          <textarea id="user-input" placeholder="Escribe tu mensaje..." class="flex-1 text-sm font-light bg-transparent border-none placeholder:text-neutral-300 py-0.5 leading-relaxed focus:outline-none" rows="1" onkeydown="handleKeyDown(event)"></textarea>
           <button id="send-btn" onclick="sendMessage()" class="p-1.5 text-neutral-300 hover:text-[#1a1a1a] transition-all duration-300 flex-shrink-0 mb-0.5 disabled:opacity-30" disabled><iconify-icon icon="lucide:arrow-up" width="18"></iconify-icon></button>
         </div>
-        <p class="text-center text-[10px] text-neutral-300 mt-3 tracking-wide">Koya · <span id="footer-engine">Pollinations AI</span> · <button onclick="openProviderModal()" class="underline hover:text-neutral-500 transition-colors">Motor</button></p>
+        <p class="text-center text-[10px] text-neutral-300 mt-2 tracking-wide">Koya · <span id="footer-engine">Pollinations</span> · <button onclick="openProviderModal()" class="underline hover:text-neutral-500 transition-colors">Motor</button> · <span id="footer-mode">Chat</span></p>
       </div>
     </div>
   </main>
 </div>
+
+<!-- Hidden file input -->
+<input type="file" id="file-input" class="hidden" accept="image/*,.txt,.md,.py,.js,.ts,.jsx,.tsx,.html,.css,.json,.csv,.xml,.yaml,.yml,.toml,.java,.cpp,.c,.cs,.go,.rs,.rb,.php,.sh,.bash,.sql,.r,.log,.pdf" onchange="handleFileSelect(event)">
 
 <!-- PROVIDER MODAL -->
 <div id="provider-modal" class="modal-bg fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
   <div class="modal-box bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] overflow-y-auto">
     <div class="p-6 md:p-8">
       <div class="flex items-center justify-between mb-2"><h3 class="font-serif text-xl">Motor de IA</h3><button onclick="closeProviderModal()" class="text-neutral-300 hover:text-neutral-500 transition-colors"><iconify-icon icon="lucide:x" width="20"></iconify-icon></button></div>
-      <p class="text-xs text-neutral-400 mb-6">Para análisis de imágenes, usa Gemini o Groq.</p>
-      <div class="provider-card selected border border-neutral-200 rounded-2xl p-5 mb-3" data-provider="pollinations" onclick="selectProvider('pollinations')"><div class="flex items-start gap-4"><div class="provider-radio mt-0.5"><div class="provider-radio-inner"></div></div><div class="flex-1"><div class="flex items-center gap-2"><span class="text-sm font-medium">Pollinations</span><span class="text-[9px] tracking-wider uppercase bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded-full font-medium">Instantáneo</span></div><p class="text-[11px] text-neutral-400 mt-1">Sin registro. Modelo pequeño. No analiza imágenes.</p></div></div></div>
-      <div class="provider-card border border-neutral-200 rounded-2xl p-5 mb-3" data-provider="groq" onclick="selectProvider('groq')"><div class="flex items-start gap-4"><div class="provider-radio mt-0.5"><div class="provider-radio-inner"></div></div><div class="flex-1"><div class="flex items-center gap-2"><span class="text-sm font-medium">Groq</span><span class="text-[9px] tracking-wider uppercase bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-medium">⭐ Recomendado</span></div><p class="text-[11px] text-neutral-400 mt-1"><strong class="text-neutral-500">Llama 3.3 70B</strong> — Ultra rápido. Analiza imágenes. Gratis sin tarjeta.</p></div></div><div id="groq-config" class="hidden mt-4 pt-4 border-t border-neutral-100"><label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">API Key de Groq</label><input id="groq-key-input" type="password" placeholder="gsk_..." class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light focus:outline-none focus:border-neutral-400"><div class="mt-3 bg-amber-50/50 rounded-lg p-3"><p class="text-[11px] text-amber-700/80 leading-relaxed"><strong>30 seg:</strong> <a href="https://console.groq.com/keys" target="_blank" class="underline">console.groq.com/keys</a> → Login Google → Create API Key</p></div></div></div>
-      <div class="provider-card border border-neutral-200 rounded-2xl p-5 mb-3" data-provider="gemini" onclick="selectProvider('gemini')"><div class="flex items-start gap-4"><div class="provider-radio mt-0.5"><div class="provider-radio-inner"></div></div><div class="flex-1"><div class="flex items-center gap-2"><span class="text-sm font-medium">Google Gemini</span><span class="text-[9px] tracking-wider uppercase bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium">1M tokens · Visión</span></div><p class="text-[11px] text-neutral-400 mt-1"><strong class="text-neutral-500">Gemini 2.0 Flash</strong> — Contexto enorme. Analiza imágenes. Gratis sin tarjeta.</p></div></div><div id="gemini-config" class="hidden mt-4 pt-4 border-t border-neutral-100"><label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">API Key de Gemini</label><input id="gemini-key-input" type="password" placeholder="AIza..." class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light focus:outline-none focus:border-neutral-400"><div class="mt-3 bg-blue-50/50 rounded-lg p-3"><p class="text-[11px] text-blue-700/80 leading-relaxed"><strong>1 min:</strong> <a href="https://aistudio.google.com/apikey" target="_blank" class="underline">aistudio.google.com/apikey</a> → Login Google → Create API Key</p></div></div></div>
-      <div class="provider-card border border-neutral-200 rounded-2xl p-5 mb-6" data-provider="openai" onclick="selectProvider('openai')"><div class="flex items-start gap-4"><div class="provider-radio mt-0.5"><div class="provider-radio-inner"></div></div><div class="flex-1"><div class="flex items-center gap-2"><span class="text-sm font-medium">OpenAI</span><span class="text-[9px] tracking-wider uppercase bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded-full font-medium">De pago</span></div><p class="text-[11px] text-neutral-400 mt-1"><strong class="text-neutral-500">GPT-4o</strong> — Potente. Visión. $5 mínimo.</p></div></div><div id="openai-config" class="hidden mt-4 pt-4 border-t border-neutral-100"><label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">API Key</label><input id="openai-key-input" type="password" placeholder="sk-proj-..." class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light focus:outline-none focus:border-neutral-400"><select id="openai-model-input" class="w-full mt-3 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-white font-light focus:outline-none focus:border-neutral-400"><option value="gpt-4o-mini">GPT-4o Mini</option><option value="gpt-4o">GPT-4o</option></select></div></div>
+      <p class="text-xs text-neutral-400 mb-5">Groq y Gemini son gratis sin tarjeta. Pollinations no necesita registro.</p>
+      <!-- Pollinations -->
+      <div class="provider-card border border-neutral-200 rounded-2xl p-4 mb-2" data-p="pollinations" onclick="selProvider('pollinations')">
+        <div class="flex items-start gap-3"><div class="p-radio mt-0.5"><div class="p-radio-in"></div></div><div class="flex-1"><div class="flex items-center gap-2"><span class="text-sm font-medium">Pollinations</span><span class="text-[9px] tracking-wider uppercase bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded-full">Sin registro</span></div><p class="text-[11px] text-neutral-400 mt-0.5">Funciona al instante. Modelo pequeño. Sin visión.</p></div></div>
+      </div>
+      <!-- Groq -->
+      <div class="provider-card border border-neutral-200 rounded-2xl p-4 mb-2" data-p="groq" onclick="selProvider('groq')">
+        <div class="flex items-start gap-3"><div class="p-radio mt-0.5"><div class="p-radio-in"></div></div><div class="flex-1"><div class="flex items-center gap-2"><span class="text-sm font-medium">Groq</span><span class="text-[9px] tracking-wider uppercase bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full">Recomendado</span></div><p class="text-[11px] text-neutral-400 mt-0.5"><strong class="text-neutral-500">Llama 3.3 70B</strong> — Ultra rápido, visión, gratis sin tarjeta.</p></div></div>
+        <div id="groq-cfg" class="hidden mt-3 pt-3 border-t border-neutral-100">
+          <label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">API Key</label>
+          <input id="groq-key" type="password" placeholder="gsk_..." class="w-full mt-1.5 px-3 py-2.5 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light focus:outline-none focus:border-neutral-400">
+          <p class="text-[10px] text-neutral-400 mt-1.5"><a href="https://console.groq.com/keys" target="_blank" class="text-[#86623d] underline">console.groq.com/keys</a> → Login con Google → Create Key</p>
+        </div>
+      </div>
+      <!-- Gemini -->
+      <div class="provider-card border border-neutral-200 rounded-2xl p-4 mb-2" data-p="gemini" onclick="selProvider('gemini')">
+        <div class="flex items-start gap-3"><div class="p-radio mt-0.5"><div class="p-radio-in"></div></div><div class="flex-1"><div class="flex items-center gap-2"><span class="text-sm font-medium">Gemini</span><span class="text-[9px] tracking-wider uppercase bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">Visión + 1M</span></div><p class="text-[11px] text-neutral-400 mt-0.5"><strong class="text-neutral-500">Gemini 2.0 Flash</strong> — Visión excelente, 1M contexto, gratis.</p></div></div>
+        <div id="gemini-cfg" class="hidden mt-3 pt-3 border-t border-neutral-100">
+          <label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">API Key</label>
+          <input id="gemini-key" type="password" placeholder="AIza..." class="w-full mt-1.5 px-3 py-2.5 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light focus:outline-none focus:border-neutral-400">
+          <p class="text-[10px] text-neutral-400 mt-1.5"><a href="https://aistudio.google.com/apikey" target="_blank" class="text-[#86623d] underline">aistudio.google.com/apikey</a> → Login → Create Key</p>
+        </div>
+      </div>
+      <!-- OpenAI -->
+      <div class="provider-card border border-neutral-200 rounded-2xl p-4 mb-5" data-p="openai" onclick="selProvider('openai')">
+        <div class="flex items-start gap-3"><div class="p-radio mt-0.5"><div class="p-radio-in"></div></div><div class="flex-1"><div class="flex items-center gap-2"><span class="text-sm font-medium">OpenAI</span><span class="text-[9px] tracking-wider uppercase bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded-full">$5 mínimo</span></div><p class="text-[11px] text-neutral-400 mt-0.5">GPT-4o. El más potente pero de pago.</p></div></div>
+        <div id="openai-cfg" class="hidden mt-3 pt-3 border-t border-neutral-100 space-y-2">
+          <div><label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">API Key</label><input id="openai-key" type="password" placeholder="sk-proj-..." class="w-full mt-1.5 px-3 py-2.5 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light focus:outline-none focus:border-neutral-400"></div>
+          <div><label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">Base URL</label><input id="openai-url" type="text" placeholder="https://api.openai.com/v1" class="w-full mt-1.5 px-3 py-2.5 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light focus:outline-none focus:border-neutral-400"></div>
+          <select id="openai-model" class="w-full px-3 py-2.5 text-sm border border-neutral-200 rounded-xl bg-white font-light focus:outline-none focus:border-neutral-400"><option value="gpt-4o-mini">GPT-4o Mini</option><option value="gpt-4o">GPT-4o</option></select>
+        </div>
+      </div>
       <button onclick="saveProvider()" class="w-full bg-[#1a1a1a] text-white py-3.5 text-[11px] tracking-[.15em] uppercase font-medium rounded-xl hover:bg-neutral-800 transition-colors">Guardar</button>
     </div>
   </div>
@@ -195,390 +208,633 @@
   <img id="preview-img" src="" alt="" class="max-w-full max-h-[90vh] rounded-2xl shadow-2xl">
 </div>
 
+<!-- SAVE FILE MODAL -->
+<div id="save-modal" class="modal-bg fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm flex items-center justify-center p-6">
+  <div class="modal-box bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+    <div class="p-6">
+      <h3 class="font-serif text-lg mb-4">Guardar como archivo</h3>
+      <input id="save-filename" type="text" placeholder="mi-archivo" class="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl bg-transparent font-light focus:outline-none focus:border-neutral-400 mb-2">
+      <select id="save-ext" class="w-full px-4 py-2.5 text-sm border border-neutral-200 rounded-xl bg-white font-light focus:outline-none focus:border-neutral-400 mb-5">
+        <option value=".py">Python (.py)</option><option value=".js">JavaScript (.js)</option><option value=".html">HTML (.html)</option>
+        <option value=".css">CSS (.css)</option><option value=".json">JSON (.json)</option><option value=".txt">Texto (.txt)</option>
+        <option value=".md">Markdown (.md)</option><option value=".csv">CSV (.csv)</option><option value=".sql">SQL (.sql)</option>
+        <option value=".java">Java (.java)</option><option value=".cpp">C++ (.cpp)</option><option value=".ts">TypeScript (.ts)</option>
+      </select>
+      <div class="flex gap-2">
+        <button onclick="closeSaveModal()" class="flex-1 py-2.5 text-[11px] tracking-[.12em] uppercase font-medium border border-neutral-200 rounded-xl text-neutral-500 hover:border-neutral-400 transition-colors">Cancelar</button>
+        <button onclick="doSaveFile()" class="flex-1 bg-[#1a1a1a] text-white py-2.5 text-[11px] tracking-[.12em] uppercase font-medium rounded-xl hover:bg-neutral-800 transition-colors">Descargar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="toast-container" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[90] flex flex-col gap-2 items-center"></div>
 
 <script>
 // ===== STATE =====
-let currentProvider=localStorage.getItem('koya_provider')||'pollinations';
-let GROQ_KEY=localStorage.getItem('koya_groq_key')||'';
-let GEMINI_KEY=localStorage.getItem('koya_gemini_key')||'';
-let OPENAI_KEY=localStorage.getItem('koya_openai_key')||'';
-let OPENAI_MODEL=localStorage.getItem('koya_openai_model')||'gpt-4o-mini';
-let SYSTEM_PROMPT='Eres Koya, un asistente de IA minimalista, amable y conciso. Respondes en español. Usas markdown cuando ayuda.';
-let TEMPERATURE=0.7;
-let conversations=JSON.parse(localStorage.getItem('koya_conversations')||'[]');
-let currentConvoId=null;
-let messages=[];
-let isStreaming=false;
-let currentMode='chat';
-let attachedFile=null; // { type:'image'|'text'|'pdf', name, data, base64, mimeType, textContent }
+let provider = localStorage.getItem('koya_provider') || 'pollinations';
+let GROQ_KEY = localStorage.getItem('koya_groq') || '';
+let GEMINI_KEY = localStorage.getItem('koya_gemini') || '';
+let OPENAI_KEY = localStorage.getItem('koya_openai') || '';
+let OPENAI_URL = localStorage.getItem('koya_openai_url') || 'https://api.openai.com/v1';
+let OPENAI_MODEL = localStorage.getItem('koya_openai_model') || 'gpt-4o-mini';
+let SYSTEM = 'Eres Koya, asistente de IA minimalista. Respondes en español. Usas markdown cuando ayuda.';
+let TEMP = 0.7;
+let convos = JSON.parse(localStorage.getItem('koya_convos') || '[]');
+let convoId = null;
+let msgs = [];
+let streaming = false;
+let imgMode = false;
+let currentMode = 'chat';
+let pendingFile = null; // {type:'image'|'text', name, data, mime}
+let saveCodeContent = '';
+
+// ===== PDF.JS =====
+try { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; } catch(e) {}
 
 // ===== INIT =====
-document.addEventListener('DOMContentLoaded',()=>{
-  updateProviderUI();renderChatList();updateSendButton();
-  document.getElementById('user-input').addEventListener('input',updateSendButton);
-  marked.setOptions({highlight:(c,l)=>l&&hljs.getLanguage(l)?hljs.highlight(c,{language:l}).value:hljs.highlightAuto(c).value,breaks:true,gfm:true});
+document.addEventListener('DOMContentLoaded', () => {
+  updateProviderUI(); renderChatList(); updateSendBtn();
+  document.getElementById('user-input').addEventListener('input', updateSendBtn);
+  marked.setOptions({ highlight: (c, l) => l && hljs.getLanguage(l) ? hljs.highlight(c, {language:l}).value : hljs.highlightAuto(c).value, breaks: true, gfm: true });
+  // Drag & drop
+  const mc = document.getElementById('messages-container');
+  mc.addEventListener('dragover', e => { e.preventDefault(); mc.classList.add('drop-zone','drag-over'); });
+  mc.addEventListener('dragleave', e => { e.preventDefault(); mc.classList.remove('drag-over'); });
+  mc.addEventListener('drop', e => { e.preventDefault(); mc.classList.remove('drop-zone','drag-over'); if (e.dataTransfer.files.length) processFiles(e.dataTransfer.files); });
 });
 
-// ===== PROVIDER =====
-function getProviderName(){return{pollinations:'Pollinations AI',groq:'Groq · Llama 3.3 70B',gemini:'Gemini 2.0 Flash',openai:'OpenAI · '+OPENAI_MODEL}[currentProvider]||'Pollinations AI'}
-function supportsVision(){return currentProvider==='gemini'||currentProvider==='groq'||currentProvider==='openai'}
-function updateProviderUI(){
-  document.getElementById('model-badge').textContent=getProviderName();
-  document.getElementById('footer-engine').textContent=getProviderName();
-  const c=currentProvider==='pollinations'?'bg-amber-300':'bg-emerald-400';
-  document.querySelectorAll('#engine-dot,#engine-dot-mobile').forEach(e=>e.className='ml-auto w-2 h-2 rounded-full '+c);
+// ===== MODES =====
+function setMode(m) {
+  currentMode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  const btns = document.querySelectorAll('.mode-btn');
+  const idx = {chat:0,search:1,deep:2,code:3}[m] || 0;
+  if (btns[idx]) btns[idx].classList.add('active');
+  document.getElementById('footer-mode').textContent = {chat:'Chat',search:'Buscar',deep:'Profundo',code:'Código'}[m] || 'Chat';
+  const ph = {chat:'Escribe tu mensaje...',search:'¿Qué quieres buscar en internet?',deep:'¿Qué quieres analizar a fondo?',code:'Describe el código que necesitas...'};
+  document.getElementById('user-input').placeholder = ph[m] || 'Escribe tu mensaje...';
 }
-function openProviderModal(){
-  document.getElementById('provider-modal').classList.add('open');
-  document.getElementById('groq-key-input').value=GROQ_KEY;
-  document.getElementById('gemini-key-input').value=GEMINI_KEY;
-  document.getElementById('openai-key-input').value=OPENAI_KEY;
-  document.getElementById('openai-model-input').value=OPENAI_MODEL;
-  document.querySelectorAll('.provider-card').forEach(c=>c.classList.toggle('selected',c.dataset.provider===currentProvider));
-  ['groq','gemini','openai'].forEach(p=>document.getElementById(p+'-config').classList.toggle('hidden',p!==currentProvider));
-}
-function closeProviderModal(){document.getElementById('provider-modal').classList.remove('open')}
-function selectProvider(p){
-  currentProvider=p;
-  document.querySelectorAll('.provider-card').forEach(c=>c.classList.toggle('selected',c.dataset.provider===p));
-  ['groq','gemini','openai'].forEach(k=>document.getElementById(k+'-config').classList.toggle('hidden',k!==p));
-}
-function saveProvider(){
-  GROQ_KEY=document.getElementById('groq-key-input').value.trim();
-  GEMINI_KEY=document.getElementById('gemini-key-input').value.trim();
-  OPENAI_KEY=document.getElementById('openai-key-input').value.trim();
-  OPENAI_MODEL=document.getElementById('openai-model-input').value;
-  if(currentProvider==='groq'&&!GROQ_KEY){showToast('Ingresa tu API Key de Groq','warn');return}
-  if(currentProvider==='gemini'&&!GEMINI_KEY){showToast('Ingresa tu API Key de Gemini','warn');return}
-  if(currentProvider==='openai'&&!OPENAI_KEY){showToast('Ingresa tu API Key de OpenAI','warn');return}
-  localStorage.setItem('koya_provider',currentProvider);
-  localStorage.setItem('koya_groq_key',GROQ_KEY);
-  localStorage.setItem('koya_gemini_key',GEMINI_KEY);
-  localStorage.setItem('koya_openai_key',OPENAI_KEY);
-  localStorage.setItem('koya_openai_model',OPENAI_MODEL);
-  updateProviderUI();closeProviderModal();showToast(getProviderName()+' activado ✓');
+function getSystemPrompt() {
+  const base = SYSTEM;
+  if (currentMode === 'deep') return base + '\n\nINSTRUCCIÓN ESPECIAL: Realiza un ANÁLISIS PROFUNDO con estas 5 capas obligatorias:\n1. DESCOMPOSICIÓN: Divide el tema en componentes fundamentales\n2. ANÁLISIS MULTIDIMENSIONAL: Examina desde múltiples perspectivas (histórica, científica, social, económica, filosófica)\n3. PERSPECTIVAS OPUESTAS: Presenta al menos 2 viewpoints contrarios con argumentos sólidos\n4. SUPUESTOCIONES OCULTAS: Identifica lo que damos por sentado\n5. CONCLUSIÓN MATIZADA: No closures simples, ofrece una síntesis con matices\nUsa encabezados, negritas y listas. Sé exhaustivo.';
+  if (currentMode === 'code') return base + '\n\nINSTRUCCIÓN ESPECIAL: Genera CÓDIGO COMPLETO y funcional. Incluye:\n1. El código completo con comentarios explicativos\n2. Explicación de cada sección importante\n3. Ejemplo de uso con datos reales\n4. Edge cases y manejo de errores\n5. Complejidad temporal si aplica\nUsa bloques de código con el lenguaje indicado. No omitas nada.';
+  return base;
 }
 
-// ===== MODES =====
-function setMode(m){
-  currentMode=m;
-  document.querySelectorAll('.mode-btn').forEach(b=>{
-    b.classList.toggle('active',b.dataset.mode===m);
-    b.classList.toggle('text-neutral-500',b.dataset.mode!==m);
-  });
-  const placeholders={chat:'Escribe tu mensaje...',search:'¿Qué quieres buscar en internet?',deep:'¿Qué tema analizar en profundidad?',code:'¿Qué código necesitas?',image:'Describe la imagen a generar...'};
-  document.getElementById('user-input').placeholder=placeholders[m]||'Escribe tu mensaje...';
+// ===== PROVIDER =====
+function getProviderName() {
+  return {pollinations:'Pollinations',groq:'Groq · Llama 3.3 70B',gemini:'Gemini 2.0 Flash',openai:'OpenAI · '+OPENAI_MODEL}[provider] || 'Pollinations';
+}
+function updateProviderUI() {
+  const n = getProviderName();
+  document.getElementById('model-badge').textContent = n;
+  document.getElementById('footer-engine').textContent = n.split('·')[0].trim();
+  const c = provider === 'pollinations' ? 'bg-amber-300' : 'bg-emerald-400';
+  document.querySelectorAll('#engine-dot,#engine-dot-mobile').forEach(e => e.className = 'ml-auto w-2 h-2 rounded-full ' + c);
+}
+function openProviderModal() {
+  document.getElementById('provider-modal').classList.add('open');
+  document.getElementById('groq-key').value = GROQ_KEY;
+  document.getElementById('gemini-key').value = GEMINI_KEY;
+  document.getElementById('openai-key').value = OPENAI_KEY;
+  document.getElementById('openai-url').value = OPENAI_URL === 'https://api.openai.com/v1' ? '' : OPENAI_URL;
+  document.getElementById('openai-model').value = OPENAI_MODEL;
+  selProvider(provider);
+}
+function closeProviderModal() { document.getElementById('provider-modal').classList.remove('open'); }
+function selProvider(p) {
+  provider = p;
+  document.querySelectorAll('.provider-card').forEach(c => c.classList.toggle('selected', c.dataset.p === p));
+  document.getElementById('groq-cfg').classList.toggle('hidden', p !== 'groq');
+  document.getElementById('gemini-cfg').classList.toggle('hidden', p !== 'gemini');
+  document.getElementById('openai-cfg').classList.toggle('hidden', p !== 'openai');
+}
+function saveProvider() {
+  GROQ_KEY = document.getElementById('groq-key').value.trim();
+  GEMINI_KEY = document.getElementById('gemini-key').value.trim();
+  OPENAI_KEY = document.getElementById('openai-key').value.trim();
+  OPENAI_URL = document.getElementById('openai-url').value.trim() || 'https://api.openai.com/v1';
+  OPENAI_MODEL = document.getElementById('openai-model').value;
+  if (provider === 'groq' && !GROQ_KEY) { showToast('Ingresa tu API Key de Groq', 'warn'); return; }
+  if (provider === 'gemini' && !GEMINI_KEY) { showToast('Ingresa tu API Key de Gemini', 'warn'); return; }
+  if (provider === 'openai' && !OPENAI_KEY) { showToast('Ingresa tu API Key de OpenAI', 'warn'); return; }
+  localStorage.setItem('koya_provider', provider);
+  localStorage.setItem('koya_groq', GROQ_KEY);
+  localStorage.setItem('koya_gemini', GEMINI_KEY);
+  localStorage.setItem('koya_openai', OPENAI_KEY);
+  localStorage.setItem('koya_openai_url', OPENAI_URL);
+  localStorage.setItem('koya_openai_model', OPENAI_MODEL);
+  updateProviderUI(); closeProviderModal();
+  showToast('Motor: ' + getProviderName() + ' ✓');
+}
+
+// ===== IMAGE MODE =====
+function toggleImageMode() {
+  imgMode = !imgMode;
+  const b = document.getElementById('img-toggle');
+  b.classList.toggle('text-[#86623d]', imgMode);
+  document.getElementById('user-input').placeholder = imgMode ? 'Describe la imagen a generar...' : {chat:'Escribe tu mensaje...',search:'¿Qué buscas?',deep:'¿Qué analizamos?',code:'¿Qué código necesitas?'}[currentMode];
 }
 
 // ===== FILE HANDLING =====
-async function handleFile(input){
-  const file=input.files[0];if(!file)return;
-  const preview=document.getElementById('file-preview');
-  preview.classList.remove('hidden');
-  const isImage=file.type.startsWith('image/');
-  const isPdf=file.type==='application/pdf';
+function triggerFileUpload() { document.getElementById('file-input').click(); }
+function handleFileSelect(e) { if (e.target.files.length) processFiles(e.target.files); e.target.value = ''; }
 
-  if(isImage){
-    const base64=await fileToBase64(file);
-    attachedFile={type:'image',name:file.name,data:base64,mimeType:file.type};
-    preview.innerHTML='<div class="file-chip flex items-center gap-2 bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2"><img src="'+base64+'" class="w-10 h-10 rounded-lg object-cover"><div class="flex-1 min-w-0"><p class="text-xs font-medium truncate">'+file.name+'</p><p class="text-[10px] text-neutral-400">'+(file.size/1024).toFixed(0)+' KB · Imagen</p></div><button onclick="removeFile()" class="text-neutral-300 hover:text-neutral-500 transition-colors"><iconify-icon icon="lucide:x" width="14"></iconify-icon></button></div>';
-  }else if(isPdf){
-    preview.innerHTML='<div class="file-chip flex items-center gap-2 bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2"><iconify-icon icon="lucide:file-text" width="20" class="text-[#b8976a]"></iconify-icon><div class="flex-1 min-w-0"><p class="text-xs font-medium truncate">'+file.name+'</p><p class="text-[10px] text-neutral-400">Extrayendo texto del PDF...</p></div></div>';
-    try{
-      const arrayBuffer=await file.arrayBuffer();
-      const pdf=await pdfjsLib.getDocument({data:arrayBuffer}).promise;
-      let text='';for(let i=1;i<=Math.min(pdf.numPages,50);i++){const page=await pdf.getPage(i);const content=await page.getTextContent();text+=content.items.map(item=>item.str).join(' ')+'\n\n';}
-      attachedFile={type:'text',name:file.name,textContent:text.trim()};
-      preview.innerHTML='<div class="file-chip flex items-center gap-2 bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2"><iconify-icon icon="lucide:file-text" width="20" class="text-[#b8976a]"></iconify-icon><div class="flex-1 min-w-0"><p class="text-xs font-medium truncate">'+file.name+'</p><p class="text-[10px] text-neutral-400">'+(file.size/1024).toFixed(0)+' KB · PDF · '+(text.trim().split(/\s+/).length)+' palabras</p></div><button onclick="removeFile()" class="text-neutral-300 hover:text-neutral-500 transition-colors"><iconify-icon icon="lucide:x" width="14"></iconify-icon></button></div>';
-    }catch(err){
-      preview.innerHTML='<div class="file-chip flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2"><iconify-icon icon="lucide:alert-circle" width="20" class="text-red-400"></iconify-icon><p class="text-xs text-red-500">Error al leer PDF: '+err.message+'</p><button onclick="removeFile()" class="text-red-300 hover:text-red-500"><iconify-icon icon="lucide:x" width="14"></iconify-icon></button></div>';
-    }
-  }else{
-    const text=await file.text();
-    attachedFile={type:'text',name:file.name,textContent:text};
-    preview.innerHTML='<div class="file-chip flex items-center gap-2 bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2"><iconify-icon icon="lucide:file-code" width="20" class="text-[#b8976a]"></iconify-icon><div class="flex-1 min-w-0"><p class="text-xs font-medium truncate">'+file.name+'</p><p class="text-[10px] text-neutral-400">'+(file.size/1024).toFixed(0)+' KB · '+(text.trim().split(/\s+/).length)+' palabras</p></div><button onclick="removeFile()" class="text-neutral-300 hover:text-neutral-500 transition-colors"><iconify-icon icon="lucide:x" width="14"></iconify-icon></button></div>';
+async function processFiles(files) {
+  const file = files[0];
+  if (!file) return;
+  const maxSize = file.type.startsWith('image/') ? 10*1024*1024 : 5*1024*1024;
+  if (file.size > maxSize) { showToast('Archivo demasiado grande (máx ' + (maxSize/1024/1024) + 'MB)', 'warn'); return; }
+
+  if (file.type.startsWith('image/')) {
+    const base64 = await fileToBase64(file);
+    pendingFile = { type: 'image', name: file.name, data: base64, mime: file.type };
+    showFilePreview(file.name, file.type, base64);
+  } else if (file.name.endsWith('.pdf')) {
+    showToast('Leyendo PDF...', 'info');
+    try {
+      const text = await extractPDF(file);
+      pendingFile = { type: 'text', name: file.name, data: text, mime: 'text/plain' };
+      showFilePreview(file.name, 'application/pdf', null, text.substring(0, 100) + '...');
+    } catch(e) { showToast('Error al leer PDF: ' + e.message, 'warn'); }
+  } else {
+    const text = await file.text();
+    pendingFile = { type: 'text', name: file.name, data: text, mime: file.type || 'text/plain' };
+    showFilePreview(file.name, file.type, null, text.substring(0, 100) + '...');
   }
-  updateSendButton();
+  updateSendBtn();
 }
-function removeFile(){
-  attachedFile=null;
-  document.getElementById('file-preview').classList.add('hidden');
-  document.getElementById('file-preview').innerHTML='';
-  document.getElementById('file-input').value='';
-  updateSendButton();
-}
-function fileToBase64(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)})}
 
-// ===== CONVERSATIONS =====
-function newChat(){currentConvoId=null;messages=[];document.getElementById('chat-title').textContent='Nueva conversación';document.getElementById('messages').innerHTML='';document.getElementById('messages').classList.add('hidden');document.getElementById('welcome-screen').classList.remove('hidden');removeFile();renderChatList();closeMobileSidebar()}
-function renderChatList(){[document.getElementById('chat-list'),document.getElementById('mobile-chat-list')].forEach(list=>{if(!list)return;list.innerHTML=conversations.map(c=>'<button onclick="loadConversation(\''+c.id+'\')" class="sidebar-item '+(c.id===currentConvoId?'active':'')+' w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left group"><iconify-icon icon="lucide:message-square" width="14" class="text-neutral-300 flex-shrink-0"></iconify-icon><span class="text-sm font-light text-neutral-600 truncate flex-1">'+c.title+'</span><button onclick="event.stopPropagation();deleteConversation(\''+c.id+'\')" class="opacity-0 group-hover:opacity-100 text-neutral-300 hover:text-red-400 transition-all p-1"><iconify-icon icon="lucide:x" width="12"></iconify-icon></button></button>').join('')});const el=document.getElementById('chat-list-empty');if(el)el.style.display=conversations.length===0?'block':'none'}
-function saveConversation(){if(messages.length===0)return;const title=messages[0].content.substring(0,50)+(messages[0].content.length>50?'…':'');if(currentConvoId){const i=conversations.findIndex(c=>c.id===currentConvoId);if(i!==-1){conversations[i].messages=[...messages];conversations[i].title=title}}else{currentConvoId=Date.now().toString();conversations.unshift({id:currentConvoId,title,messages:[...messages]})}document.getElementById('chat-title').textContent=title;localStorage.setItem('koya_conversations',JSON.stringify(conversations));renderChatList()}
-function loadConversation(id){const c=conversations.find(x=>x.id===id);if(!c)return;currentConvoId=id;messages=[...c.messages];document.getElementById('chat-title').textContent=c.title;document.getElementById('welcome-screen').classList.add('hidden');document.getElementById('messages').classList.remove('hidden');const container=document.getElementById('messages');container.innerHTML='';messages.forEach(m=>{if(m.imageGenerated)appendImageToDOM(m.content,m.imageGenerated,false);else if(m.fileInfo)appendFileInfoToDOM(m.role,m.content,m.fileInfo,false);else appendMessageToDOM(m.role,m.content,false)});scrollToBottom();renderChatList();closeMobileSidebar()}
-function deleteConversation(id){conversations=conversations.filter(c=>c.id!==id);localStorage.setItem('koya_conversations',JSON.stringify(conversations));if(id===currentConvoId)newChat();renderChatList()}
-function clearChat(){if(messages.length===0)return;newChat();showToast('Chat limpiado')}
-
-// ===== MESSAGES DOM =====
-function appendMessageToDOM(role,content,animate){
-  const container=document.getElementById('messages');const div=document.createElement('div');
-  div.className='flex gap-4 '+(animate?'msg-enter':'')+(role==='user'?' justify-end':'');
-  if(role==='user'){div.innerHTML='<div class="max-w-[85%] md:max-w-[70%]"><div class="bg-[#1a1a1a] text-white px-5 py-3.5 rounded-2xl rounded-tr-md"><p class="text-sm font-light leading-relaxed whitespace-pre-wrap">'+escapeHTML(content)+'</p></div></div>'}
-  else{div.innerHTML='<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[75%] min-w-0"><div class="msg-content text-sm font-light leading-relaxed text-neutral-700">'+renderMarkdown(content)+'</div><div class="flex items-center gap-2 mt-2"><button onclick="copyMessage(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors" title="Copiar"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button></div></div>'}
-  container.appendChild(div);addCodeButtons(div);
-}
-function appendFileInfoToDOM(role,content,fileInfo,animate){
-  const container=document.getElementById('messages');const div=document.createElement('div');
-  div.className='flex gap-4 '+(animate?'msg-enter':'')+(role==='user'?' justify-end':'');
-  const fileChip='<div class="flex items-center gap-2 bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-2 mb-2'+(role==='user'?' ml-auto w-fit':'')+'"><iconify-icon icon="'+(fileInfo.image?'lucide:image':'lucide:file-text')+'" width="14" class="text-[#b8976a]"></iconify-icon><span class="text-[11px] text-neutral-500">'+escapeHTML(fileInfo.name)+'</span></div>';
-  if(role==='user'){div.innerHTML='<div class="max-w-[85%] md:max-w-[70%]">'+(fileInfo.image?'<img src="'+fileInfo.data+'" class="w-32 h-32 rounded-xl object-cover mb-2 ml-auto block">':'')+fileChip+'<div class="bg-[#1a1a1a] text-white px-5 py-3.5 rounded-2xl rounded-tr-md"><p class="text-sm font-light leading-relaxed whitespace-pre-wrap">'+escapeHTML(content)+'</p></div></div>'}
-  else{div.innerHTML='<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[75%] min-w-0"><div class="msg-content text-sm font-light leading-relaxed text-neutral-700">'+renderMarkdown(content)+'</div><div class="flex items-center gap-2 mt-2"><button onclick="copyMessage(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button></div></div>'}
-  container.appendChild(div);addCodeButtons(div);
-}
-function appendImageToDOM(prompt,imageUrl,animate){
-  const container=document.getElementById('messages');const div=document.createElement('div');
-  div.className='flex gap-4 '+(animate?'msg-enter':'');
-  div.innerHTML='<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[60%] min-w-0"><div class="generated-image" onclick="openImagePreview(\''+imageUrl+'\')"><img src="'+imageUrl+'" alt="'+escapeHTML(prompt)+'" loading="lazy"></div><p class="text-[11px] text-neutral-400 mt-2 italic">"'+escapeHTML(prompt)+'"</p></div>';
-  container.appendChild(div);
-}
-function appendSourcesToDOM(sources){
-  const container=document.getElementById('messages');const div=document.createElement('div');
-  div.className='msg-enter';div.id='sources-bar';
-  div.innerHTML='<div class="flex items-center gap-2 mt-2 flex-wrap">'+sources.map(s=>'<a href="'+s.url+'" target="_blank" class="source-link flex items-center gap-1.5 px-3 py-1.5 border border-neutral-200 rounded-full text-[11px] text-neutral-500 hover:text-neutral-700"><iconify-icon icon="lucide:external-link" width="11"></iconify-icon>'+escapeHTML(s.title.substring(0,40))+'</a>').join('')+'</div>';
-  container.appendChild(div);
-}
-function renderMarkdown(t){try{return marked.parse(t)}catch{return t.replace(/\n/g,'<br>')}}
-function escapeHTML(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
-function addCodeButtons(root){
-  root.querySelectorAll('pre').forEach(pre=>{
-    if(pre.parentElement.classList.contains('code-block-wrapper'))return;
-    const w=document.createElement('div');w.className='code-block-wrapper';
-    pre.parentNode.insertBefore(w,pre);w.appendChild(pre);
-    const lang=(pre.className.match(/language-(\w+)/)||[])[1]||'';
-    const actions=document.createElement('div');actions.className='code-actions';
-    actions.innerHTML='<button class="code-action-btn" onclick="navigator.clipboard.writeText(this.closest(\'.code-block-wrapper\').querySelector(\'code\').textContent);this.textContent=\'¡Copiado!\';setTimeout(()=>this.textContent=\'Copiar\',2000)"><iconify-icon icon="lucide:copy" width="11"></iconify-icon>Copiar</button>'+(lang?'<button class="code-action-btn" onclick="downloadCode(this)"><iconify-icon icon="lucide:download" width="11"></iconify-icon>Guardar</button>':'');
-    w.appendChild(actions);
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result.split(',')[1]);
+    r.onerror = reject;
+    r.readAsDataURL(file);
   });
 }
-function downloadCode(btn){
-  const code=btn.closest('.code-block-wrapper').querySelector('code').textContent;
-  const ext={python:'py',javascript:'js',js:'js',typescript:'ts',html:'html',css:'css',json:'json',java:'java',c:'c',cpp:'cpp',sql:'sql',bash:'sh',sh:'sh',ruby:'rb',go:'go',rust:'rs',php:'php',yaml:'yml',yml:'yml',xml:'xml',markdown:'md'}[btn.closest('.code-block-wrapper').querySelector('code').className.match(/language-(\w+)/)?.[1]||'']||'txt';
-  const blob=new Blob([code],{type:'text/plain'});const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='koya-code.'+ext;a.click();URL.revokeObjectURL(url);
-  showToast('Archivo descargado ✓');
-}
-function showTypingIndicator(){
-  const container=document.getElementById('messages');const div=document.createElement('div');div.id='typing-indicator';div.className='flex gap-4 msg-enter';
-  const icons={chat:'💬',search:'🔍',deep:'🧠',code:'💻',image:'🖼️'};
-  div.innerHTML='<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="flex items-center gap-2 py-3"><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div><span class="text-[11px] text-neutral-300 ml-1">'+{chat:'Pensando...',search:'Buscando en internet...',deep:'Análisis profundo...',code:'Generando código...',image:'Generando imagen...'}[currentMode]+'</span></div>';
-  container.appendChild(div);scrollToBottom();
-}
-function removeTypingIndicator(){const el=document.getElementById('typing-indicator');if(el)el.remove()}
-function appendStreamingContent(chunk){
-  let s=document.getElementById('streaming-message');
-  if(!s){removeTypingIndicator();const c=document.getElementById('messages');const d=document.createElement('div');d.id='streaming-message';d.className='flex gap-4 msg-enter';d.innerHTML='<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[75%] min-w-0"><div class="msg-content text-sm font-light leading-relaxed text-neutral-700" id="streaming-content"></div></div>';c.appendChild(d)}
-  const el=document.getElementById('streaming-content');el.dataset.full=(el.dataset.full||'')+chunk;el.innerHTML=renderMarkdown(el.dataset.full);addCodeButtons(el);scrollToBottom();
-}
-function finalizeStreaming(){
-  const s=document.getElementById('streaming-message');if(s)s.removeAttribute('id');
-  const c=document.getElementById('streaming-content');
-  if(c){c.removeAttribute('id');c.removeAttribute('data-full');const a=document.createElement('div');a.className='flex items-center gap-2 mt-2';a.innerHTML='<button onclick="copyMessage(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button>';c.parentElement.appendChild(a)}
+
+async function extractPDF(file) {
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  let text = '';
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map(item => item.str).join(' ') + '\n\n';
+  }
+  return text.trim() || 'PDF sin texto extraíble (puede ser imagen escaneada)';
 }
 
-// ===== CONTEXT BUILDERS =====
-function getSystemPrompt(){
-  const base=SYSTEM_PROMPT;
-  const modes={
-    chat:base,
-    search:base+'\n\nCuando busques, usa las fuentes proporcionadas. Cita las fuentes entre corchetes [fuente]. Si no hay fuentes relevantes, dilo claramente. Sé preciso con datos y fechas.',
-    deep:base+'\n\nResponde con ANÁLISIS PROFUNDO obligatorio:\n1. 📌 Descomposición: divide el tema en componentes\n2. 🔬 Análisis multidimensional: causas, efectos, contexto histórico, implicaciones futuras\n3. ⚖️ Perspectivas opuestas: presenta al menos 2 viewpoints contrarios\n4. 🕵️ Suposiciones ocultas: identifica lo que damos por sentado\n5. 🎯 Conclusión matizada: evita respuestas simples, la realidad es compleja',
-    code:base+'\n\nResponde SIEMPRE con código completo y funcional:\n1. Código completo con todas las funciones\n2. Comentarios explicativos en cada sección\n3. Explicación paso a paso después del código\n4. Ejemplo de uso con output esperado\n5. Casos edge y manejo de errores\n6. Complejidad temporal si aplica\nUsa bloques de código con el lenguaje indicado.',
-    image:base
-  };
-  return modes[currentMode]||base;
+function showFilePreview(name, mime, base64, textSnippet) {
+  const el = document.getElementById('file-preview');
+  el.classList.remove('hidden');
+  if (base64) {
+    el.innerHTML = '<div class="file-chip flex items-center gap-2 px-3 py-2 bg-neutral-50 rounded-xl border border-neutral-100"><img src="data:' + mime + ';base64,' + base64 + '" class="w-10 h-10 rounded-lg object-cover"><div class="flex-1 min-w-0"><p class="text-xs font-medium text-neutral-600 truncate">' + name + '</p><p class="text-[10px] text-neutral-400">Imagen adjunta</p></div><button onclick="clearFile()" class="text-neutral-300 hover:text-neutral-500 p-1"><iconify-icon icon="lucide:x" width="14"></iconify-icon></button></div>';
+  } else {
+    el.innerHTML = '<div class="file-chip flex items-center gap-2 px-3 py-2 bg-neutral-50 rounded-xl border border-neutral-100"><iconify-icon icon="lucide:file-text" width="20" class="text-neutral-400"></iconify-icon><div class="flex-1 min-w-0"><p class="text-xs font-medium text-neutral-600 truncate">' + name + '</p><p class="text-[10px] text-neutral-400 truncate">' + (textSnippet || '') + '</p></div><button onclick="clearFile()" class="text-neutral-300 hover:text-neutral-500 p-1"><iconify-icon icon="lucide:x" width="14"></iconify-icon></button></div>';
+  }
 }
-function buildContext(userMsg){
-  let ctx=getSystemPrompt()+'\n\n';
-  const recent=messages.slice(-10);
-  for(const m of recent){if(m.role==='user')ctx+='Usuario: '+m.content+'\n';else if(!m.imageGenerated)ctx+='Asistente: '+m.content+'\n'}
-  ctx+='Usuario: '+userMsg+'\nAsistente: ';return ctx;
-}
+function clearFile() { pendingFile = null; document.getElementById('file-preview').classList.add('hidden'); updateSendBtn(); }
 
-// ===== SEND =====
-async function sendMessage(){
-  const input=document.getElementById('user-input');const text=input.value.trim();
-  if((!text&&!attachedFile)||isStreaming)return;
+// ===== CONVERSATIONS =====
+function newChat() {
+  convoId = null; msgs = [];
+  document.getElementById('chat-title').textContent = 'Nueva conversación';
+  document.getElementById('messages').innerHTML = '';
+  document.getElementById('messages').classList.add('hidden');
+  document.getElementById('welcome-screen').classList.remove('hidden');
+  clearFile(); renderChatList(); closeMobileSidebar();
+}
+function renderChatList() {
+  [document.getElementById('chat-list'), document.getElementById('mobile-chat-list')].forEach(list => {
+    if (!list) return;
+    list.innerHTML = convos.map(c => '<button onclick="loadConvo(\'' + c.id + '\')" class="sidebar-item ' + (c.id===convoId?'active':'') + ' w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left group"><iconify-icon icon="lucide:message-square" width="14" class="text-neutral-300 flex-shrink-0"></iconify-icon><span class="text-sm font-light text-neutral-600 truncate flex-1">' + c.title + '</span><button onclick="event.stopPropagation();delConvo(\'' + c.id + '\')" class="opacity-0 group-hover:opacity-100 text-neutral-300 hover:text-red-400 transition-all p-1"><iconify-icon icon="lucide:x" width="12"></iconify-icon></button></button>').join('');
+  });
+  const e = document.getElementById('chat-list-empty'); if (e) e.style.display = convos.length === 0 ? 'block' : 'none';
+}
+function saveConvo() {
+  if (!msgs.length) return;
+  const title = msgs[0].content.substring(0, 50) + (msgs[0].content.length > 50 ? '…' : '');
+  if (convoId) { const i = convos.findIndex(c => c.id === convoId); if (i !== -1) { convos[i].messages = [...msgs]; convos[i].title = title; } }
+  else { convoId = Date.now().toString(); convos.unshift({ id: convoId, title, messages: [...msgs] }); }
+  document.getElementById('chat-title').textContent = title;
+  localStorage.setItem('koya_convos', JSON.stringify(convos)); renderChatList();
+}
+function loadConvo(id) {
+  const c = convos.find(x => x.id === id); if (!c) return;
+  convoId = id; msgs = [...c.messages];
+  document.getElementById('chat-title').textContent = c.title;
   document.getElementById('welcome-screen').classList.add('hidden');
   document.getElementById('messages').classList.remove('hidden');
-
-  const fileInfo=attachedFile?{name:attachedFile.name,image:attachedFile.type==='image',data:attachedFile.data}:null;
-  messages.push({role:'user',content:text||'Analiza este archivo',fileInfo});
-  appendFileInfoToDOM('user',text||'Analiza este archivo',fileInfo);
-
-  const fileRef=attachedFile;removeFile();
-  input.value='';input.style.height='auto';updateSendButton();scrollToBottom();
-  isStreaming=true;updateSendButton();showTypingIndicator();
-
-  try{
-    if(currentMode==='image'){await generateImage(text)}
-    else if(fileRef&&fileRef.type==='image'){await analyzeImage(fileRef,text)}
-    else if(currentMode==='search'){await searchInternet(text,fileRef)}
-    else if(currentProvider==='pollinations'){await sendPollinations(text,fileRef)}
-    else if(currentProvider==='groq'){await sendGroq(text,fileRef)}
-    else if(currentProvider==='gemini'){await sendGemini(text,fileRef)}
-    else if(currentProvider==='openai'){await sendOpenAI(text,fileRef)}
-  }catch(err){removeTypingIndicator();appendMessageToDOM('assistant','Error: '+err.message+'\n\nPrueba cambiando de motor si persiste.')}
-  isStreaming=false;updateSendButton();
+  const ct = document.getElementById('messages'); ct.innerHTML = '';
+  msgs.forEach(m => { if (m.image) appendImgDOM(m.image, m.content, false); else appendMsgDOM(m.role, m.content, false); });
+  scrollBottom(); renderChatList(); closeMobileSidebar();
 }
+function delConvo(id) { convos = convos.filter(c => c.id !== id); localStorage.setItem('koya_convos', JSON.stringify(convos)); if (id === convoId) newChat(); renderChatList(); }
+function clearChat() { if (!msgs.length) return; newChat(); showToast('Limpiado'); }
 
-// ===== POLLINATIONS =====
-async function sendPollinations(userMsg,fileRef){
-  let prompt=buildContext(userMsg);
-  if(fileRef&&fileRef.textContent)prompt+='\n\n[Contenido del archivo "'+fileRef.name+'"]:\n'+fileRef.textContent.substring(0,8000);
-  const url='https://text.pollinations.ai/'+encodeURIComponent(prompt)+'?model=openai&seed='+Math.floor(Math.random()*999999);
-  const res=await fetch(url);if(!res.ok)throw new Error('Error '+res.status);
-  const fullText=await res.text();removeTypingIndicator();
-  const words=fullText.split(/(\s+)/);for(let i=0;i<words.length;i++){if(i%3===0||i===words.length-1){appendStreamingContent(words.slice(Math.max(0,i-2),i+1).join(''));await sleep(12+Math.random()*18)}}
-  finalizeStreaming();messages.push({role:'assistant',content:fullText});saveConversation();
+// ===== MESSAGE DOM =====
+function appendMsgDOM(role, content, anim) {
+  const ct = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'flex gap-4 ' + (anim ? 'msg-enter' : '') + (role === 'user' ? ' justify-end' : '');
+  d.innerHTML = role === 'user'
+    ? '<div class="max-w-[85%] md:max-w-[70%]"><div class="bg-[#1a1a1a] text-white px-5 py-3.5 rounded-2xl rounded-tr-md"><p class="text-sm font-light leading-relaxed whitespace-pre-wrap">' + esc(content) + '</p></div></div>'
+    : '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[75%] min-w-0"><div class="msg-content text-sm font-light leading-relaxed text-neutral-700">' + renderMD(content) + '</div><div class="flex items-center gap-2 mt-2"><button onclick="copyMsg(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button><button onclick="saveAsFile(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors" title="Guardar como archivo"><iconify-icon icon="lucide:download" width="13"></iconify-icon></button></div></div>';
+  ct.appendChild(d); addCodeBtns(d);
 }
-
-// ===== GROQ (con visión) =====
-async function sendGroq(userMsg,fileRef){
-  const apiMessages=[{role:'system',content:getSystemPrompt()}];
-  for(const m of messages){
-    if(m.fileInfo&&m.fileInfo.image){
-      apiMessages.push({role:'user',content:[{type:'text',text:m.content},{type:'image_url',image_url:{url:m.fileInfo.data}}]});
-    }else if(m.fileInfo&&m.fileInfo.textContent){
-      apiMessages.push({role:'user',content:m.content+'\n\n[Archivo: '+m.fileInfo.name+']\n'+m.fileInfo.textContent.substring(0,6000)});
-    }else if(!m.imageGenerated){apiMessages.push({role:m.role,content:m.content})}
+function appendImgDOM(url, prompt, anim) {
+  const ct = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'flex gap-4 ' + (anim ? 'msg-enter' : '');
+  d.innerHTML = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[60%] min-w-0"><div class="generated-image" onclick="openImgPrev(\'' + url + '\')"><img src="' + url + '" alt="' + esc(prompt) + '" loading="lazy"></div><p class="text-[11px] text-neutral-400 mt-2 italic">"' + esc(prompt) + '"</p></div>';
+  ct.appendChild(d);
+}
+function renderMD(t) { try { return marked.parse(t); } catch { return t.replace(/\n/g, '<br>'); } }
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function addCodeBtns(root) {
+  root.querySelectorAll('pre').forEach(pre => {
+    if (pre.parentElement.classList.contains('code-block-wrapper')) return;
+    const w = document.createElement('div'); w.className = 'code-block-wrapper';
+    pre.parentNode.insertBefore(w, pre); w.appendChild(pre);
+    // Detect language from class
+    const cls = pre.className || '';
+    const langMatch = cls.match(/language-(\w+)/);
+    const lang = langMatch ? langMatch[1] : '';
+    const btns = document.createElement('div');
+    btns.style.cssText = 'position:absolute;top:8px;right:8px;display:flex;gap:4px;';
+    btns.innerHTML = '<button class="code-btn" onclick="navigator.clipboard.writeText(this.closest(\'.code-block-wrapper\').querySelector(\'pre\').textContent);this.textContent=\'¡Copiado!\';setTimeout(()=>this.textContent=\'Copiar\',2000)">Copiar</button>' +
+      (lang ? '<button class="code-btn" onclick="saveCodeAsFile(this.closest(\'.code-block-wrapper\').querySelector(\'pre\').textContent,\'' + lang + '\')"><iconify-icon icon="lucide:download" width="10"></iconify-icon></button>' : '');
+    w.appendChild(btns);
+  });
+}
+function showTyping() {
+  const ct = document.getElementById('messages');
+  const d = document.createElement('div'); d.id = 'typing'; d.className = 'flex gap-4 msg-enter';
+  d.innerHTML = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="flex items-center gap-1.5 py-3 px-1"><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div></div>';
+  ct.appendChild(d); scrollBottom();
+}
+function removeTyping() { const e = document.getElementById('typing'); if (e) e.remove(); }
+function streamChunk(chunk) {
+  let s = document.getElementById('stream-msg');
+  if (!s) { removeTyping(); const ct = document.getElementById('messages'); const d = document.createElement('div'); d.id = 'stream-msg'; d.className = 'flex gap-4 msg-enter'; d.innerHTML = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[75%] min-w-0"><div class="msg-content text-sm font-light leading-relaxed text-neutral-700" id="stream-c"></div></div>'; ct.appendChild(d); s = document.getElementById('stream-msg'); }
+  const c = document.getElementById('stream-c');
+  c.dataset.full = (c.dataset.full || '') + chunk;
+  c.innerHTML = renderMD(c.dataset.full); addCodeBtns(c); scrollBottom();
+}
+function endStream() {
+  const s = document.getElementById('stream-msg'); if (s) s.removeAttribute('id');
+  const c = document.getElementById('stream-c');
+  if (c) { c.removeAttribute('id'); c.removeAttribute('data-full');
+    const a = document.createElement('div'); a.className = 'flex items-center gap-2 mt-2';
+    a.innerHTML = '<button onclick="copyMsg(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button><button onclick="saveAsFile(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors" title="Guardar"><iconify-icon icon="lucide:download" width="13"></iconify-icon></button>';
+    c.parentElement.appendChild(a);
   }
-  const useVision=apiMessages.some(m=>Array.isArray(m.content)&&m.content.some(c=>c.type==='image_url'));
-  const model=useVision?'llama-3.2-11b-vision-preview':'llama-3.3-70b-versatile';
-  const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_KEY},body:JSON.stringify({model,messages:apiMessages,temperature:TEMPERATURE,max_tokens:8192,stream:true})});
-  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'Error '+res.status)}
-  await processSSEStream(res);messages.push({role:'assistant',content:document.getElementById('streaming-content')?.dataset.full||''});saveConversation();
-}
-
-// ===== GEMINI (con visión) =====
-async function sendGemini(userMsg,fileRef){
-  const contents=[];
-  for(const m of messages){
-    if(m.fileInfo&&m.fileInfo.image){
-      const base64Data=m.fileInfo.data.split(',')[1];
-      contents.push({role:'user',parts:[{text:m.content},{inlineData:{mimeType:m.fileInfo.mimeType,data:base64Data}}]});
-    }else if(m.fileInfo&&m.fileInfo.textContent){
-      contents.push({role:'user',parts:[{text:m.content+'\n\n[Archivo: '+m.fileInfo.name+']\n'+m.fileInfo.textContent.substring(0,6000)}]});
-    }else if(!m.imageGenerated){
-      contents.push({role:m.role==='user'?'user':'model',parts:[{text:m.content}]});
-    }
-  }
-  const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key='+GEMINI_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents,generationConfig:{temperature:TEMPERATURE,maxOutputTokens:8192,systemInstruction:getSystemPrompt()}})});
-  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'Error '+res.status)}
-  await processGeminiStream(res);messages.push({role:'assistant',content:document.getElementById('streaming-content')?.dataset.full||''});saveConversation();
-}
-
-// ===== OPENAI (con visión) =====
-async function sendOpenAI(userMsg,fileRef){
-  const apiMessages=[{role:'system',content:getSystemPrompt()}];
-  for(const m of messages){
-    if(m.fileInfo&&m.fileInfo.image){
-      apiMessages.push({role:'user',content:[{type:'text',text:m.content},{type:'image_url',image_url:{url:m.fileInfo.data,detail:'auto'}}]});
-    }else if(m.fileInfo&&m.fileInfo.textContent){
-      apiMessages.push({role:'user',content:m.content+'\n\n[Archivo: '+m.fileInfo.name+']\n'+m.fileInfo.textContent.substring(0,6000)});
-    }else if(!m.imageGenerated){apiMessages.push({role:m.role,content:m.content})}
-  }
-  const res=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+OPENAI_KEY},body:JSON.stringify({model:OPENAI_MODEL,messages:apiMessages,temperature:TEMPERATURE,max_tokens:4096,stream:true})});
-  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'Error '+res.status)}
-  await processSSEStream(res);messages.push({role:'assistant',content:document.getElementById('streaming-content')?.dataset.full||''});saveConversation();
-}
-
-// ===== IMAGE ANALYSIS =====
-async function analyzeImage(fileRef,text){
-  if(!supportsVision()){
-    removeTypingIndicator();
-    appendMessageToDOM('assistant','Para analizar imágenes necesitas un motor con visión. Te recomiendo **Gemini** (gratis):\n\n1. Click en "Motor" abajo\n2. Selecciona Gemini\n3. Pega tu API Key\n\nObtén la key gratis en 1 minuto: [aistudio.google.com/apikey](https://aistudio.google.com/apikey)');
-    return;
-  }
-  if(currentProvider==='groq')await sendGroq(text||'Describe esta imagen en detalle',fileRef);
-  else if(currentProvider==='gemini')await sendGemini(text||'Describe esta imagen en detalle',fileRef);
-  else if(currentProvider==='openai')await sendOpenAI(text||'Describe esta imagen en detalle',fileRef);
 }
 
 // ===== SEARCH =====
-async function searchInternet(query,fileRef){
-  let sources=[];
-  try{
-    const ddg=await fetch('https://api.duckduckgo.com/?q='+encodeURIComponent(query)+'&format=json&no_html=1').then(r=>r.json());
-    if(ddg.Abstract){sources.push({title:ddg.Heading||query,url:ddg.AbstractURL})}
-    if(ddg.RelatedTopics){ddg.RelatedTopics.slice(0,5).forEach(r=>{if(r.FirstURL&&r.Text)sources.push({title:r.Text.substring(0,80),url:r.FirstURL})})}
-  }catch{}
-  let wikiText='';
-  try{
-    const wEs=await fetch('https://es.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(query)).then(r=>r.json()).catch(()=>null);
-    if(wEs&&wEs.extract){wikiText=wEs.extract;if(wEs.content_urls?.desktop?.page)sources.push({title:'Wikipedia: '+query,url:wEs.content_urls.desktop.page})}
-  }catch{}
-  if(!wikiText){try{const wEn=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(query)).then(r=>r.json()).catch(()=>null);if(wEn&&wEn.extract)wikiText='[Inglés] '+wEn.extract;if(wEn?.content_urls?.desktop?.page)sources.push({title:'Wikipedia (EN): '+query,url:wEn.content_urls.desktop.page})}catch{}}
-  let contextPrompt=getSystemPrompt()+'\n\nINFORMACIÓN ENCONTRADA EN INTERNET:\n';
-  if(wikiText)contextPrompt+='--- WIKIPEDIA ---\n'+wikiText+'\n\n';
-  if(sources.length)contextPrompt+='--- FUENTES ---\n'+sources.map((s,i)=>'['+(i+1)+'] '+s.title+' → '+s.url).join('\n')+'\n\n';
-  if(!wikiText&&!sources.length)contextPrompt+='No se encontraron resultados específicos. Usa tu conocimiento.\n\n';
-  contextPrompt+='PREGUNTA DEL USUARIO: '+query+'\n\nResponde basándote en la información anterior. Cita fuentes como [1], [2], etc. Si no hay info suficiente, dilo.';
-  if(fileRef&&fileRef.textContent)contextPrompt+='\n\n[Archivo adjunto: '+fileRef.name+']\n'+fileRef.textContent.substring(0,4000);
+function buildSearchContext(q) {
+  let ctx = getSystemPrompt() + '\n\nEl usuario quiere buscar en internet. He recopilado estas fuentes:\n\n';
+  return ctx;
+}
 
-  if(currentProvider==='pollinations'){
-    const url='https://text.pollinations.ai/'+encodeURIComponent(contextPrompt)+'?model=openai&seed='+Math.floor(Math.random()*999999);
-    const res=await fetch(url);if(!res.ok)throw new Error('Error '+res.status);
-    const fullText=await res.text();removeTypingIndicator();
-    const words=fullText.split(/(\s+)/);for(let i=0;i<words.length;i++){if(i%3===0||i===words.length-1){appendStreamingContent(words.slice(Math.max(0,i-2),i+1).join(''));await sleep(12+Math.random()*18)}}
-    finalizeStreaming();messages.push({role:'assistant',content:fullText});
-  }else{
-    const apiMessages=[{role:'system',content:contextPrompt}];
-    apiMessages.push(...messages.slice(-4).filter(m=>!m.fileInfo&&!m.imageGenerated).map(m=>({role:m.role,content:m.content})));
-    if(currentProvider==='groq'){const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_KEY},body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:apiMessages,temperature:TEMPERATURE,max_tokens:4096,stream:true})});if(!res.ok)throw new Error('Groq error');await processSSEStream(res)}
-    else if(currentProvider==='gemini'){const contents=apiMessages.filter(m=>m.role!=='system').map(m=>({role:m.role==='user'?'user':'model',parts:[{text:m.content}]}));const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key='+GEMINI_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents,generationConfig:{temperature:TEMPERATURE,maxOutputTokens:4096}})});if(!res.ok)throw new Error('Gemini error');await processGeminiStream(res)}
-    else if(currentProvider==='openai'){const res=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+OPENAI_KEY},body:JSON.stringify({model:OPENAI_MODEL,messages:apiMessages,temperature:TEMPERATURE,max_tokens:4096,stream:true})});if(!res.ok)throw new Error('OpenAI error');await processSSEStream(res)}
-    messages.push({role:'assistant',content:document.getElementById('streaming-content')?.dataset.full||''});
+async function webSearch(query) {
+  let sources = [];
+  // DuckDuckGo
+  try {
+    const r = await fetch('https://api.duckduckgo.com/?q=' + encodeURIComponent(query) + '&format=json&no_html=1');
+    const d = await r.json();
+    if (d.Abstract) sources.push({ title: d.Heading || 'DuckDuckGo', text: d.Abstract, url: d.AbstractURL || '' });
+    if (d.RelatedTopics) d.RelatedTopics.slice(0, 3).forEach(t => { if (t.Text) sources.push({ title: t.Text.substring(0, 60), text: t.Text, url: t.FirstURL || '' }); });
+  } catch {}
+  // Wikipedia ES
+  try {
+    const r = await fetch('https://es.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(query));
+    if (r.ok) { const d = await r.json(); if (d.extract) sources.push({ title: d.title, text: d.extract, url: d.content_urls?.desktop?.page || '' }); }
+  } catch {}
+  // Wikipedia EN fallback
+  if (sources.length < 2) {
+    try {
+      const r = await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(query));
+      if (r.ok) { const d = await r.json(); if (d.extract) sources.push({ title: d.title + ' (EN)', text: d.extract, url: d.content_urls?.desktop?.page || '' }); }
+    } catch {}
   }
-  if(sources.length)appendSourcesToDOM(sources);
-  saveConversation();
+  return sources;
 }
 
-// ===== IMAGE GENERATION =====
-async function generateImage(prompt){
-  let clean=prompt;['genera','dibuja','crea','haz','una imagen de','un dibujo de','imagen de','dibujo de'].forEach(w=>{clean=clean.replace(new RegExp(w,'gi'),'')});clean=clean.trim();
-  if(!clean){removeTypingIndicator();appendMessageToDOM('assistant','¿Qué imagen quieres generar?');return}
-  const seed=Math.floor(Math.random()*999999);
-  const imageUrl='https://image.pollinations.ai/prompt/'+encodeURIComponent(clean)+'?width=768&height=768&seed='+seed+'&nologo=true&model=flux';
-  removeTypingIndicator();appendImageToDOM(clean,imageUrl);
-  messages.push({role:'assistant',content:clean,imageGenerated:imageUrl});saveConversation();
+function formatSources(sources) {
+  if (!sources.length) return '';
+  let s = '\n\n---\n**Fuentes:**\n';
+  sources.forEach((src, i) => { s += (i+1) + '. [' + src.title + '](' + src.url + '): ' + src.text.substring(0, 300) + '\n'; });
+  return s;
 }
 
-// ===== STREAM HELPERS =====
-async function processSSEStream(res){
-  const reader=res.body.getReader();const decoder=new TextDecoder();let buffer='';let full='';
-  while(true){const{done,value}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const lines=buffer.split('\n');buffer=lines.pop()||'';for(const line of lines){const t=line.trim();if(!t||!t.startsWith('data:'))continue;const d=t.slice(5).trim();if(d==='[DONE]')break;try{const p=JSON.parse(d);const delta=p.choices?.[0]?.delta?.content;if(delta){full+=delta;appendStreamingContent(delta)}}catch{}}}
-  finalizeStreaming();
-}
-async function processGeminiStream(res){
-  const reader=res.body.getReader();const decoder=new TextDecoder();let buffer='';let full='';
-  while(true){const{done,value}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const lines=buffer.split('\n');buffer=lines.pop()||'';for(const line of lines){const t=line.trim();if(!t.startsWith('data:'))continue;try{const p=JSON.parse(t.slice(5).trim());const text=p.candidates?.[0]?.content?.parts?.[0]?.text;if(text){full+=text;appendStreamingContent(text)}}catch{}}}
-  finalizeStreaming();
+// ===== VISION =====
+async function analyzeVision(base64, mime, prompt) {
+  // Try current provider, fallback to Gemini
+  const providers = [];
+  if (provider === 'gemini' && GEMINI_KEY) providers.push('gemini');
+  if (provider === 'groq' && GROQ_KEY) providers.push('groq');
+  if (provider === 'openai' && OPENAI_KEY) providers.push('openai');
+  // Fallbacks
+  if (!providers.includes('gemini') && GEMINI_KEY) providers.push('gemini');
+  if (!providers.includes('groq') && GROQ_KEY) providers.push('groq');
+
+  if (!providers.length) throw new Error('Visión requiere Groq, Gemini u OpenAI. Cámbialo en Motor de IA.');
+
+  for (const p of providers) {
+    try {
+      if (p === 'gemini') return await geminiVision(base64, mime, prompt);
+      if (p === 'groq') return await groqVision(base64, mime, prompt);
+      if (p === 'openai') return await openaiVision(base64, mime, prompt);
+    } catch(e) { console.warn('Vision failed for', p, e.message); }
+  }
+  throw new Error('Todos los proveedores de visión fallaron. Verifica tus API Keys.');
 }
 
-// ===== UTILS =====
-function openImagePreview(src){document.getElementById('preview-img').src=src;document.getElementById('image-preview').classList.remove('hidden')}
-function closeImagePreview(){document.getElementById('image-preview').classList.add('hidden')}
-function sendSuggestion(t){document.getElementById('user-input').value=t;sendMessage()}
-function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
-function scrollToBottom(){requestAnimationFrame(()=>{document.getElementById('messages-container').scrollTop=document.getElementById('messages-container').scrollHeight})}
-function updateSendButton(){const i=document.getElementById('user-input');const b=document.getElementById('send-btn');b.disabled=(!i.value.trim()&&!attachedFile)||isStreaming;b.innerHTML=isStreaming?'<iconify-icon icon="lucide:loader-2" width="18" class="animate-spin"></iconify-icon>':'<iconify-icon icon="lucide:arrow-up" width="18"></iconify-icon>'}
-function handleKeyDown(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}
-function copyMessage(btn){const m=btn.closest('.max-w-\\[85\\%\\]')||btn.parentElement.previousElementSibling;navigator.clipboard.writeText((m?.innerText||'').trim()).then(()=>showToast('Copiado ✓'))}
-function exportChat(){if(messages.length===0){showToast('No hay mensajes','warn');return}let t='# Koya — Conversación\n\n';messages.forEach(m=>{if(m.imageGenerated)t+='**Koya:** [Imagen]('+m.imageGenerated+')\n\n';else if(m.fileInfo)t+='**Tú:** [Archivo: '+m.fileInfo.name+'] '+m.content+'\n\n';else t+=(m.role==='user'?'**Tú:**\n':'**Koya:**\n')+m.content+'\n\n'});t+='---\nMotor: '+getProviderName()+' | '+new Date().toLocaleString();const blob=new Blob([t],{type:'text/markdown'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='koya-'+Date.now()+'.md';a.click();URL.revokeObjectURL(url);showToast('Exportado ✓')}
-function openMobileSidebar(){document.getElementById('mobile-sidebar-bg').classList.remove('hidden');document.getElementById('mobile-sidebar').classList.add('open')}
-function closeMobileSidebar(){document.getElementById('mobile-sidebar-bg').classList.add('hidden');document.getElementById('mobile-sidebar').classList.remove('open')}
-function showToast(message,type){type=type||'success';const c=document.getElementById('toast-container');const t=document.createElement('div');const icons={success:'lucide:check-circle',warn:'lucide:alert-circle'};const colors={success:'text-[#b8976a]',warn:'text-amber-500'};t.className='bg-white rounded-xl shadow-lg border border-neutral-100 px-5 py-3 flex items-center gap-3';t.style.cssText='transform:translateY(16px);opacity:0;transition:all .4s cubic-bezier(.16,1,.3,1);';t.innerHTML='<iconify-icon icon="'+icons[type]+'" width="16" class="'+colors[type]+'"></iconify-icon><span class="text-xs font-light text-neutral-600">'+message+'</span>';c.appendChild(t);requestAnimationFrame(()=>{t.style.transform='translateY(0)';t.style.opacity='1'});setTimeout(()=>{t.style.transform='translateY(16px)';t.style.opacity='0';setTimeout(()=>t.remove(),400)},3000)}
-document.getElementById('provider-modal').addEventListener('click',function(e){if(e.target===this)closeProviderModal()});
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeProviderModal();closeMobileSidebar();closeImagePreview()}});
+async function geminiVision(base64, mime, prompt) {
+  const body = {
+    contents: [{ parts: [{ text: prompt || 'Analiza esta imagen en detalle. Describe lo que ves.' }, { inline_data: { mime_type: mime, data: base64 } }] }],
+    generationConfig: { temperature: TEMP, maxOutputTokens: 8192 }
+  };
+  const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_KEY, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+  });
+  if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.error?.message || 'Error ' + r.status); }
+  const d = await r.json();
+  return d.candidates?.[0]?.content?.parts?.[0]?.text || 'No pude analizar la imagen.';
+}
+
+async function groqVision(base64, mime, prompt) {
+  const body = {
+    model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+    messages: [
+      { role: 'system', content: 'Eres un analista de imágenes experto. Respondes en español.' },
+      { role: 'user', content: [
+        { type: 'image_url', image_url: { url: 'data:' + mime + ';base64,' + base64 } },
+        { type: 'text', text: prompt || 'Analiza esta imagen en detalle.' }
+      ]}
+    ],
+    temperature: TEMP, max_tokens: 4096
+  };
+  const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_KEY }, body: JSON.stringify(body)
+  });
+  if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.error?.message || 'Error ' + r.status); }
+  const d = await r.json();
+  return d.choices?.[0]?.message?.content || 'No pude analizar la imagen.';
+}
+
+async function openaiVision(base64, mime, prompt) {
+  const body = {
+    model: OPENAI_MODEL,
+    messages: [
+      { role: 'system', content: 'Eres un analista de imágenes experto. Respondes en español.' },
+      { role: 'user', content: [
+        { type: 'image_url', image_url: { url: 'data:' + mime + ';base64,' + base64 } },
+        { type: 'text', text: prompt || 'Analiza esta imagen en detalle.' }
+      ]}
+    ],
+    temperature: TEMP, max_tokens: 4096
+  };
+  const r = await fetch(OPENAI_URL + '/chat/completions', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + OPENAI_KEY }, body: JSON.stringify(body)
+  });
+  if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.error?.message || 'Error ' + r.status); }
+  const d = await r.json();
+  return d.choices?.[0]?.message?.content || 'No pude analizar la imagen.';
+}
+
+// ===== TEXT GENERATION =====
+function buildCtx(userMsg) {
+  let c = getSystemPrompt() + '\n\n';
+  msgs.slice(-10).forEach(m => { if (m.role === 'user') c += 'Usuario: ' + m.content + '\n'; else c += 'Asistente: ' + m.content + '\n'; });
+  c += 'Usuario: ' + userMsg + '\nAsistente: ';
+  return c;
+}
+
+async function sendPollinations(userMsg) {
+  const url = 'https://text.pollinations.ai/' + encodeURIComponent(buildCtx(userMsg)) + '?model=openai&seed=' + Math.floor(Math.random() * 999999);
+  const r = await fetch(url); if (!r.ok) throw new Error('Error ' + r.status);
+  const t = await r.text(); removeTyping();
+  const w = t.split(/(\s+)/);
+  for (let i = 0; i < w.length; i++) { if (i % 3 === 0 || i === w.length - 1) { streamChunk(w.slice(Math.max(0, i - 2), i + 1).join('')); await sleep(12 + Math.random() * 18); } }
+  endStream(); return t;
+}
+
+async function sendGroqStream(apiMsgs) {
+  const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_KEY },
+    body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: apiMsgs, temperature: TEMP, max_tokens: 4096, stream: true })
+  });
+  if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.error?.message || 'Error ' + r.status); }
+  return await readSSE(r);
+}
+
+async function sendGeminiStream(apiMsgs) {
+  const contents = apiMsgs.filter(m => m.role !== 'system').map(m => ({
+    role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.content }]
+  }));
+  const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=' + GEMINI_KEY, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contents, generationConfig: { temperature: TEMP, maxOutputTokens: 8192 } })
+  });
+  if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.error?.message || 'Error ' + r.status); }
+  let full = '';
+  const reader = r.body.getReader(); const dec = new TextDecoder(); let buf = '';
+  while (true) { const { done, value } = await reader.read(); if (done) break; buf += dec.decode(value, { stream: true }); const lines = buf.split('\n'); buf = lines.pop() || ''; for (const l of lines) { const t = l.trim(); if (!t.startsWith('data:')) continue; try { const p = JSON.parse(t.slice(5)); const txt = p.candidates?.[0]?.content?.parts?.[0]?.text; if (txt) { full += txt; streamChunk(txt); } } catch {} } }
+  endStream(); return full;
+}
+
+async function sendOpenAIStream(apiMsgs) {
+  const r = await fetch(OPENAI_URL + '/chat/completions', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + OPENAI_KEY },
+    body: JSON.stringify({ model: OPENAI_MODEL, messages: apiMsgs, temperature: TEMP, max_tokens: 4096, stream: true })
+  });
+  if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.error?.message || 'Error ' + r.status); }
+  return await readSSE(r);
+}
+
+async function readSSE(response) {
+  const reader = response.body.getReader(); const dec = new TextDecoder(); let buf = ''; let full = '';
+  while (true) { const { done, value } = await reader.read(); if (done) break; buf += dec.decode(value, { stream: true }); const lines = buf.split('\n'); buf = lines.pop() || ''; for (const l of lines) { const t = l.trim(); if (!t || !t.startsWith('data:')) continue; const d = t.slice(5).trim(); if (d === '[DONE]') break; try { const p = JSON.parse(d); const delta = p.choices?.[0]?.delta?.content; if (delta) { full += delta; streamChunk(delta); } } catch {} } }
+  endStream(); return full;
+}
+
+async function sendWithProvider(userMsg) {
+  if (provider === 'pollinations') return await sendPollinations(userMsg);
+  const apiMsgs = [{ role: 'system', content: getSystemPrompt() }];
+  apiMsgs.push(...msgs.map(m => ({ role: m.role, content: m.content })));
+  if (provider === 'groq') return await sendGroqStream(apiMsgs);
+  if (provider === 'gemini') return await sendGeminiStream(apiMsgs);
+  if (provider === 'openai') return await sendOpenAIStream(apiMsgs);
+}
+
+// ===== IMAGE GEN =====
+async function genImage(prompt) {
+  let clean = prompt; ['genera','dibuja','crea','haz','una imagen de','un dibujo de'].forEach(w => { clean = clean.replace(new RegExp(w, 'gi'), ''); }); clean = clean.trim();
+  if (!clean) { removeTyping(); appendMsgDOM('assistant', '¿Qué imagen quieres generar?'); return; }
+  const url = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(clean) + '?width=768&height=768&seed=' + Math.floor(Math.random() * 999999) + '&nologo=true&model=flux';
+  removeTyping(); appendImgDOM(url, clean);
+  return clean;
+}
+
+// ===== SEND =====
+async function sendMessage() {
+  const input = document.getElementById('user-input');
+  const text = input.value.trim();
+  if ((!text && !pendingFile) || streaming) return;
+  document.getElementById('welcome-screen').classList.add('hidden');
+  document.getElementById('messages').classList.remove('hidden');
+
+  // Image generation mode
+  if (imgMode && text) {
+    msgs.push({ role: 'user', content: text }); appendMsgDOM('user', text);
+    input.value = ''; input.style.height = 'auto'; clearFile(); updateSendBtn(); scrollBottom();
+    streaming = true; updateSendBtn(); showTyping();
+    const result = await genImage(text);
+    msgs.push({ role: 'assistant', content: result, image: null }); saveConvo();
+    streaming = false; updateSendBtn(); return;
+  }
+
+  // File analysis (image)
+  if (pendingFile && pendingFile.type === 'image') {
+    const filePrompt = text || 'Analiza esta imagen en detalle. Describe todo lo que ves.';
+    msgs.push({ role: 'user', content: '📎 ' + pendingFile.name + (text ? ': ' + text : '') }); appendMsgDOM('user', '📎 ' + pendingFile.name + (text ? ': ' + text : ''));
+    input.value = ''; input.style.height = 'auto'; updateSendBtn(); scrollBottom();
+    streaming = true; updateSendBtn(); showTyping();
+    try {
+      const result = await analyzeVision(pendingFile.data, pendingFile.mime, filePrompt);
+      removeTyping(); appendMsgDOM('assistant', result);
+      msgs.push({ role: 'assistant', content: result }); saveConvo();
+    } catch(e) { removeTyping(); appendMsgDOM('assistant', 'Error: ' + e.message); }
+    clearFile(); streaming = false; updateSendBtn(); return;
+  }
+
+  // File analysis (text/pdf)
+  if (pendingFile && pendingFile.type === 'text') {
+    const filePrompt = text || 'Analiza este archivo: ' + pendingFile.name;
+    const fullContent = 'Archivo: ' + pendingFile.name + '\n\n' + pendingFile.data + '\n\n' + filePrompt;
+    msgs.push({ role: 'user', content: '📎 ' + pendingFile.name + (text ? ': ' + text : '') }); appendMsgDOM('user', '📎 ' + pendingFile.name + (text ? ': ' + text : ''));
+    input.value = ''; input.style.height = 'auto'; const savedFile = pendingFile; clearFile(); updateSendBtn(); scrollBottom();
+    streaming = true; updateSendBtn(); showTyping();
+    try {
+      // Send file content as a user message for context
+      msgs.push({ role: 'user', content: '[Contenido de ' + savedFile.name + ']:\n' + savedFile.data.substring(0, 50000) });
+      let result;
+      if (currentMode === 'search') {
+        const sources = await webSearch(text || savedFile.name);
+        const ctx = buildSearchContext(text || savedFile.name) + formatSources(sources) + '\n\nContenido del archivo adjunto:\n' + savedFile.data.substring(0, 20000) + '\n\nBasándote en las fuentes Y el archivo, responde:';
+        removeTyping(); result = await sendPollinations(ctx);
+      } else {
+        result = await sendWithProvider(fullContent);
+      }
+      msgs.push({ role: 'assistant', content: result }); saveConvo();
+    } catch(e) { removeTyping(); appendMsgDOM('assistant', 'Error: ' + e.message); }
+    streaming = false; updateSendBtn(); return;
+  }
+
+  // Search mode
+  if (currentMode === 'search') {
+    msgs.push({ role: 'user', content: text }); appendMsgDOM('user', text);
+    input.value = ''; input.style.height = 'auto'; updateSendBtn(); scrollBottom();
+    streaming = true; updateSendBtn();
+    // Show searching state
+    const ct = document.getElementById('messages');
+    const searchDiv = document.createElement('div'); searchDiv.id = 'search-status'; searchDiv.className = 'flex gap-4 msg-enter';
+    searchDiv.innerHTML = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><iconify-icon icon="lucide:search" width="13" class="text-white animate-pulse"></iconify-icon></div><div class="text-sm text-neutral-400 font-light pt-1.5">Buscando en internet...</div>';
+    ct.appendChild(searchDiv); scrollBottom();
+    const sources = await webSearch(text);
+    const ss = document.getElementById('search-status'); if (ss) ss.remove();
+    showTyping();
+    const ctx = buildSearchContext(text) + formatSources(sources) + '\n\nBasándote en las fuentes anteriores, responde a: ' + text;
+    try {
+      let result = await sendPollinations(ctx);
+      // Append sources as clickable links
+      if (sources.length) {
+        result += '\n\n---\n**Fuentes:**\n';
+        sources.forEach((s, i) => { result += (i+1) + '. [' + s.title + '](' + s.url + ')\n'; });
+        // Re-render last message with sources
+        const lastMsg = document.querySelector('#stream-c') || document.querySelector('.msg-content:last-of-type');
+        if (lastMsg) { lastMsg.innerHTML = renderMD(result); addCodeBtns(lastMsg.parentElement); }
+      }
+      msgs.push({ role: 'assistant', content: result }); saveConvo();
+    } catch(e) { removeTyping(); appendMsgDOM('assistant', 'Error: ' + e.message); }
+    streaming = false; updateSendBtn(); return;
+  }
+
+  // Normal chat / deep / code
+  msgs.push({ role: 'user', content: text }); appendMsgDOM('user', text);
+  input.value = ''; input.style.height = 'auto'; updateSendBtn(); scrollBottom();
+  streaming = true; updateSendBtn(); showTyping();
+  try {
+    await sendWithProvider(text);
+    msgs.push({ role: 'assistant', content: document.getElementById('stream-c')?.dataset.full || '' }); saveConvo();
+  } catch(e) { removeTyping(); appendMsgDOM('assistant', 'Error: ' + e.message); }
+  streaming = false; updateSendBtn();
+}
+
+// ===== FILE SAVE =====
+function saveAsFile(btn) {
+  const content = btn.closest('.max-w-\\[85\\%\\]')?.querySelector('.msg-content')?.innerText || '';
+  saveCodeContent = content;
+  document.getElementById('save-filename').value = 'koya-archivo';
+  document.getElementById('save-modal').classList.add('open');
+}
+function saveCodeAsFile(code, lang) {
+  saveCodeContent = code;
+  const extMap = {python:'.py',javascript:'.js',typescript:'.ts',html:'.html',css:'.css',json:'.json',java:'.java',cpp:'.cpp',c:'.c',go:'.go',rust:'.rs',ruby:'.rb',php:'.php',sql:'.sql',bash:'.sh',shell:'.sh',xml:'.xml',yaml:'.yml',markdown:'.md'};
+  document.getElementById('save-ext').value = extMap[lang] || '.txt';
+  document.getElementById('save-filename').value = 'koya-code';
+  document.getElementById('save-modal').classList.add('open');
+}
+function closeSaveModal() { document.getElementById('save-modal').classList.remove('open'); }
+function doSaveFile() {
+  const name = document.getElementById('save-filename').value.trim() || 'archivo';
+  const ext = document.getElementById('save-ext').value;
+  const blob = new Blob([saveCodeContent], { type: 'text/plain' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name + ext; a.click(); URL.revokeObjectURL(a.href);
+  closeSaveModal(); showToast('Archivo descargado ✓');
+}
+
+// ===== UTILITIES =====
+function openImgPrev(src) { document.getElementById('preview-img').src = src; document.getElementById('image-preview').classList.remove('hidden'); }
+function closeImgPrev() { document.getElementById('image-preview').classList.add('hidden'); }
+function sendSuggestion(t) { document.getElementById('user-input').value = t; sendMessage(); }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function scrollBottom() { requestAnimationFrame(() => { const c = document.getElementById('messages-container'); c.scrollTop = c.scrollHeight; }); }
+function updateSendBtn() {
+  const i = document.getElementById('user-input'); const b = document.getElementById('send-btn');
+  b.disabled = (!i.value.trim() && !pendingFile) || streaming;
+  b.innerHTML = streaming ? '<iconify-icon icon="lucide:loader-2" width="18" class="animate-spin"></iconify-icon>' : '<iconify-icon icon="lucide:arrow-up" width="18"></iconify-icon>';
+}
+function handleKeyDown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function copyMsg(btn) { const m = btn.closest('.max-w-\\[85\\%\\]')?.querySelector('.msg-content'); navigator.clipboard.writeText(m?.innerText || '').then(() => showToast('Copiado ✓')); }
+function exportChat() {
+  if (!msgs.length) { showToast('Sin mensajes', 'warn'); return; }
+  let t = '# Koya — Conversación\n\n';
+  msgs.forEach(m => { if (m.image) t += '**Imagen generada**: ' + m.content + '\n\n'; else t += (m.role === 'user' ? '**Tú:**\n' : '**Koya:**\n') + m.content + '\n\n'; });
+  t += '---\n' + getProviderName() + ' | ' + new Date().toLocaleString();
+  const b = new Blob([t], { type: 'text/markdown' }); const u = URL.createObjectURL(b);
+  const a = document.createElement('a'); a.href = u; a.download = 'koya-' + Date.now() + '.md'; a.click(); URL.revokeObjectURL(u); showToast('Exportado ✓');
+}
+function openMobileSidebar() { document.getElementById('mobile-sidebar-bg').classList.remove('hidden'); document.getElementById('mobile-sidebar').classList.add('open'); }
+function closeMobileSidebar() { document.getElementById('mobile-sidebar-bg').classList.add('hidden'); document.getElementById('mobile-sidebar').classList.remove('open'); }
+function showToast(msg, type) {
+  type = type || 'success'; const c = document.getElementById('toast-container'); const t = document.createElement('div');
+  t.className = 'bg-white rounded-xl shadow-lg border border-neutral-100 px-5 py-3 flex items-center gap-3';
+  t.style.cssText = 'transform:translateY(16px);opacity:0;transition:all .4s cubic-bezier(.16,1,.3,1);';
+  const icons = {success:'lucide:check-circle',warn:'lucide:alert-circle',info:'lucide:info'};
+  const colors = {success:'text-[#b8976a]',warn:'text-amber-500',info:'text-neutral-400'};
+  t.innerHTML = '<iconify-icon icon="'+icons[type]+'" width="16" class="'+colors[type]+'"></iconify-icon><span class="text-xs font-light text-neutral-600">'+msg+'</span>';
+  c.appendChild(t); requestAnimationFrame(() => { t.style.transform = 'translateY(0)'; t.style.opacity = '1'; });
+  setTimeout(() => { t.style.transform = 'translateY(16px)'; t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 3000);
+}
+document.getElementById('provider-modal').addEventListener('click', function(e) { if (e.target === this) closeProviderModal(); });
+document.getElementById('save-modal').addEventListener('click', function(e) { if (e.target === this) closeSaveModal(); });
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeProviderModal(); closeSaveModal(); closeMobileSidebar(); closeImgPrev(); } });
 </script>
 </body>
 </html>
