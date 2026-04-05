@@ -12,9 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-  <script>
-    tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif'],serif:['Playfair Display','serif']}}}}
-  </script>
+  <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif'],serif:['Playfair Display','serif']}}}}</script>
   <style>
     *{box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#fafaf9;color:#1a1a1a}
     ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#e5e5e5;border-radius:99px}
@@ -25,6 +23,10 @@
     @keyframes fadeIn{from{opacity:0;transform:translateY(20px);filter:blur(6px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
     .fade-in{animation:fadeIn .8s cubic-bezier(.16,1,.3,1) forwards}
     .fade-in-d{animation:fadeIn .8s cubic-bezier(.16,1,.3,1) .15s forwards;opacity:0}
+    @keyframes searchSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    .search-spin{animation:searchSpin 1s linear infinite}
+    @keyframes deepPulse{0%,100%{opacity:.4;transform:scale(.95)}50%{opacity:1;transform:scale(1.05)}}
+    .deep-pulse{animation:deepPulse 2s ease-in-out infinite}
     .input-glow:focus-within{box-shadow:0 0 0 3px rgba(184,151,106,.1)}
     .msg-content pre{background:#1a1a1a;color:#e5e5e5;border-radius:12px;padding:16px;overflow-x:auto;margin:12px 0;font-size:13px;line-height:1.6}
     .msg-content code{font-family:'SF Mono','Fira Code',monospace;font-size:13px}
@@ -52,6 +54,11 @@
     .suggestion-chip:hover{border-color:#1a1a1a;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06)}
     .generated-image{border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .5s cubic-bezier(.16,1,.3,1)}
     .generated-image:hover{transform:scale(1.02)}.generated-image img{width:100%;display:block;border-radius:16px}
+    .mode-btn{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:500;letter-spacing:.02em;border:1px solid transparent;transition:all .25s cubic-bezier(.16,1,.3,1);cursor:pointer;white-space:nowrap;flex-shrink:0;color:#a3a3a3;background:transparent}
+    .mode-btn:hover{color:#737373;background:#f5f5f4}
+    .mode-btn.active{color:#fafaf9;background:#1a1a1a;border-color:#1a1a1a}
+    .source-link{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border:1px solid #e5e5e5;border-radius:8px;font-size:11px;color:#737373;text-decoration:none;transition:all .2s}
+    .source-link:hover{border-color:#b8976a;color:#86623d;background:#fdf9f3}
     .provider-card{transition:all .3s cubic-bezier(.16,1,.3,1);cursor:pointer}
     .provider-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
     .provider-card.selected{border-color:#1a1a1a;background:#fafaf9}
@@ -59,7 +66,7 @@
     .provider-card.selected .provider-radio-inner{opacity:1}
     .provider-radio{width:18px;height:18px;border-radius:50%;border:2px solid #d4d4d4;transition:all .2s;flex-shrink:0;display:flex;align-items:center;justify-content:center}
     .provider-radio-inner{width:8px;height:8px;border-radius:50%;background:white;opacity:0;transition:opacity .2s}
-    @media(max-width:768px){.sidebar-panel{transform:translateX(-100%);transition:transform .4s cubic-bezier(.16,1,.3,1)}.sidebar-panel.open{transform:translateX(0)}}
+    @media(max-width:768px){.sidebar-panel{transform:translateX(-100%);transition:transform .4s cubic-bezier(.16,1,.3,1)}.sidebar-panel.open{transform:translateX(0)}.mode-btn span{display:none}.mode-btn{padding:7px 9px}}
   </style>
 </head>
 <body class="antialiased h-screen overflow-hidden">
@@ -68,10 +75,7 @@
   <!-- SIDEBAR -->
   <aside id="sidebar" class="hidden md:flex flex-col w-72 border-r border-neutral-100 bg-white/80 backdrop-blur-sm flex-shrink-0">
     <div class="h-16 flex items-center justify-between px-5 border-b border-neutral-100/80">
-      <div class="flex items-center gap-2.5">
-        <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center"><span class="text-white text-[10px] font-semibold">K</span></div>
-        <span class="font-serif text-lg tracking-[.08em]">Koya</span>
-      </div>
+      <div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center"><span class="text-white text-[10px] font-semibold">K</span></div><span class="font-serif text-lg tracking-[.08em]">Koya</span></div>
       <button onclick="newChat()" class="text-neutral-400 hover:text-neutral-600 transition-colors"><iconify-icon icon="lucide:pen-line" width="16"></iconify-icon></button>
     </div>
     <div class="flex-1 overflow-y-auto py-3 px-3">
@@ -92,25 +96,12 @@
   <div id="mobile-sidebar-bg" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 hidden md:hidden" onclick="closeMobileSidebar()"></div>
   <aside id="mobile-sidebar" class="sidebar-panel fixed left-0 top-0 bottom-0 w-72 bg-white z-50 flex flex-col md:hidden">
     <div class="h-16 flex items-center justify-between px-5 border-b border-neutral-100/80">
-      <div class="flex items-center gap-2.5">
-        <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center"><span class="text-white text-[10px] font-semibold">K</span></div>
-        <span class="font-serif text-lg tracking-[.08em]">Koya</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <button onclick="newChat()" class="text-neutral-400 hover:text-neutral-600 transition-colors"><iconify-icon icon="lucide:pen-line" width="16"></iconify-icon></button>
-        <button onclick="closeMobileSidebar()" class="text-neutral-400 hover:text-neutral-600 transition-colors"><iconify-icon icon="lucide:x" width="18"></iconify-icon></button>
-      </div>
+      <div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center"><span class="text-white text-[10px] font-semibold">K</span></div><span class="font-serif text-lg tracking-[.08em]">Koya</span></div>
+      <div class="flex items-center gap-2"><button onclick="newChat()" class="text-neutral-400 hover:text-neutral-600 transition-colors"><iconify-icon icon="lucide:pen-line" width="16"></iconify-icon></button><button onclick="closeMobileSidebar()" class="text-neutral-400 hover:text-neutral-600 transition-colors"><iconify-icon icon="lucide:x" width="18"></iconify-icon></button></div>
     </div>
-    <div class="flex-1 overflow-y-auto py-3 px-3">
-      <p class="text-[10px] tracking-[.15em] uppercase text-neutral-400 font-medium px-2 mb-2">Hoy</p>
-      <div id="mobile-chat-list" class="space-y-0.5"></div>
-    </div>
+    <div class="flex-1 overflow-y-auto py-3 px-3"><p class="text-[10px] tracking-[.15em] uppercase text-neutral-400 font-medium px-2 mb-2">Hoy</p><div id="mobile-chat-list" class="space-y-0.5"></div></div>
     <div class="p-4 border-t border-neutral-100/80">
-      <button onclick="openProviderModal();closeMobileSidebar()" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left">
-        <iconify-icon icon="lucide:cpu" width="16" class="text-neutral-400"></iconify-icon>
-        <span class="text-sm font-light text-neutral-600">Motor de IA</span>
-        <span class="ml-auto w-2 h-2 rounded-full bg-amber-300" id="engine-dot-mobile"></span>
-      </button>
+      <button onclick="openProviderModal();closeMobileSidebar()" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left"><iconify-icon icon="lucide:cpu" width="16" class="text-neutral-400"></iconify-icon><span class="text-sm font-light text-neutral-600">Motor de IA</span><span class="ml-auto w-2 h-2 rounded-full bg-amber-300" id="engine-dot-mobile"></span></button>
     </div>
   </aside>
 
@@ -119,13 +110,9 @@
     <header class="h-16 flex items-center justify-between px-4 md:px-6 border-b border-neutral-100/80 bg-white/60 backdrop-blur-md flex-shrink-0">
       <div class="flex items-center gap-3">
         <button onclick="openMobileSidebar()" class="md:hidden text-neutral-500 hover:text-neutral-700 transition-colors"><iconify-icon icon="lucide:menu" width="20"></iconify-icon></button>
-        <div>
-          <h1 id="chat-title" class="text-sm font-medium truncate max-w-[200px] md:max-w-none">Nueva conversación</h1>
-          <span id="model-badge" class="text-[10px] text-neutral-400 tracking-wide">Pollinations AI</span>
-        </div>
+        <div><h1 id="chat-title" class="text-sm font-medium truncate max-w-[200px] md:max-w-none">Nueva conversación</h1><span id="model-badge" class="text-[10px] text-neutral-400 tracking-wide">Pollinations AI</span></div>
       </div>
       <div class="flex items-center gap-1">
-        <button id="img-toggle-btn" onclick="toggleImageMode()" class="p-2.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-xl transition-all" title="Generar imagen"><iconify-icon icon="lucide:image" width="16"></iconify-icon></button>
         <button onclick="clearChat()" class="p-2.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-xl transition-all" title="Limpiar"><iconify-icon icon="lucide:trash-2" width="16"></iconify-icon></button>
         <button onclick="exportChat()" class="p-2.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-xl transition-all" title="Exportar"><iconify-icon icon="lucide:download" width="16"></iconify-icon></button>
       </div>
@@ -135,29 +122,33 @@
       <div id="welcome-screen" class="h-full flex flex-col items-center justify-center px-6 fade-in">
         <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center mb-6 shadow-lg shadow-[#b8976a]/10"><span class="text-white text-xl font-serif italic">K</span></div>
         <h2 class="font-serif text-2xl md:text-3xl tracking-[-.02em]">Hola, soy Koya</h2>
-        <p class="mt-3 text-sm font-light text-neutral-400 text-center max-w-md leading-relaxed">Funciona al instante. Si quieres más potencia, activa Groq en 30 segundos — gratis y sin tarjeta.</p>
+        <p class="mt-3 text-sm font-light text-neutral-400 text-center max-w-md leading-relaxed">Chat, búsqueda web, análisis profundo y código. Elige el modo abajo.</p>
         <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg fade-in-d">
-          <button onclick="sendSuggestion('Explícame la relatividad de forma sencilla')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:atom" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Explícame la relatividad de forma sencilla</p></div></button>
-          <button onclick="sendSuggestion('Escribe un poema corto sobre el silencio')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:feather" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Escribe un poema sobre el silencio</p></div></button>
-          <button onclick="sendSuggestion('Dame 5 ideas de startup para 2025')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:lightbulb" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Dame 5 ideas de startup para 2025</p></div></button>
-          <button onclick="sendSuggestion('Crea una función en Python para ordenar una lista')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:code-2" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Crea una función en Python para ordenar</p></div></button>
+          <button onclick="setMode('chat');sendSuggestion('Explícame la relatividad de forma sencilla')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:atom" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Explícame la relatividad</p></div></button>
+          <button onclick="setMode('search');sendSuggestion('¿Qué es Groq y quiénes lo crearon?')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:search" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Buscar: ¿Qué es Groq?</p></div></button>
+          <button onclick="setMode('deep');sendSuggestion('Analiza profundamente: ¿Es la IA una amenaza para la humanidad?')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:brain" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Análisis profundo: ¿IA amenaza?</p></div></button>
+          <button onclick="setMode('code');sendSuggestion('Crea un juego de snake en Python con pygame')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:code-2" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Código: Juego Snake en Python</p></div></button>
         </div>
-        <button onclick="openProviderModal()" class="mt-8 flex items-center gap-2 text-[11px] text-[#86623d] hover:text-[#5c4430] transition-colors">
-          <iconify-icon icon="lucide:zap" width="13"></iconify-icon>
-          <span class="underline underline-offset-2">Activar motor potente (Groq — gratis)</span>
-        </button>
       </div>
       <div id="messages" class="max-w-3xl mx-auto px-4 md:px-6 py-6 space-y-6 hidden"></div>
     </div>
 
+    <!-- INPUT AREA -->
     <div class="flex-shrink-0 border-t border-neutral-100/80 bg-white/60 backdrop-blur-md px-4 md:px-6 py-4">
       <div class="max-w-3xl mx-auto">
-        <div id="img-mode-bar" class="hidden mb-3"><div class="flex items-center gap-2 px-3 py-1.5 bg-[#f0eeeb] rounded-full"><iconify-icon icon="lucide:image" width="13" class="text-[#86623d]"></iconify-icon><span class="text-[11px] text-[#86623d] font-medium tracking-wide">Modo imagen</span><button onclick="toggleImageMode()" class="text-[#86623d] hover:text-[#5c4430] ml-1"><iconify-icon icon="lucide:x" width="12"></iconify-icon></button></div></div>
+        <!-- MODE BAR -->
+        <div class="flex gap-1.5 overflow-x-auto pb-3 mb-1 scrollbar-none">
+          <button class="mode-btn active" data-mode="chat" onclick="setMode('chat')"><iconify-icon icon="lucide:message-circle" width="14"></iconify-icon><span>Chat</span></button>
+          <button class="mode-btn" data-mode="search" onclick="setMode('search')"><iconify-icon icon="lucide:search" width="14"></iconify-icon><span>Buscar</span></button>
+          <button class="mode-btn" data-mode="deep" onclick="setMode('deep')"><iconify-icon icon="lucide:brain" width="14"></iconify-icon><span>Profundo</span></button>
+          <button class="mode-btn" data-mode="code" onclick="setMode('code')"><iconify-icon icon="lucide:code-2" width="14"></iconify-icon><span>Código</span></button>
+          <button class="mode-btn" data-mode="image" onclick="setMode('image')"><iconify-icon icon="lucide:image" width="14"></iconify-icon><span>Imagen</span></button>
+        </div>
         <div class="input-glow flex items-end gap-3 bg-white border border-neutral-200 rounded-2xl px-4 py-3 transition-all duration-300">
           <textarea id="user-input" placeholder="Escribe tu mensaje..." class="flex-1 text-sm font-light bg-transparent border-none placeholder:text-neutral-300 py-0 leading-relaxed focus:outline-none" rows="1" onkeydown="handleKeyDown(event)"></textarea>
           <button id="send-btn" onclick="sendMessage()" class="p-1.5 text-neutral-300 hover:text-[#1a1a1a] transition-all duration-300 flex-shrink-0 mb-0.5 disabled:opacity-30" disabled><iconify-icon icon="lucide:arrow-up" width="18"></iconify-icon></button>
         </div>
-        <p class="text-center text-[10px] text-neutral-300 mt-3 tracking-wide">Koya · <span id="footer-engine">Pollinations AI</span> · <button onclick="openProviderModal()" class="underline hover:text-neutral-500 transition-colors">Cambiar motor</button></p>
+        <p class="text-center text-[10px] text-neutral-300 mt-2 tracking-wide">Koya · <span id="footer-engine">Pollinations AI</span> · <button onclick="openProviderModal()" class="underline hover:text-neutral-500 transition-colors">Motor</button></p>
       </div>
     </div>
   </main>
@@ -167,126 +158,24 @@
 <div id="provider-modal" class="modal-bg fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
   <div class="modal-box bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] overflow-y-auto">
     <div class="p-6 md:p-8">
-      <div class="flex items-center justify-between mb-2">
-        <h3 class="font-serif text-xl">Motor de IA</h3>
-        <button onclick="closeProviderModal()" class="text-neutral-300 hover:text-neutral-500 transition-colors"><iconify-icon icon="lucide:x" width="20"></iconify-icon></button>
-      </div>
-      <p class="text-xs text-neutral-400 mb-6">Elige quién procesa tus mensajes. Todos son gratuitos.</p>
-
-      <!-- Pollinations -->
+      <div class="flex items-center justify-between mb-2"><h3 class="font-serif text-xl">Motor de IA</h3><button onclick="closeProviderModal()" class="text-neutral-300 hover:text-neutral-500 transition-colors"><iconify-icon icon="lucide:x" width="20"></iconify-icon></button></div>
+      <p class="text-xs text-neutral-400 mb-6">Elige quién procesa tus mensajes.</p>
       <div class="provider-card selected border border-neutral-200 rounded-2xl p-5 mb-3" data-provider="pollinations" onclick="selectProvider('pollinations')">
-        <div class="flex items-start gap-4">
-          <div class="provider-radio mt-0.5"><div class="provider-radio-inner"></div></div>
-          <div class="flex-1">
-            <div class="flex items-center gap-2">
-              <span class="text-sm font-medium">Pollinations</span>
-              <span class="text-[9px] tracking-wider uppercase bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded-full font-medium">Por defecto</span>
-            </div>
-            <p class="text-[11px] text-neutral-400 mt-1 leading-relaxed">Funciona al instante. Sin registro, sin configuración. Modelo pequeño pero suficiente para lo básico.</p>
-            <div class="flex items-center gap-3 mt-2">
-              <span class="text-[10px] text-neutral-300 flex items-center gap-1"><iconify-icon icon="lucide:check" width="10"></iconify-icon>Sin registro</span>
-              <span class="text-[10px] text-neutral-300 flex items-center gap-1"><iconify-icon icon="lucide:check" width="10"></iconify-icon>Sin tarjeta</span>
-            </div>
-          </div>
-        </div>
+        <div class="flex items-start gap-4"><div class="provider-radio mt-0.5"><div class="provider-radio-inner"></div></div><div class="flex-1"><div class="flex items-center gap-2"><span class="text-sm font-medium">Pollinations</span><span class="text-[9px] tracking-wider uppercase bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded-full font-medium">Por defecto</span></div><p class="text-[11px] text-neutral-400 mt-1">Sin registro, sin tarjeta. Modelo pequeño.</p></div></div>
       </div>
-
-      <!-- Groq -->
       <div class="provider-card border border-neutral-200 rounded-2xl p-5 mb-3" data-provider="groq" onclick="selectProvider('groq')">
-        <div class="flex items-start gap-4">
-          <div class="provider-radio mt-0.5"><div class="provider-radio-inner"></div></div>
-          <div class="flex-1">
-            <div class="flex items-center gap-2">
-              <span class="text-sm font-medium">Groq</span>
-              <span class="text-[9px] tracking-wider uppercase bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-medium">Recomendado</span>
-            </div>
-            <p class="text-[11px] text-neutral-400 mt-1 leading-relaxed"><strong class="text-neutral-500">Llama 3.3 70B</strong> — Modelo enorme, respuestas en ~200ms. El más rápido del mundo. Gratis sin tarjeta.</p>
-            <div class="flex items-center gap-3 mt-2">
-              <span class="text-[10px] text-neutral-300 flex items-center gap-1"><iconify-icon icon="lucide:zap" width="10" class="text-amber-400"></iconify-icon>Ultra rápido</span>
-              <span class="text-[10px] text-neutral-300 flex items-center gap-1"><iconify-icon icon="lucide:check" width="10"></iconify-icon>Sin tarjeta</span>
-              <span class="text-[10px] text-neutral-300 flex items-center gap-1"><iconify-icon icon="lucide:check" width="10"></iconify-icon>70B parámetros</span>
-            </div>
-          </div>
-        </div>
-        <!-- Groq config (hidden until selected) -->
-        <div id="groq-config" class="hidden mt-4 pt-4 border-t border-neutral-100">
-          <label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">API Key de Groq</label>
-          <input id="groq-key-input" type="password" placeholder="gsk_..." class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light transition-colors focus:outline-none focus:border-neutral-400">
-          <div class="mt-3 bg-amber-50/50 rounded-lg p-3">
-            <p class="text-[11px] text-amber-700/80 leading-relaxed">
-              <strong>Cómo obtenerla (30 segundos):</strong><br>
-              1. Ve a <a href="https://console.groq.com/keys" target="_blank" class="underline">console.groq.com/keys</a><br>
-              2. Inicia sesión con Google/GitHub<br>
-              3. Click "Create API Key"<br>
-              4. Copia y pega aquí
-            </p>
-          </div>
-        </div>
+        <div class="flex items-start gap-4"><div class="provider-radio mt-0.5"><div class="provider-radio-inner"></div></div><div class="flex-1"><div class="flex items-center gap-2"><span class="text-sm font-medium">Groq</span><span class="text-[9px] tracking-wider uppercase bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-medium">Recomendado</span></div><p class="text-[11px] text-neutral-400 mt-1"><strong class="text-neutral-500">Llama 3.3 70B</strong> — ~200ms. Gratis sin tarjeta.</p></div></div>
+        <div id="groq-config" class="hidden mt-4 pt-4 border-t border-neutral-100"><label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">API Key</label><input id="groq-key-input" type="password" placeholder="gsk_..." class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light focus:outline-none focus:border-neutral-400"><div class="mt-3 bg-amber-50/50 rounded-lg p-3"><p class="text-[11px] text-amber-700/80 leading-relaxed"><strong>30 seg:</strong> <a href="https://console.groq.com/keys" target="_blank" class="underline">console.groq.com/keys</a> → Login Google → Create API Key</p></div></div>
       </div>
-
-      <!-- Gemini -->
       <div class="provider-card border border-neutral-200 rounded-2xl p-5 mb-3" data-provider="gemini" onclick="selectProvider('gemini')">
-        <div class="flex items-start gap-4">
-          <div class="provider-radio mt-0.5"><div class="provider-radio-inner"></div></div>
-          <div class="flex-1">
-            <div class="flex items-center gap-2">
-              <span class="text-sm font-medium">Google Gemini</span>
-              <span class="text-[9px] tracking-wider uppercase bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium">1M tokens</span>
-            </div>
-            <p class="text-[11px] text-neutral-400 mt-1 leading-relaxed"><strong class="text-neutral-500">Gemini 2.0 Flash</strong> — Contexto enorme (1 millón de tokens). Gratis sin tarjeta desde Google AI Studio.</p>
-            <div class="flex items-center gap-3 mt-2">
-              <span class="text-[10px] text-neutral-300 flex items-center gap-1"><iconify-icon icon="lucide:database" width="10" class="text-blue-400"></iconify-icon>1M contexto</span>
-              <span class="text-[10px] text-neutral-300 flex items-center gap-1"><iconify-icon icon="lucide:check" width="10"></iconify-icon>Sin tarjeta</span>
-            </div>
-          </div>
-        </div>
-        <div id="gemini-config" class="hidden mt-4 pt-4 border-t border-neutral-100">
-          <label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">API Key de Gemini</label>
-          <input id="gemini-key-input" type="password" placeholder="AIza..." class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light transition-colors focus:outline-none focus:border-neutral-400">
-          <div class="mt-3 bg-blue-50/50 rounded-lg p-3">
-            <p class="text-[11px] text-blue-700/80 leading-relaxed">
-              <strong>Cómo obtenerla (1 minuto):</strong><br>
-              1. Ve a <a href="https://aistudio.google.com/apikey" target="_blank" class="underline">aistudio.google.com/apikey</a><br>
-              2. Inicia sesión con Google<br>
-              3. Click "Create API Key"<br>
-              4. Copia y pega aquí
-            </p>
-          </div>
-        </div>
+        <div class="flex items-start gap-4"><div class="provider-radio mt-0.5"><div class="provider-radio-inner"></div></div><div class="flex-1"><div class="flex items-center gap-2"><span class="text-sm font-medium">Gemini</span><span class="text-[9px] tracking-wider uppercase bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium">1M ctx</span></div><p class="text-[11px] text-neutral-400 mt-1"><strong class="text-neutral-500">Gemini 2.0 Flash</strong> — Contexto enorme. Gratis.</p></div></div>
+        <div id="gemini-config" class="hidden mt-4 pt-4 border-t border-neutral-100"><label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">API Key</label><input id="gemini-key-input" type="password" placeholder="AIza..." class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light focus:outline-none focus:border-neutral-400"><div class="mt-3 bg-blue-50/50 rounded-lg p-3"><p class="text-[11px] text-blue-700/80 leading-relaxed"><strong>1 min:</strong> <a href="https://aistudio.google.com/apikey" target="_blank" class="underline">aistudio.google.com/apikey</a> → Login → Create Key</p></div></div>
       </div>
-
-      <!-- OpenAI -->
       <div class="provider-card border border-neutral-200 rounded-2xl p-5 mb-6" data-provider="openai" onclick="selectProvider('openai')">
-        <div class="flex items-start gap-4">
-          <div class="provider-radio mt-0.5"><div class="provider-radio-inner"></div></div>
-          <div class="flex-1">
-            <div class="flex items-center gap-2">
-              <span class="text-sm font-medium">OpenAI</span>
-              <span class="text-[9px] tracking-wider uppercase bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded-full font-medium">De pago</span>
-            </div>
-            <p class="text-[11px] text-neutral-400 mt-1 leading-relaxed"><strong class="text-neutral-500">GPT-4o / GPT-4o Mini</strong> — La opción más potente pero requiere crédito ($5 mínimo).</p>
-            <div class="flex items-center gap-3 mt-2">
-              <span class="text-[10px] text-neutral-300 flex items-center gap-1"><iconify-icon icon="lucide:star" width="10" class="text-amber-400"></iconify-icon>Más potente</span>
-              <span class="text-[10px] text-neutral-300 flex items-center gap-1"><iconify-icon icon="lucide:credit-card" width="10" class="text-red-300"></iconify-icon>$5 mínimo</span>
-            </div>
-          </div>
-        </div>
-        <div id="openai-config" class="hidden mt-4 pt-4 border-t border-neutral-100">
-          <label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">API Key de OpenAI</label>
-          <input id="openai-key-input" type="password" placeholder="sk-proj-..." class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light transition-colors focus:outline-none focus:border-neutral-400">
-          <label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium mt-3 block">Base URL <span class="normal-case tracking-normal">(solo proxy)</span></label>
-          <input id="openai-url-input" type="text" placeholder="https://api.openai.com/v1" class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light transition-colors focus:outline-none focus:border-neutral-400">
-          <select id="openai-model-input" class="w-full mt-3 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-white font-light focus:outline-none focus:border-neutral-400">
-            <option value="gpt-4o-mini">GPT-4o Mini (rápido, económico)</option>
-            <option value="gpt-4o">GPT-4o (potente)</option>
-            <option value="gpt-3.5-turbo">GPT-3.5 Turbo (el más rápido)</option>
-          </select>
-        </div>
+        <div class="flex items-start gap-4"><div class="provider-radio mt-0.5"><div class="provider-radio-inner"></div></div><div class="flex-1"><div class="flex items-center gap-2"><span class="text-sm font-medium">OpenAI</span><span class="text-[9px] tracking-wider uppercase bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded-full font-medium">$5</span></div><p class="text-[11px] text-neutral-400 mt-1">GPT-4o. La más potente pero de pago.</p></div></div>
+        <div id="openai-config" class="hidden mt-4 pt-4 border-t border-neutral-100"><label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">API Key</label><input id="openai-key-input" type="password" placeholder="sk-proj-..." class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light focus:outline-none focus:border-neutral-400"><select id="openai-model-input" class="w-full mt-3 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-white font-light focus:outline-none focus:border-neutral-400"><option value="gpt-4o-mini">GPT-4o Mini</option><option value="gpt-4o">GPT-4o</option></select></div>
       </div>
-
-      <button onclick="saveProvider()" class="w-full bg-[#1a1a1a] text-white py-3.5 text-[11px] tracking-[.15em] uppercase font-medium rounded-xl hover:bg-neutral-800 transition-colors">
-        Guardar y usar
-      </button>
+      <button onclick="saveProvider()" class="w-full bg-[#1a1a1a] text-white py-3.5 text-[11px] tracking-[.15em] uppercase font-medium rounded-xl hover:bg-neutral-800 transition-colors">Guardar</button>
     </div>
   </div>
 </div>
@@ -300,413 +189,505 @@
 <div id="toast-container" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[90] flex flex-col gap-2 items-center"></div>
 
 <script>
-  // ===== STATE =====
-  let currentProvider = localStorage.getItem('koya_provider') || 'pollinations';
-  let GROQ_KEY = localStorage.getItem('koya_groq_key') || '';
-  let GEMINI_KEY = localStorage.getItem('koya_gemini_key') || '';
-  let OPENAI_KEY = localStorage.getItem('koya_openai_key') || '';
-  let OPENAI_URL = localStorage.getItem('koya_openai_url') || 'https://api.openai.com/v1';
-  let OPENAI_MODEL = localStorage.getItem('koya_openai_model') || 'gpt-4o-mini';
-  let SYSTEM_PROMPT = 'Eres Koya, un asistente de IA minimalista, amable y conciso. Respondes en español. Usas markdown cuando ayuda a clarificar.';
-  let TEMPERATURE = 0.7;
-  let conversations = JSON.parse(localStorage.getItem('koya_conversations') || '[]');
-  let currentConvoId = null;
-  let messages = [];
-  let isStreaming = false;
-  let imageMode = false;
+// ===== STATE =====
+let currentProvider = localStorage.getItem('koya_provider') || 'pollinations';
+let GROQ_KEY = localStorage.getItem('koya_groq_key') || '';
+let GEMINI_KEY = localStorage.getItem('koya_gemini_key') || '';
+let OPENAI_KEY = localStorage.getItem('koya_openai_key') || '';
+let OPENAI_MODEL = localStorage.getItem('koya_openai_model') || 'gpt-4o-mini';
+let currentMode = 'chat';
+let conversations = JSON.parse(localStorage.getItem('koya_conversations') || '[]');
+let currentConvoId = null;
+let messages = [];
+let isStreaming = false;
 
-  // ===== INIT =====
-  document.addEventListener('DOMContentLoaded', () => {
-    updateProviderUI(); renderChatList(); updateSendButton();
-    document.getElementById('user-input').addEventListener('input', updateSendButton);
-    marked.setOptions({
-      highlight: (code, lang) => lang && hljs.getLanguage(lang) ? hljs.highlight(code, {language: lang}).value : hljs.highlightAuto(code).value,
-      breaks: true, gfm: true
-    });
+const MODES = {
+  chat: {
+    system: 'Eres Koya, un asistente de IA minimalista, amable y conciso. Respondes en español. Usas markdown cuando ayuda a clarificar.',
+    placeholder: 'Escribe tu mensaje...'
+  },
+  search: {
+    system: 'Eres un asistente de búsqueda. Recibirás información de internet (DuckDuckGo y Wikipedia). Tu trabajo: 1) Sintetiza la info en una respuesta clara 2) Si hay datos contradictorios, menciónalos 3) Siempre indica al final con "Fuentes:" y lista las URLs 4) Si la info es insuficiente, dilo honestamente 5) Responde en español. Sé preciso, no inventes datos que no estén en las fuentes.',
+    placeholder: 'Busca algo en internet...'
+  },
+  deep: {
+    system: 'Eres un analista profundo de nivel experto. Para CADA pregunta obligatoriamente: 1) 🔍 Descomposición: divide el problema en subproblemas 2) 📊 Análisis multidimensional: examina desde al menos 3 perspectivas (económica, social, técnica, ética, histórica...) 3) ⚖️ Perspectivas opuestas: presenta argumentos a favor y en contra con igual peso 4) 🧩 Suposiciones ocultas: identifica lo que damos por sentado 5) 🎯 Conclusión matizada: una síntesis que reconoce matices, no una respuesta simple. Sé exhaustivo. Usa markdown con headers. Responde en español.',
+    placeholder: 'Pregunta algo complejo para análisis profundo...'
+  },
+  code: {
+    system: 'Eres un programador senior experto en todos los lenguajes. Siempre sigue esta estructura: 1) Breve explicación del enfoque (2-3 líneas) 2) Código completo, limpio, bien comentado, en bloques markdown con el lenguaje indicado 3) Explicación línea por línea de las partes clave 4) Ejemplo de uso con output esperado 5) Edge cases y buenas prácticas. Detecta automáticamente el mejor lenguaje para la tarea. Siempre escribe código funcional y completo, nunca pseudocódigo a menos que se pida explícitamente. Responde en español.',
+    placeholder: 'Describe qué código necesitas...'
+  },
+  image: {
+    system: '', placeholder: 'Describe la imagen que quieres generar...'
+  }
+};
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  updateProviderUI(); renderChatList(); updateSendButton();
+  document.getElementById('user-input').addEventListener('input', updateSendButton);
+  marked.setOptions({
+    highlight: (code, lang) => lang && hljs.getLanguage(lang) ? hljs.highlight(code, {language: lang}).value : hljs.highlightAuto(code).value,
+    breaks: true, gfm: true
   });
+});
 
-  // ===== PROVIDER =====
-  function getProviderName() {
-    const names = { pollinations: 'Pollinations AI', groq: 'Groq · Llama 3.3 70B', gemini: 'Gemini 2.0 Flash', openai: 'OpenAI · ' + OPENAI_MODEL };
-    return names[currentProvider] || 'Pollinations AI';
+// ===== MODES =====
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  document.getElementById('user-input').placeholder = MODES[mode].placeholder;
+  document.getElementById('user-input').focus();
+}
+
+// ===== PROVIDER =====
+function getProviderName() {
+  return { pollinations: 'Pollinations AI', groq: 'Groq · Llama 3.3 70B', gemini: 'Gemini 2.0 Flash', openai: 'OpenAI · ' + OPENAI_MODEL }[currentProvider] || 'Pollinations AI';
+}
+function updateProviderUI() {
+  document.getElementById('model-badge').textContent = getProviderName();
+  document.getElementById('footer-engine').textContent = getProviderName();
+  const c = currentProvider === 'pollinations' ? 'bg-amber-300' : 'bg-emerald-400';
+  document.querySelectorAll('#engine-dot,#engine-dot-mobile').forEach(el => el.className = 'ml-auto w-2 h-2 rounded-full ' + c);
+}
+function openProviderModal() {
+  document.getElementById('provider-modal').classList.add('open');
+  document.getElementById('groq-key-input').value = GROQ_KEY;
+  document.getElementById('gemini-key-input').value = GEMINI_KEY;
+  document.getElementById('openai-key-input').value = OPENAI_KEY;
+  document.getElementById('openai-model-input').value = OPENAI_MODEL;
+  document.querySelectorAll('.provider-card').forEach(c => c.classList.toggle('selected', c.dataset.provider === currentProvider));
+  document.getElementById('groq-config').classList.toggle('hidden', currentProvider !== 'groq');
+  document.getElementById('gemini-config').classList.toggle('hidden', currentProvider !== 'gemini');
+  document.getElementById('openai-config').classList.toggle('hidden', currentProvider !== 'openai');
+}
+function closeProviderModal() { document.getElementById('provider-modal').classList.remove('open'); }
+function selectProvider(p) {
+  currentProvider = p;
+  document.querySelectorAll('.provider-card').forEach(c => c.classList.toggle('selected', c.dataset.provider === p));
+  document.getElementById('groq-config').classList.toggle('hidden', p !== 'groq');
+  document.getElementById('gemini-config').classList.toggle('hidden', p !== 'gemini');
+  document.getElementById('openai-config').classList.toggle('hidden', p !== 'openai');
+}
+function saveProvider() {
+  GROQ_KEY = document.getElementById('groq-key-input').value.trim();
+  GEMINI_KEY = document.getElementById('gemini-key-input').value.trim();
+  OPENAI_KEY = document.getElementById('openai-key-input').value.trim();
+  OPENAI_MODEL = document.getElementById('openai-model-input').value;
+  if (currentProvider === 'groq' && !GROQ_KEY) { showToast('Ingresa tu API Key de Groq', 'warn'); return; }
+  if (currentProvider === 'gemini' && !GEMINI_KEY) { showToast('Ingresa tu API Key de Gemini', 'warn'); return; }
+  if (currentProvider === 'openai' && !OPENAI_KEY) { showToast('Ingresa tu API Key de OpenAI', 'warn'); return; }
+  localStorage.setItem('koya_provider', currentProvider);
+  localStorage.setItem('koya_groq_key', GROQ_KEY);
+  localStorage.setItem('koya_gemini_key', GEMINI_KEY);
+  localStorage.setItem('koya_openai_key', OPENAI_KEY);
+  localStorage.setItem('koya_openai_model', OPENAI_MODEL);
+  updateProviderUI(); closeProviderModal();
+  showToast('Motor: ' + getProviderName() + ' ✓');
+}
+
+// ===== CONVERSATIONS =====
+function newChat() {
+  currentConvoId = null; messages = [];
+  document.getElementById('chat-title').textContent = 'Nueva conversación';
+  document.getElementById('messages').innerHTML = '';
+  document.getElementById('messages').classList.add('hidden');
+  document.getElementById('welcome-screen').classList.remove('hidden');
+  renderChatList(); closeMobileSidebar();
+}
+function renderChatList() {
+  [document.getElementById('chat-list'), document.getElementById('mobile-chat-list')].forEach(list => {
+    if (!list) return;
+    list.innerHTML = conversations.map(c => '<button onclick="loadConversation(\'' + c.id + '\')" class="sidebar-item ' + (c.id === currentConvoId ? 'active' : '') + ' w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left group"><iconify-icon icon="lucide:message-square" width="14" class="text-neutral-300 flex-shrink-0"></iconify-icon><span class="text-sm font-light text-neutral-600 truncate flex-1">' + c.title + '</span><button onclick="event.stopPropagation();deleteConversation(\'' + c.id + '\')" class="opacity-0 group-hover:opacity-100 text-neutral-300 hover:text-red-400 transition-all p-1"><iconify-icon icon="lucide:x" width="12"></iconify-icon></button></button>').join('');
+  });
+  const el = document.getElementById('chat-list-empty');
+  if (el) el.style.display = conversations.length === 0 ? 'block' : 'none';
+}
+function saveConversation() {
+  if (messages.length === 0) return;
+  const modeLabel = { chat: '', search: '🔍 ', deep: '🧠 ', code: '💻 ', image: '🖼️ ' }[currentMode] || '';
+  const title = modeLabel + messages[0].content.substring(0, 45) + (messages[0].content.length > 45 ? '…' : '');
+  if (currentConvoId) {
+    const idx = conversations.findIndex(c => c.id === currentConvoId);
+    if (idx !== -1) { conversations[idx].messages = [...messages]; conversations[idx].title = title; }
+  } else {
+    currentConvoId = Date.now().toString();
+    conversations.unshift({ id: currentConvoId, title, messages: [...messages] });
   }
-  function updateProviderUI() {
-    document.getElementById('model-badge').textContent = getProviderName();
-    document.getElementById('footer-engine').textContent = getProviderName();
-    const dotColor = currentProvider === 'pollinations' ? 'bg-amber-300' : 'bg-emerald-400';
-    document.querySelectorAll('#engine-dot, #engine-dot-mobile').forEach(el => el.className = 'ml-auto w-2 h-2 rounded-full ' + dotColor);
+  document.getElementById('chat-title').textContent = title;
+  localStorage.setItem('koya_conversations', JSON.stringify(conversations));
+  renderChatList();
+}
+function loadConversation(id) {
+  const c = conversations.find(x => x.id === id); if (!c) return;
+  currentConvoId = id; messages = [...c.messages];
+  document.getElementById('chat-title').textContent = c.title;
+  document.getElementById('welcome-screen').classList.add('hidden');
+  document.getElementById('messages').classList.remove('hidden');
+  const container = document.getElementById('messages'); container.innerHTML = '';
+  messages.forEach(m => {
+    if (m.image) appendImageToDOM(m.image, m.content, false);
+    else if (m.sources) appendSearchResult(m.content, m.sources, false);
+    else appendMessageToDOM(m.role, m.content, false);
+  });
+  scrollToBottom(); renderChatList(); closeMobileSidebar();
+}
+function deleteConversation(id) {
+  conversations = conversations.filter(c => c.id !== id);
+  localStorage.setItem('koya_conversations', JSON.stringify(conversations));
+  if (id === currentConvoId) newChat(); renderChatList();
+}
+function clearChat() { if (messages.length === 0) return; newChat(); showToast('Chat limpiado'); }
+
+// ===== MESSAGES DOM =====
+function appendMessageToDOM(role, content, animate) {
+  const container = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'flex gap-4 ' + (animate ? 'msg-enter' : '') + (role === 'user' ? ' justify-end' : '');
+  if (role === 'user') {
+    div.innerHTML = '<div class="max-w-[85%] md:max-w-[70%]"><div class="bg-[#1a1a1a] text-white px-5 py-3.5 rounded-2xl rounded-tr-md"><p class="text-sm font-light leading-relaxed whitespace-pre-wrap">' + escapeHTML(content) + '</p></div></div>';
+  } else {
+    div.innerHTML = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[75%] min-w-0"><div class="msg-content text-sm font-light leading-relaxed text-neutral-700">' + renderMarkdown(content) + '</div><div class="flex items-center gap-2 mt-2"><button onclick="copyMessage(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors" title="Copiar"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button></div></div>';
   }
-  function openProviderModal() {
-    document.getElementById('provider-modal').classList.add('open');
-    document.getElementById('groq-key-input').value = GROQ_KEY;
-    document.getElementById('gemini-key-input').value = GEMINI_KEY;
-    document.getElementById('openai-key-input').value = OPENAI_KEY;
-    document.getElementById('openai-url-input').value = OPENAI_URL === 'https://api.openai.com/v1' ? '' : OPENAI_URL;
-    document.getElementById('openai-model-input').value = OPENAI_MODEL;
-    // Highlight current
-    document.querySelectorAll('.provider-card').forEach(card => {
-      const p = card.dataset.provider;
-      card.classList.toggle('selected', p === currentProvider);
+  container.appendChild(div); addCopyButtons(div);
+}
+
+function appendSearchResult(content, sources, animate) {
+  const container = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'flex gap-4 ' + (animate ? 'msg-enter' : '');
+  let sourcesHTML = '';
+  if (sources && sources.length > 0) {
+    sourcesHTML = '<div class="mt-4 pt-3 border-t border-neutral-100"><p class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium mb-2">Fuentes</p><div class="flex flex-wrap gap-2">';
+    sources.forEach(s => {
+      sourcesHTML += '<a href="' + s.url + '" target="_blank" class="source-link"><iconify-icon icon="lucide:external-link" width="10"></iconify-icon>' + escapeHTML(s.title) + '</a>';
     });
-    // Show/hide configs
-    document.getElementById('groq-config').classList.toggle('hidden', currentProvider !== 'groq');
-    document.getElementById('gemini-config').classList.toggle('hidden', currentProvider !== 'gemini');
-    document.getElementById('openai-config').classList.toggle('hidden', currentProvider !== 'openai');
+    sourcesHTML += '</div></div>';
   }
-  function closeProviderModal() { document.getElementById('provider-modal').classList.remove('open'); }
-  function selectProvider(p) {
-    currentProvider = p;
-    document.querySelectorAll('.provider-card').forEach(card => {
-      card.classList.toggle('selected', card.dataset.provider === p);
-    });
-    document.getElementById('groq-config').classList.toggle('hidden', p !== 'groq');
-    document.getElementById('gemini-config').classList.toggle('hidden', p !== 'gemini');
-    document.getElementById('openai-config').classList.toggle('hidden', p !== 'openai');
-  }
-  function saveProvider() {
-    GROQ_KEY = document.getElementById('groq-key-input').value.trim();
-    GEMINI_KEY = document.getElementById('gemini-key-input').value.trim();
-    OPENAI_KEY = document.getElementById('openai-key-input').value.trim();
-    OPENAI_URL = document.getElementById('openai-url-input').value.trim() || 'https://api.openai.com/v1';
-    OPENAI_MODEL = document.getElementById('openai-model-input').value;
+  div.innerHTML = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[75%] min-w-0"><div class="msg-content text-sm font-light leading-relaxed text-neutral-700">' + renderMarkdown(content) + '</div>' + sourcesHTML + '<div class="flex items-center gap-2 mt-2"><button onclick="copyMessage(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors" title="Copiar"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button></div></div>';
+  container.appendChild(div); addCopyButtons(div);
+}
 
-    // Validate
-    if (currentProvider === 'groq' && !GROQ_KEY) { showToast('Ingresa tu API Key de Groq', 'warn'); return; }
-    if (currentProvider === 'gemini' && !GEMINI_KEY) { showToast('Ingresa tu API Key de Gemini', 'warn'); return; }
-    if (currentProvider === 'openai' && !OPENAI_KEY) { showToast('Ingresa tu API Key de OpenAI', 'warn'); return; }
+function appendImageToDOM(imageUrl, prompt, animate) {
+  const container = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'flex gap-4 ' + (animate ? 'msg-enter' : '');
+  div.innerHTML = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[60%] min-w-0"><div class="generated-image" onclick="openImagePreview(\'' + imageUrl + '\')"><img src="' + imageUrl + '" alt="' + escapeHTML(prompt) + '" loading="lazy"></div><p class="text-[11px] text-neutral-400 mt-2 italic">"' + escapeHTML(prompt) + '"</p></div>';
+  container.appendChild(div);
+}
 
-    localStorage.setItem('koya_provider', currentProvider);
-    localStorage.setItem('koya_groq_key', GROQ_KEY);
-    localStorage.setItem('koya_gemini_key', GEMINI_KEY);
-    localStorage.setItem('koya_openai_key', OPENAI_KEY);
-    localStorage.setItem('koya_openai_url', OPENAI_URL);
-    localStorage.setItem('koya_openai_model', OPENAI_MODEL);
+function renderMarkdown(t) { try { return marked.parse(t); } catch { return t.replace(/\n/g, '<br>'); } }
+function escapeHTML(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function addCopyButtons(root) {
+  root.querySelectorAll('pre').forEach(pre => {
+    if (pre.parentElement.classList.contains('code-block-wrapper')) return;
+    const w = document.createElement('div'); w.className = 'code-block-wrapper';
+    pre.parentNode.insertBefore(w, pre); w.appendChild(pre);
+    const b = document.createElement('button'); b.className = 'copy-code-btn'; b.textContent = 'Copiar';
+    b.onclick = function() { navigator.clipboard.writeText(pre.textContent); this.textContent = '¡Copiado!'; setTimeout(() => this.textContent = 'Copiar', 2000); };
+    w.appendChild(b);
+  });
+}
 
-    updateProviderUI(); closeProviderModal();
-    showToast('Motor cambiado a ' + getProviderName() + ' ✓');
+// Typing indicators por modo
+function showTypingIndicator() {
+  const container = document.getElementById('messages');
+  const div = document.createElement('div'); div.id = 'typing-indicator'; div.className = 'flex gap-4 msg-enter';
+  let indicator = '';
+  if (currentMode === 'search') {
+    indicator = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><iconify-icon icon="lucide:search" width="13" class="text-white search-spin"></iconify-icon></div><div class="py-3 px-1"><p class="text-xs text-neutral-400 font-light">Buscando en internet...</p></div>';
+  } else if (currentMode === 'deep') {
+    indicator = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><iconify-icon icon="lucide:brain" width="13" class="text-white deep-pulse"></iconify-icon></div><div class="py-3 px-1"><p class="text-xs text-neutral-400 font-light">Análisis profundo...</p></div>';
+  } else if (currentMode === 'code') {
+    indicator = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><iconify-icon icon="lucide:code-2" width="13" class="text-white"></iconify-icon></div><div class="flex items-center gap-1.5 py-3 px-1"><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div></div>';
+  } else {
+    indicator = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="flex items-center gap-1.5 py-3 px-1"><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div></div>';
   }
+  div.innerHTML = indicator;
+  container.appendChild(div); scrollToBottom();
+}
+function removeTypingIndicator() { const el = document.getElementById('typing-indicator'); if (el) el.remove(); }
 
-  // ===== IMAGE MODE =====
-  function toggleImageMode() {
-    imageMode = !imageMode;
-    document.getElementById('img-mode-bar').classList.toggle('hidden', !imageMode);
-    const btn = document.getElementById('img-toggle-btn');
-    btn.classList.toggle('text-[#86623d]', imageMode);
-    btn.classList.toggle('bg-[#f0eeeb]', imageMode);
-    btn.classList.toggle('text-neutral-400', !imageMode);
-    document.getElementById('user-input').placeholder = imageMode ? 'Describe la imagen...' : 'Escribe tu mensaje...';
-  }
-
-  // ===== CONVERSATIONS =====
-  function newChat() {
-    currentConvoId = null; messages = [];
-    document.getElementById('chat-title').textContent = 'Nueva conversación';
-    document.getElementById('messages').innerHTML = '';
-    document.getElementById('messages').classList.add('hidden');
-    document.getElementById('welcome-screen').classList.remove('hidden');
-    renderChatList(); closeMobileSidebar();
-  }
-  function renderChatList() {
-    [document.getElementById('chat-list'), document.getElementById('mobile-chat-list')].forEach(list => {
-      if (!list) return;
-      list.innerHTML = conversations.map(c => '<button onclick="loadConversation(\'' + c.id + '\')" class="sidebar-item ' + (c.id === currentConvoId ? 'active' : '') + ' w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left group"><iconify-icon icon="lucide:message-square" width="14" class="text-neutral-300 flex-shrink-0"></iconify-icon><span class="text-sm font-light text-neutral-600 truncate flex-1">' + c.title + '</span><button onclick="event.stopPropagation();deleteConversation(\'' + c.id + '\')" class="opacity-0 group-hover:opacity-100 text-neutral-300 hover:text-red-400 transition-all p-1"><iconify-icon icon="lucide:x" width="12"></iconify-icon></button></button>').join('');
-    });
-    const el = document.getElementById('chat-list-empty');
-    if (el) el.style.display = conversations.length === 0 ? 'block' : 'none';
-  }
-  function saveConversation() {
-    if (messages.length === 0) return;
-    const title = messages[0].content.substring(0, 50) + (messages[0].content.length > 50 ? '…' : '');
-    if (currentConvoId) {
-      const idx = conversations.findIndex(c => c.id === currentConvoId);
-      if (idx !== -1) { conversations[idx].messages = [...messages]; conversations[idx].title = title; }
-    } else {
-      currentConvoId = Date.now().toString();
-      conversations.unshift({ id: currentConvoId, title, messages: [...messages] });
-    }
-    document.getElementById('chat-title').textContent = title;
-    localStorage.setItem('koya_conversations', JSON.stringify(conversations));
-    renderChatList();
-  }
-  function loadConversation(id) {
-    const c = conversations.find(x => x.id === id);
-    if (!c) return;
-    currentConvoId = id; messages = [...c.messages];
-    document.getElementById('chat-title').textContent = c.title;
-    document.getElementById('welcome-screen').classList.add('hidden');
-    document.getElementById('messages').classList.remove('hidden');
-    const container = document.getElementById('messages'); container.innerHTML = '';
-    messages.forEach(m => { if (m.image) appendImageToDOM(m.image, m.content, false); else appendMessageToDOM(m.role, m.content, false); });
-    scrollToBottom(); renderChatList(); closeMobileSidebar();
-  }
-  function deleteConversation(id) {
-    conversations = conversations.filter(c => c.id !== id);
-    localStorage.setItem('koya_conversations', JSON.stringify(conversations));
-    if (id === currentConvoId) newChat(); renderChatList();
-  }
-  function clearChat() { if (messages.length === 0) return; newChat(); showToast('Chat limpiado'); }
-
-  // ===== MESSAGES DOM =====
-  function appendMessageToDOM(role, content, animate) {
+function appendStreamingContent(chunk) {
+  let streamEl = document.getElementById('streaming-message');
+  if (!streamEl) {
+    removeTypingIndicator();
     const container = document.getElementById('messages');
-    const div = document.createElement('div');
-    div.className = 'flex gap-4 ' + (animate ? 'msg-enter' : '') + (role === 'user' ? ' justify-end' : '');
-    if (role === 'user') {
-      div.innerHTML = '<div class="max-w-[85%] md:max-w-[70%]"><div class="bg-[#1a1a1a] text-white px-5 py-3.5 rounded-2xl rounded-tr-md"><p class="text-sm font-light leading-relaxed whitespace-pre-wrap">' + escapeHTML(content) + '</p></div></div>';
-    } else {
-      div.innerHTML = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[75%] min-w-0"><div class="msg-content text-sm font-light leading-relaxed text-neutral-700">' + renderMarkdown(content) + '</div><div class="flex items-center gap-2 mt-2"><button onclick="copyMessage(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors" title="Copiar"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button></div></div>';
-    }
-    container.appendChild(div); addCopyButtons(div);
-  }
-  function appendImageToDOM(imageUrl, prompt, animate) {
-    const container = document.getElementById('messages');
-    const div = document.createElement('div');
-    div.className = 'flex gap-4 ' + (animate ? 'msg-enter' : '');
-    div.innerHTML = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[60%] min-w-0"><div class="generated-image" onclick="openImagePreview(\'' + imageUrl + '\')"><img src="' + imageUrl + '" alt="' + escapeHTML(prompt) + '" loading="lazy"></div><p class="text-[11px] text-neutral-400 mt-2 italic">"' + escapeHTML(prompt) + '"</p></div>';
+    const div = document.createElement('div'); div.id = 'streaming-message'; div.className = 'flex gap-4 msg-enter';
+    div.innerHTML = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[75%] min-w-0"><div class="msg-content text-sm font-light leading-relaxed text-neutral-700" id="streaming-content"></div></div>';
     container.appendChild(div);
   }
-  function renderMarkdown(t) { try { return marked.parse(t); } catch { return t.replace(/\n/g, '<br>'); } }
-  function escapeHTML(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-  function addCopyButtons(root) {
-    root.querySelectorAll('pre').forEach(pre => {
-      if (pre.parentElement.classList.contains('code-block-wrapper')) return;
-      const w = document.createElement('div'); w.className = 'code-block-wrapper';
-      pre.parentNode.insertBefore(w, pre); w.appendChild(pre);
-      const b = document.createElement('button'); b.className = 'copy-code-btn'; b.textContent = 'Copiar';
-      b.onclick = function() { navigator.clipboard.writeText(pre.textContent); this.textContent = '¡Copiado!'; setTimeout(() => this.textContent = 'Copiar', 2000); };
-      w.appendChild(b);
-    });
-  }
-  function showTypingIndicator() {
-    const container = document.getElementById('messages');
-    const div = document.createElement('div'); div.id = 'typing-indicator'; div.className = 'flex gap-4 msg-enter';
-    div.innerHTML = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="flex items-center gap-1.5 py-3 px-1"><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div><div class="typing-dot w-1.5 h-1.5 rounded-full bg-[#b8976a]"></div></div>';
-    container.appendChild(div); scrollToBottom();
-  }
-  function removeTypingIndicator() { const el = document.getElementById('typing-indicator'); if (el) el.remove(); }
-  function appendStreamingContent(chunk) {
-    let streamEl = document.getElementById('streaming-message');
-    if (!streamEl) {
-      removeTypingIndicator();
-      const container = document.getElementById('messages');
-      const div = document.createElement('div'); div.id = 'streaming-message'; div.className = 'flex gap-4 msg-enter';
-      div.innerHTML = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[75%] min-w-0"><div class="msg-content text-sm font-light leading-relaxed text-neutral-700" id="streaming-content"></div></div>';
-      container.appendChild(div);
+  const c = document.getElementById('streaming-content');
+  c.dataset.full = (c.dataset.full || '') + chunk;
+  c.innerHTML = renderMarkdown(c.dataset.full);
+  addCopyButtons(c); scrollToBottom();
+}
+
+function finalizeStreaming(addSources) {
+  const s = document.getElementById('streaming-message'); if (s) s.removeAttribute('id');
+  const c = document.getElementById('streaming-content');
+  if (c) {
+    c.removeAttribute('id'); c.removeAttribute('data-full');
+    let extra = '<div class="flex items-center gap-2 mt-2"><button onclick="copyMessage(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors" title="Copiar"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button></div>';
+    if (addSources && addSources.length > 0) {
+      extra += '<div class="mt-4 pt-3 border-t border-neutral-100"><p class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium mb-2">Fuentes</p><div class="flex flex-wrap gap-2">';
+      addSources.forEach(src => { extra += '<a href="' + src.url + '" target="_blank" class="source-link"><iconify-icon icon="lucide:external-link" width="10"></iconify-icon>' + escapeHTML(src.title) + '</a>'; });
+      extra += '</div></div>';
     }
-    const contentEl = document.getElementById('streaming-content');
-    contentEl.dataset.full = (contentEl.dataset.full || '') + chunk;
-    contentEl.innerHTML = renderMarkdown(contentEl.dataset.full);
-    addCopyButtons(contentEl); scrollToBottom();
+    c.insertAdjacentHTML('afterend', extra);
   }
-  function finalizeStreaming() {
-    const s = document.getElementById('streaming-message'); if (s) s.removeAttribute('id');
-    const c = document.getElementById('streaming-content');
-    if (c) {
-      c.removeAttribute('id'); c.removeAttribute('data-full');
-      const a = document.createElement('div'); a.className = 'flex items-center gap-2 mt-2';
-      a.innerHTML = '<button onclick="copyMessage(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors" title="Copiar"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button>';
-      c.parentElement.appendChild(a);
+}
+
+// ===== WEB SEARCH =====
+async function webSearch(query) {
+  const sources = [];
+  let searchContext = '';
+
+  // 1) DuckDuckGo Instant Answer
+  try {
+    const ddgUrl = 'https://api.duckduckgo.com/?q=' + encodeURIComponent(query) + '&format=json&no_html=1&skip_disambig=1';
+    const ddgRes = await fetch(ddgUrl);
+    const ddg = await ddgRes.json();
+
+    if (ddg.AbstractText) {
+      searchContext += '[Fuente: ' + ddg.AbstractSource + ']\n' + ddg.AbstractText + '\n\n';
+      if (ddg.AbstractURL) sources.push({ title: ddg.AbstractSource + ' — ' + (ddg.Heading || query), url: ddg.AbstractURL });
     }
-  }
-
-  // ===== BUILD CONTEXT (for GET providers) =====
-  function buildContext(userMsg) {
-    let ctx = SYSTEM_PROMPT + '\n\n';
-    const recent = messages.slice(-10);
-    for (const m of recent) { if (m.role === 'user') ctx += 'Usuario: ' + m.content + '\n'; else if (!m.image) ctx += 'Asistente: ' + m.content + '\n'; }
-    ctx += 'Usuario: ' + userMsg + '\nAsistente: ';
-    return ctx;
-  }
-
-  // ===== SEND =====
-  async function sendMessage() {
-    const input = document.getElementById('user-input');
-    const text = input.value.trim();
-    if (!text || isStreaming) return;
-    document.getElementById('welcome-screen').classList.add('hidden');
-    document.getElementById('messages').classList.remove('hidden');
-
-    if (imageMode) {
-      messages.push({ role: 'user', content: text, image: null });
-      appendMessageToDOM('user', text);
-      input.value = ''; input.style.height = 'auto'; updateSendButton(); scrollToBottom();
-      isStreaming = true; updateSendButton(); showTypingIndicator();
-      await generateImage(text); isStreaming = false; updateSendButton(); return;
+    if (ddg.Definition) {
+      searchContext += '[Definición: ' + ddg.DefinitionSource + ']\n' + ddg.Definition + '\n\n';
+      if (ddg.DefinitionURL) sources.push({ title: ddg.DefinitionSource, url: ddg.DefinitionURL });
     }
+    if (ddg.RelatedTopics) {
+      ddg.RelatedTopics.slice(0, 5).forEach(rt => {
+        if (rt.Text) searchContext += '[Relacionado] ' + rt.Text + '\n';
+        if (rt.FirstURL) sources.push({ title: (rt.Text || '').substring(0, 60), url: rt.FirstURL });
+      });
+    }
+    if (ddg.Results) {
+      ddg.Results.forEach(r => { if (r.FirstURL) sources.push({ title: (r.Text || '').substring(0, 60), url: r.FirstURL }); });
+    }
+  } catch (e) { console.log('DDG error:', e); }
 
+  // 2) Wikipedia ES
+  try {
+    const wikiSearch = 'https://es.wikipedia.org/w/api.php?action=opensearch&search=' + encodeURIComponent(query) + '&limit=3&format=json&origin=*';
+    const wsRes = await fetch(wikiSearch);
+    const ws = await wsRes.json();
+    if (ws[1] && ws[1].length > 0) {
+      const pageTitle = ws[1][0];
+      const wikiUrl = 'https://es.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(pageTitle.replace(/ /g, '_'));
+      const wRes = await fetch(wikiUrl);
+      if (wRes.ok) {
+        const wData = await wRes.json();
+        if (wData.extract) {
+          searchContext += '[Wikipedia Español: ' + wData.title + ']\n' + wData.extract + '\n\n';
+          sources.push({ title: 'Wikipedia: ' + wData.title, url: wData.content_urls?.desktop?.page || 'https://es.wikipedia.org/wiki/' + pageTitle });
+        }
+      }
+    }
+  } catch (e) { console.log('Wiki ES error:', e); }
+
+  // 3) Wikipedia EN fallback
+  if (!searchContext.includes('Wikipedia')) {
+    try {
+      const wikiSearch = 'https://en.wikipedia.org/w/api.php?action=opensearch&search=' + encodeURIComponent(query) + '&limit=2&format=json&origin=*';
+      const wsRes = await fetch(wikiSearch);
+      const ws = await wsRes.json();
+      if (ws[1] && ws[1].length > 0) {
+        const pageTitle = ws[1][0];
+        const wikiUrl = 'https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(pageTitle.replace(/ /g, '_'));
+        const wRes = await fetch(wikiUrl);
+        if (wRes.ok) {
+          const wData = await wRes.json();
+          if (wData.extract) {
+            searchContext += '[Wikipedia Inglés: ' + wData.title + ']\n' + wData.extract + '\n\n';
+            sources.push({ title: 'Wikipedia (EN): ' + wData.title, url: wData.content_urls?.desktop?.page || 'https://en.wikipedia.org/wiki/' + pageTitle });
+          }
+        }
+      }
+    } catch (e) { console.log('Wiki EN error:', e); }
+  }
+
+  return { context: searchContext, sources: sources.filter((s, i, arr) => arr.findIndex(x => x.url === s.url) === i) };
+}
+
+// ===== CONTEXT FOR GET PROVIDERS =====
+function buildContext(userMsg, systemOverride) {
+  const sys = systemOverride || MODES[currentMode].system || '';
+  let ctx = sys + '\n\n';
+  const recent = messages.slice(-10);
+  for (const m of recent) { if (m.role === 'user') ctx += 'Usuario: ' + m.content + '\n'; else if (!m.image && !m.sources) ctx += 'Asistente: ' + m.content + '\n'; }
+  ctx += 'Usuario: ' + userMsg + '\nAsistente: ';
+  return ctx;
+}
+
+// ===== SEND =====
+async function sendMessage() {
+  const input = document.getElementById('user-input');
+  const text = input.value.trim();
+  if (!text || isStreaming) return;
+  document.getElementById('welcome-screen').classList.add('hidden');
+  document.getElementById('messages').classList.remove('hidden');
+
+  if (currentMode === 'image') {
     messages.push({ role: 'user', content: text, image: null });
     appendMessageToDOM('user', text);
     input.value = ''; input.style.height = 'auto'; updateSendButton(); scrollToBottom();
     isStreaming = true; updateSendButton(); showTypingIndicator();
-
-    try {
-      if (currentProvider === 'pollinations') await sendPollinations(text);
-      else if (currentProvider === 'groq') await sendGroq(text);
-      else if (currentProvider === 'gemini') await sendGemini(text);
-      else if (currentProvider === 'openai') await sendOpenAI(text);
-    } catch (err) {
-      removeTypingIndicator();
-      appendMessageToDOM('assistant', 'Error: ' + err.message + '\n\nCambia de motor en la configuración si el problema persiste.');
-    }
-    isStreaming = false; updateSendButton();
+    await generateImage(text); isStreaming = false; updateSendButton(); return;
   }
 
-  // ===== POLLINATIONS (GET, sin CORS) =====
-  async function sendPollinations(userMsg) {
-    const fullPrompt = buildContext(userMsg);
-    const url = 'https://text.pollinations.ai/' + encodeURIComponent(fullPrompt) + '?model=openai&seed=' + Math.floor(Math.random() * 999999);
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Error ' + res.status);
-    const fullText = await res.text();
+  messages.push({ role: 'user', content: text, image: null, sources: null });
+  appendMessageToDOM('user', text);
+  input.value = ''; input.style.height = 'auto'; updateSendButton(); scrollToBottom();
+  isStreaming = true; updateSendButton(); showTypingIndicator();
+
+  try {
+    let systemPrompt = MODES[currentMode].system;
+    let searchSources = null;
+
+    // SEARCH MODE: fetch web data first
+    if (currentMode === 'search') {
+      const result = await webSearch(text);
+      if (result.context) {
+        systemPrompt = result.context + '\n\n' + systemPrompt;
+        searchSources = result.sources;
+      } else {
+        systemPrompt = 'No se encontraron resultados en internet para esta búsqueda. Responde usando tu conocimiento y menciona que no se encontró información en la web.\n\n' + systemPrompt;
+      }
+    }
+
+    if (currentProvider === 'pollinations') await sendPollinations(text, systemPrompt, searchSources);
+    else if (currentProvider === 'groq') await sendGroq(text, systemPrompt, searchSources);
+    else if (currentProvider === 'gemini') await sendGemini(text, systemPrompt, searchSources);
+    else if (currentProvider === 'openai') await sendOpenAI(text, systemPrompt, searchSources);
+  } catch (err) {
     removeTypingIndicator();
-    const words = fullText.split(/(\s+)/);
-    for (let i = 0; i < words.length; i++) {
-      if (i % 3 === 0 || i === words.length - 1) {
-        appendStreamingContent(words.slice(Math.max(0, i - 2), i + 1).join(''));
-        await sleep(12 + Math.random() * 18);
-      }
-    }
-    finalizeStreaming();
-    messages.push({ role: 'assistant', content: fullText, image: null }); saveConversation();
+    appendMessageToDOM('assistant', 'Error: ' + err.message);
   }
+  isStreaming = false; updateSendButton();
+}
 
-  // ===== GROQ (POST + streaming) =====
-  async function sendGroq(userMsg) {
-    const apiMessages = [{ role: 'system', content: SYSTEM_PROMPT }];
-    apiMessages.push(...messages.map(m => ({ role: m.role, content: m.content })));
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_KEY },
-      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: apiMessages, temperature: TEMPERATURE, max_tokens: 4096, stream: true })
-    });
-    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error?.message || 'Error ' + res.status); }
-    const reader = res.body.getReader(); const decoder = new TextDecoder(); let buffer = ''; let full = '';
-    while (true) {
-      const { done, value } = await reader.read(); if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n'); buffer = lines.pop() || '';
-      for (const line of lines) {
-        const t = line.trim(); if (!t || !t.startsWith('data:')) continue;
-        const d = t.slice(5).trim(); if (d === '[DONE]') break;
-        try { const p = JSON.parse(d); const delta = p.choices?.[0]?.delta?.content; if (delta) { full += delta; appendStreamingContent(delta); } } catch {}
-      }
-    }
-    finalizeStreaming();
-    messages.push({ role: 'assistant', content: full, image: null }); saveConversation();
+// ===== POLLINATIONS =====
+async function sendPollinations(userMsg, systemPrompt, sources) {
+  const full = buildContext(userMsg, systemPrompt);
+  const url = 'https://text.pollinations.ai/' + encodeURIComponent(full) + '?model=openai&seed=' + Math.floor(Math.random() * 999999);
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Error ' + res.status);
+  const text = await res.text();
+  removeTypingIndicator();
+  const words = text.split(/(\s+)/);
+  for (let i = 0; i < words.length; i++) {
+    if (i % 3 === 0 || i === words.length - 1) { appendStreamingContent(words.slice(Math.max(0, i - 2), i + 1).join('')); await sleep(12 + Math.random() * 18); }
   }
+  finalizeStreaming(sources);
+  messages.push({ role: 'assistant', content: text, image: null, sources: sources || null }); saveConversation();
+}
 
-  // ===== GEMINI (POST + streaming) =====
-  async function sendGemini(userMsg) {
-    const contents = [];
-    for (const m of messages) {
-      if (m.image) continue;
-      contents.push({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.content }] });
-    }
-    contents.push({ role: 'user', parts: [{ text: userMsg }] });
+// ===== GROQ =====
+async function sendGroq(userMsg, systemPrompt, sources) {
+  const apiMsgs = [{ role: 'system', content: systemPrompt }];
+  apiMsgs.push(...messages.filter(m => !m.image && !m.sources).map(m => ({ role: m.role, content: m.content })));
+  apiMsgs.push({ role: 'user', content: userMsg });
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_KEY },
+    body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: apiMsgs, temperature: 0.7, max_tokens: 4096, stream: true })
+  });
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error?.message || 'Error ' + res.status); }
+  const reader = res.body.getReader(); const dec = new TextDecoder(); let buf = '', full = '';
+  while (true) { const { done, value } = await reader.read(); if (done) break; buf += dec.decode(value, { stream: true }); const lines = buf.split('\n'); buf = lines.pop() || ''; for (const line of lines) { const t = line.trim(); if (!t || !t.startsWith('data:')) continue; const d = t.slice(5).trim(); if (d === '[DONE]') break; try { const p = JSON.parse(d); const delta = p.choices?.[0]?.delta?.content; if (delta) { full += delta; appendStreamingContent(delta); } } catch {} } }
+  finalizeStreaming(sources);
+  messages.push({ role: 'assistant', content: full, image: null, sources: sources || null }); saveConversation();
+}
 
-    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=' + GEMINI_KEY, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents, generationConfig: { temperature: TEMPERATURE, maxOutputTokens: 8192 } })
-    });
-    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error?.message || 'Error ' + res.status); }
-    const reader = res.body.getReader(); const decoder = new TextDecoder(); let buffer = ''; let full = '';
-    while (true) {
-      const { done, value } = await reader.read(); if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n'); buffer = lines.pop() || '';
-      for (const line of lines) {
-        const t = line.trim(); if (!t.startsWith('data:')) continue;
-        try {
-          const p = JSON.parse(t.slice(5).trim());
-          const text = p.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (text) { full += text; appendStreamingContent(text); }
-        } catch {}
-      }
-    }
-    finalizeStreaming();
-    messages.push({ role: 'assistant', content: full, image: null }); saveConversation();
-  }
+// ===== GEMINI =====
+async function sendGemini(userMsg, systemPrompt, sources) {
+  const contents = [];
+  contents.push({ role: 'user', parts: [{ text: systemPrompt }] });
+  contents.push({ role: 'model', parts: [{ text: 'Entendido.' }] });
+  messages.filter(m => !m.image && !m.sources).forEach(m => { contents.push({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.content }] }); });
+  contents.push({ role: 'user', parts: [{ text: userMsg }] });
+  const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=' + GEMINI_KEY, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contents, generationConfig: { temperature: 0.7, maxOutputTokens: 8192 } })
+  });
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error?.message || 'Error ' + res.status); }
+  const reader = res.body.getReader(); const dec = new TextDecoder(); let buf = '', full = '';
+  while (true) { const { done, value } = await reader.read(); if (done) break; buf += dec.decode(value, { stream: true }); const lines = buf.split('\n'); buf = lines.pop() || ''; for (const line of lines) { const t = line.trim(); if (!t.startsWith('data:')) continue; try { const p = JSON.parse(t.slice(5).trim()); const text = p.candidates?.[0]?.content?.parts?.[0]?.text; if (text) { full += text; appendStreamingContent(text); } } catch {} } }
+  finalizeStreaming(sources);
+  messages.push({ role: 'assistant', content: full, image: null, sources: sources || null }); saveConversation();
+}
 
-  // ===== OPENAI (POST + streaming) =====
-  async function sendOpenAI(userMsg) {
-    const apiMessages = [{ role: 'system', content: SYSTEM_PROMPT }];
-    apiMessages.push(...messages.map(m => ({ role: m.role, content: m.content })));
-    const res = await fetch(OPENAI_URL + '/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + OPENAI_KEY },
-      body: JSON.stringify({ model: OPENAI_MODEL, messages: apiMessages, temperature: TEMPERATURE, max_tokens: 4096, stream: true })
-    });
-    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error?.message || 'Error ' + res.status); }
-    const reader = res.body.getReader(); const decoder = new TextDecoder(); let buffer = ''; let full = '';
-    while (true) {
-      const { done, value } = await reader.read(); if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n'); buffer = lines.pop() || '';
-      for (const line of lines) {
-        const t = line.trim(); if (!t || !t.startsWith('data:')) continue;
-        const d = t.slice(5).trim(); if (d === '[DONE]') break;
-        try { const p = JSON.parse(d); const delta = p.choices?.[0]?.delta?.content; if (delta) { full += delta; appendStreamingContent(delta); } } catch {}
-      }
-    }
-    finalizeStreaming();
-    messages.push({ role: 'assistant', content: full, image: null }); saveConversation();
-  }
+// ===== OPENAI =====
+async function sendOpenAI(userMsg, systemPrompt, sources) {
+  const apiMsgs = [{ role: 'system', content: systemPrompt }];
+  apiMsgs.push(...messages.filter(m => !m.image && !m.sources).map(m => ({ role: m.role, content: m.content })));
+  apiMsgs.push({ role: 'user', content: userMsg });
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + OPENAI_KEY },
+    body: JSON.stringify({ model: OPENAI_MODEL, messages: apiMsgs, temperature: 0.7, max_tokens: 4096, stream: true })
+  });
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error?.message || 'Error ' + res.status); }
+  const reader = res.body.getReader(); const dec = new TextDecoder(); let buf = '', full = '';
+  while (true) { const { done, value } = await reader.read(); if (done) break; buf += dec.decode(value, { stream: true }); const lines = buf.split('\n'); buf = lines.pop() || ''; for (const line of lines) { const t = line.trim(); if (!t || !t.startsWith('data:')) continue; const d = t.slice(5).trim(); if (d === '[DONE]') break; try { const p = JSON.parse(d); const delta = p.choices?.[0]?.delta?.content; if (delta) { full += delta; appendStreamingContent(delta); } } catch {} } }
+  finalizeStreaming(sources);
+  messages.push({ role: 'assistant', content: full, image: null, sources: sources || null }); saveConversation();
+}
 
-  // ===== IMAGE =====
-  async function generateImage(prompt) {
-    let clean = prompt;
-    ['genera','dibuja','crea','haz','una imagen de','un dibujo de','imagen de','dibujo de'].forEach(w => { clean = clean.replace(new RegExp(w, 'gi'), ''); });
-    clean = clean.trim();
-    if (!clean) { removeTypingIndicator(); appendMessageToDOM('assistant', '¿Qué imagen quieres generar?'); return; }
-    const seed = Math.floor(Math.random() * 999999);
-    const imageUrl = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(clean) + '?width=768&height=768&seed=' + seed + '&nologo=true&model=flux';
-    removeTypingIndicator(); appendImageToDOM(imageUrl, clean);
-    messages.push({ role: 'assistant', content: clean, image: imageUrl }); saveConversation();
-  }
+// ===== IMAGE =====
+async function generateImage(prompt) {
+  let clean = prompt;
+  ['genera','dibuja','crea','haz','una imagen de','un dibujo de','imagen de','dibujo de'].forEach(w => { clean = clean.replace(new RegExp(w, 'gi'), ''); });
+  clean = clean.trim();
+  if (!clean) { removeTypingIndicator(); appendMessageToDOM('assistant', '¿Qué imagen quieres generar?'); return; }
+  const seed = Math.floor(Math.random() * 999999);
+  const imageUrl = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(clean) + '?width=768&height=768&seed=' + seed + '&nologo=true&model=flux';
+  removeTypingIndicator(); appendImageToDOM(imageUrl, clean);
+  messages.push({ role: 'assistant', content: clean, image: imageUrl, sources: null }); saveConversation();
+}
 
-  function openImagePreview(src) { document.getElementById('preview-img').src = src; document.getElementById('image-preview').classList.remove('hidden'); }
-  function closeImagePreview() { document.getElementById('image-preview').classList.add('hidden'); }
-  function sendSuggestion(t) { document.getElementById('user-input').value = t; sendMessage(); }
-  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-  function scrollToBottom() { requestAnimationFrame(() => { document.getElementById('messages-container').scrollTop = document.getElementById('messages-container').scrollHeight; }); }
-  function updateSendButton() {
-    const input = document.getElementById('user-input'); const btn = document.getElementById('send-btn');
-    btn.disabled = !input.value.trim() || isStreaming;
-    btn.innerHTML = isStreaming ? '<iconify-icon icon="lucide:loader-2" width="18" class="animate-spin"></iconify-icon>' : '<iconify-icon icon="lucide:arrow-up" width="18"></iconify-icon>';
-  }
-  function handleKeyDown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
-  function copyMessage(btn) {
-    const m = btn.closest('.max-w-\\[85\\%\\]') || btn.parentElement.previousElementSibling;
-    navigator.clipboard.writeText((m?.innerText || '').trim()).then(() => showToast('Copiado ✓'));
-  }
-  function exportChat() {
-    if (messages.length === 0) { showToast('No hay mensajes', 'warn'); return; }
-    let t = '# Koya — Conversación\n\n';
-    messages.forEach(m => { if (m.image) t += '**Koya:** [Imagen](' + m.image + ')\n\n'; else t += (m.role === 'user' ? '**Tú:**\n' : '**Koya:**\n') + m.content + '\n\n'; });
-    t += '---\nMotor: ' + getProviderName() + ' | ' + new Date().toLocaleString();
-    const blob = new Blob([t], { type: 'text/markdown' }); const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'koya-' + Date.now() + '.md'; a.click(); URL.revokeObjectURL(url);
-    showToast('Exportado ✓');
-  }
-  function openMobileSidebar() { document.getElementById('mobile-sidebar-bg').classList.remove('hidden'); document.getElementById('mobile-sidebar').classList.add('open'); }
-  function closeMobileSidebar() { document.getElementById('mobile-sidebar-bg').classList.add('hidden'); document.getElementById('mobile-sidebar').classList.remove('open'); }
+function openImagePreview(src) { document.getElementById('preview-img').src = src; document.getElementById('image-preview').classList.remove('hidden'); }
+function closeImagePreview() { document.getElementById('image-preview').classList.add('hidden'); }
+function sendSuggestion(t) { document.getElementById('user-input').value = t; sendMessage(); }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function scrollToBottom() { requestAnimationFrame(() => { document.getElementById('messages-container').scrollTop = document.getElementById('messages-container').scrollHeight; }); }
+function updateSendButton() {
+  const input = document.getElementById('user-input'); const btn = document.getElementById('send-btn');
+  btn.disabled = !input.value.trim() || isStreaming;
+  btn.innerHTML = isStreaming ? '<iconify-icon icon="lucide:loader-2" width="18" class="animate-spin"></iconify-icon>' : '<iconify-icon icon="lucide:arrow-up" width="18"></iconify-icon>';
+}
+function handleKeyDown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function copyMessage(btn) {
+  const m = btn.closest('.max-w-\\[85\\%\\]') || btn.parentElement.previousElementSibling;
+  navigator.clipboard.writeText((m?.innerText || '').trim()).then(() => showToast('Copiado ✓'));
+}
+function exportChat() {
+  if (messages.length === 0) { showToast('No hay mensajes', 'warn'); return; }
+  let t = '# Koya — Conversación\n\n';
+  messages.forEach(m => { if (m.image) t += '**Koya:** [Imagen](' + m.image + ')\n\n'; else if (m.sources) { t += '**Koya (Búsqueda):**\n' + m.content + '\n\nFuentes:\n'; m.sources.forEach(s => t += '- ' + s.title + ': ' + s.url + '\n'); t += '\n'; } else t += (m.role === 'user' ? '**Tú:**\n' : '**Koya:**\n') + m.content + '\n\n'; });
+  t += '---\nMotor: ' + getProviderName() + ' | ' + new Date().toLocaleString();
+  const blob = new Blob([t], { type: 'text/markdown' }); const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'koya-' + Date.now() + '.md'; a.click(); URL.revokeObjectURL(url);
+  showToast('Exportado ✓');
+}
+function openMobileSidebar() { document.getElementById('mobile-sidebar-bg').classList.remove('hidden'); document.getElementById('mobile-sidebar').classList.add('open'); }
+function closeMobileSidebar() { document.getElementById('mobile-sidebar-bg').classList.add('hidden'); document.getElementById('mobile-sidebar').classList.remove('open'); }
 
-  function showToast(message, type) {
-    type = type || 'success';
-    const container = document.getElementById('toast-container'); const toast = document.createElement('div');
-    const icons = { success: 'lucide:check-circle', warn: 'lucide:alert-circle' };
-    const colors = { success: 'text-[#b8976a]', warn: 'text-amber-500' };
-    toast.className = 'bg-white rounded-xl shadow-lg border border-neutral-100 px-5 py-3 flex items-center gap-3';
-    toast.style.cssText = 'transform:translateY(16px);opacity:0;transition:all .4s cubic-bezier(.16,1,.3,1);';
-    toast.innerHTML = '<iconify-icon icon="' + icons[type] + '" width="16" class="' + colors[type] + '"></iconify-icon><span class="text-xs font-light text-neutral-600">' + message + '</span>';
-    container.appendChild(toast);
-    requestAnimationFrame(() => { toast.style.transform = 'translateY(0)'; toast.style.opacity = '1'; });
-    setTimeout(() => { toast.style.transform = 'translateY(16px)'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 3000);
-  }
+function showToast(message, type) {
+  type = type || 'success'; const container = document.getElementById('toast-container'); const toast = document.createElement('div');
+  const icons = { success: 'lucide:check-circle', warn: 'lucide:alert-circle' };
+  const colors = { success: 'text-[#b8976a]', warn: 'text-amber-500' };
+  toast.className = 'bg-white rounded-xl shadow-lg border border-neutral-100 px-5 py-3 flex items-center gap-3';
+  toast.style.cssText = 'transform:translateY(16px);opacity:0;transition:all .4s cubic-bezier(.16,1,.3,1);';
+  toast.innerHTML = '<iconify-icon icon="' + icons[type] + '" width="16" class="' + colors[type] + '"></iconify-icon><span class="text-xs font-light text-neutral-600">' + message + '</span>';
+  container.appendChild(toast);
+  requestAnimationFrame(() => { toast.style.transform = 'translateY(0)'; toast.style.opacity = '1'; });
+  setTimeout(() => { toast.style.transform = 'translateY(16px)'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 3000);
+}
 
-  document.getElementById('provider-modal').addEventListener('click', function(e) { if (e.target === this) closeProviderModal(); });
-  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeProviderModal(); closeMobileSidebar(); closeImagePreview(); } });
+document.getElementById('provider-modal').addEventListener('click', function(e) { if (e.target === this) closeProviderModal(); });
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeProviderModal(); closeMobileSidebar(); closeImagePreview(); } });
 </script>
 </body>
 </html>
