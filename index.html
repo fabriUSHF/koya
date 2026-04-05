@@ -17,23 +17,26 @@
             font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
             height: 100vh;
             overflow: hidden;
-            position: fixed;
             width: 100%;
+            position: fixed;
         }
 
-        /* App container */
+        /* App container - flex column que ocupa todo */
         .app {
             display: flex;
             flex-direction: column;
             height: 100%;
             width: 100%;
+            overflow: hidden;
+            position: relative;
         }
 
-        /* Header con pestañas de chats (más pequeño) */
+        /* Header con pestañas */
         .tabs-container {
             background: #0a0a0f;
             border-bottom: 1px solid rgba(0, 212, 255, 0.15);
             flex-shrink: 0;
+            width: 100%;
         }
 
         .tabs {
@@ -55,6 +58,7 @@
             white-space: nowrap;
             font-size: 12px;
             border: 1px solid transparent;
+            flex-shrink: 0;
         }
 
         .tab.active {
@@ -100,7 +104,7 @@
             flex-shrink: 0;
         }
 
-        /* Visualizador más pequeño */
+        /* Visualizador */
         .visualizer {
             height: 24px;
             display: flex;
@@ -122,14 +126,16 @@
             transition: height 0.05s ease;
         }
 
-        /* Área de chat */
+        /* Panel de chat - ocupa todo el espacio restante */
         .chat-panel {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            min-height: 0;
         }
 
+        /* Contenedor de mensajes - scrollable */
         .chat-container {
             flex: 1;
             overflow-y: auto;
@@ -172,7 +178,7 @@
             cursor: pointer;
         }
 
-        /* Input compacto */
+        /* Input wrapper - siempre visible */
         .input-wrapper {
             background: #111118;
             border-top: 1px solid rgba(0, 212, 255, 0.1);
@@ -549,7 +555,9 @@
     }
 
     function renderizarMensajes(chat) {
+        if (!chatContainer) return;
         chatContainer.innerHTML = '';
+        if (!chat.mensajes) return;
         chat.mensajes.forEach(msg => {
             if (msg.esImagen && msg.imagenUrl) {
                 const div = document.createElement('div');
@@ -567,6 +575,7 @@
     }
 
     function renderizarTabs() {
+        if (!tabsContainer) return;
         tabsContainer.innerHTML = '';
         chats.forEach(chat => {
             const tab = document.createElement('div');
@@ -591,6 +600,7 @@
     }
 
     function renderizarListaChats() {
+        if (!chatsList) return;
         chatsList.innerHTML = '';
         chats.forEach(chat => {
             const item = document.createElement('div');
@@ -726,13 +736,14 @@
     function abrirMenu() { sidebar.classList.add('open'); overlay.classList.add('show'); renderizarListaChats(); }
     function cerrarMenu() { sidebar.classList.remove('open'); overlay.classList.remove('show'); }
 
-    sendBtn.onclick = enviarMensaje;
-    messageInput.onkeypress = (e) => { if (e.key === 'Enter') enviarMensaje(); };
-    micBtn.onclick = () => { if (!escuchando) iniciarReconocimiento(); };
-    speakBtn.onclick = leerUltimoMensaje;
-    menuBtn.onclick = abrirMenu;
-    closeSidebar.onclick = cerrarMenu;
-    overlay.onclick = cerrarMenu;
+    // Eventos
+    if (sendBtn) sendBtn.onclick = enviarMensaje;
+    if (messageInput) messageInput.onkeypress = (e) => { if (e.key === 'Enter') enviarMensaje(); };
+    if (micBtn) micBtn.onclick = () => { if (!escuchando) iniciarReconocimiento(); };
+    if (speakBtn) speakBtn.onclick = leerUltimoMensaje;
+    if (menuBtn) menuBtn.onclick = abrirMenu;
+    if (closeSidebar) closeSidebar.onclick = cerrarMenu;
+    if (overlay) overlay.onclick = cerrarMenu;
 
     // Inicializar
     function init() {
