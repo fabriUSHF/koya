@@ -13,22 +13,15 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script>
-    tailwind.config = {
-      theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Playfair Display', 'serif'] } } }
-    }
+    tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif'],serif:['Playfair Display','serif']}}}}
   </script>
   <style>
-    *{box-sizing:border-box}
-    body{font-family:'Inter',sans-serif;background:#fafaf9;color:#1a1a1a}
-    ::-webkit-scrollbar{width:4px}
-    ::-webkit-scrollbar-track{background:transparent}
-    ::-webkit-scrollbar-thumb{background:#e5e5e5;border-radius:99px}
+    *{box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#fafaf9;color:#1a1a1a}
+    ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#e5e5e5;border-radius:99px}
     @keyframes msgIn{from{opacity:0;transform:translateY(12px);filter:blur(4px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
     .msg-enter{animation:msgIn .5s cubic-bezier(.16,1,.3,1) forwards}
     @keyframes dotPulse{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
-    .typing-dot{animation:dotPulse 1.4s infinite}
-    .typing-dot:nth-child(2){animation-delay:.2s}
-    .typing-dot:nth-child(3){animation-delay:.4s}
+    .typing-dot{animation:dotPulse 1.4s infinite}.typing-dot:nth-child(2){animation-delay:.2s}.typing-dot:nth-child(3){animation-delay:.4s}
     @keyframes fadeIn{from{opacity:0;transform:translateY(20px);filter:blur(6px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
     .fade-in{animation:fadeIn .8s cubic-bezier(.16,1,.3,1) forwards}
     .fade-in-d{animation:fadeIn .8s cubic-bezier(.16,1,.3,1) .15s forwards;opacity:0}
@@ -36,13 +29,9 @@
     .msg-content pre{background:#1a1a1a;color:#e5e5e5;border-radius:12px;padding:16px;overflow-x:auto;margin:12px 0;font-size:13px;line-height:1.6}
     .msg-content code{font-family:'SF Mono','Fira Code',monospace;font-size:13px}
     .msg-content p code{background:#f0eeeb;color:#86623d;padding:2px 7px;border-radius:6px;font-size:12px}
-    .msg-content ul,.msg-content ol{margin:8px 0;padding-left:20px}
-    .msg-content li{margin:4px 0}
-    .msg-content ul li{list-style-type:disc}
-    .msg-content ol li{list-style-type:decimal}
-    .msg-content p{margin:6px 0}
-    .msg-content strong{font-weight:600}
-    .msg-content em{font-style:italic}
+    .msg-content ul,.msg-content ol{margin:8px 0;padding-left:20px}.msg-content li{margin:4px 0}
+    .msg-content ul li{list-style-type:disc}.msg-content ol li{list-style-type:decimal}
+    .msg-content p{margin:6px 0}.msg-content strong{font-weight:600}.msg-content em{font-style:italic}
     .msg-content h1,.msg-content h2,.msg-content h3{font-weight:600;margin:16px 0 8px}
     .msg-content h1{font-size:1.25rem}.msg-content h2{font-size:1.1rem}.msg-content h3{font-size:1rem}
     .msg-content blockquote{border-left:3px solid #d4d4d4;padding-left:16px;color:#737373;margin:12px 0}
@@ -53,9 +42,7 @@
     .code-block-wrapper{position:relative}
     .copy-code-btn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.1);border:none;color:#a3a3a3;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
     .copy-code-btn:hover{background:rgba(255,255,255,.2);color:#fff}
-    .sidebar-item{transition:all .2s ease}
-    .sidebar-item:hover{background:#f0eeeb}
-    .sidebar-item.active{background:#f0eeeb}
+    .sidebar-item{transition:all .2s ease}.sidebar-item:hover{background:#f0eeeb}.sidebar-item.active{background:#f0eeeb}
     .modal-bg{opacity:0;pointer-events:none;transition:opacity .3s ease}
     .modal-bg.open{opacity:1;pointer-events:auto}
     .modal-box{transform:scale(.96) translateY(16px);transition:transform .5s cubic-bezier(.16,1,.3,1)}
@@ -64,8 +51,14 @@
     .suggestion-chip{transition:all .3s cubic-bezier(.16,1,.3,1)}
     .suggestion-chip:hover{border-color:#1a1a1a;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06)}
     .generated-image{border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .5s cubic-bezier(.16,1,.3,1)}
-    .generated-image:hover{transform:scale(1.02)}
-    .generated-image img{width:100%;display:block;border-radius:16px}
+    .generated-image:hover{transform:scale(1.02)}.generated-image img{width:100%;display:block;border-radius:16px}
+    .provider-card{transition:all .3s cubic-bezier(.16,1,.3,1);cursor:pointer}
+    .provider-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
+    .provider-card.selected{border-color:#1a1a1a;background:#fafaf9}
+    .provider-card.selected .provider-radio{background:#1a1a1a;border-color:#1a1a1a}
+    .provider-card.selected .provider-radio-inner{opacity:1}
+    .provider-radio{width:18px;height:18px;border-radius:50%;border:2px solid #d4d4d4;transition:all .2s;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+    .provider-radio-inner{width:8px;height:8px;border-radius:50%;background:white;opacity:0;transition:opacity .2s}
     @media(max-width:768px){.sidebar-panel{transform:translateX(-100%);transition:transform .4s cubic-bezier(.16,1,.3,1)}.sidebar-panel.open{transform:translateX(0)}}
   </style>
 </head>
@@ -79,7 +72,7 @@
         <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center"><span class="text-white text-[10px] font-semibold">K</span></div>
         <span class="font-serif text-lg tracking-[.08em]">Koya</span>
       </div>
-      <button onclick="newChat()" class="text-neutral-400 hover:text-neutral-600 transition-colors" title="Nuevo chat"><iconify-icon icon="lucide:pen-line" width="16"></iconify-icon></button>
+      <button onclick="newChat()" class="text-neutral-400 hover:text-neutral-600 transition-colors"><iconify-icon icon="lucide:pen-line" width="16"></iconify-icon></button>
     </div>
     <div class="flex-1 overflow-y-auto py-3 px-3">
       <p class="text-[10px] tracking-[.15em] uppercase text-neutral-400 font-medium px-2 mb-2">Hoy</p>
@@ -87,10 +80,10 @@
       <div id="chat-list-empty" class="text-center py-10"><iconify-icon icon="lucide:message-circle" width="28" class="text-neutral-200"></iconify-icon><p class="text-[11px] text-neutral-300 mt-2">Sin conversaciones</p></div>
     </div>
     <div class="p-4 border-t border-neutral-100/80">
-      <button onclick="openApiKeyModal()" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left">
-        <iconify-icon icon="lucide:key" width="16" class="text-neutral-400"></iconify-icon>
-        <span class="text-sm font-light text-neutral-600">OpenAI (opcional)</span>
-        <span id="api-status-dot" class="ml-auto w-2 h-2 rounded-full bg-neutral-200"></span>
+      <button onclick="openProviderModal()" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left">
+        <iconify-icon icon="lucide:cpu" width="16" class="text-neutral-400"></iconify-icon>
+        <span class="text-sm font-light text-neutral-600">Motor de IA</span>
+        <span id="engine-dot" class="ml-auto w-2 h-2 rounded-full bg-amber-300"></span>
       </button>
     </div>
   </aside>
@@ -113,10 +106,10 @@
       <div id="mobile-chat-list" class="space-y-0.5"></div>
     </div>
     <div class="p-4 border-t border-neutral-100/80">
-      <button onclick="openApiKeyModal();closeMobileSidebar()" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left">
-        <iconify-icon icon="lucide:key" width="16" class="text-neutral-400"></iconify-icon>
-        <span class="text-sm font-light text-neutral-600">OpenAI (opcional)</span>
-        <span class="ml-auto w-2 h-2 rounded-full bg-neutral-200" id="api-status-dot-mobile"></span>
+      <button onclick="openProviderModal();closeMobileSidebar()" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left">
+        <iconify-icon icon="lucide:cpu" width="16" class="text-neutral-400"></iconify-icon>
+        <span class="text-sm font-light text-neutral-600">Motor de IA</span>
+        <span class="ml-auto w-2 h-2 rounded-full bg-amber-300" id="engine-dot-mobile"></span>
       </button>
     </div>
   </aside>
@@ -142,66 +135,158 @@
       <div id="welcome-screen" class="h-full flex flex-col items-center justify-center px-6 fade-in">
         <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center mb-6 shadow-lg shadow-[#b8976a]/10"><span class="text-white text-xl font-serif italic">K</span></div>
         <h2 class="font-serif text-2xl md:text-3xl tracking-[-.02em]">Hola, soy Koya</h2>
-        <p class="mt-3 text-sm font-light text-neutral-400 text-center max-w-md leading-relaxed">Tu asistente de IA. Funciona al instante, sin configuración.</p>
+        <p class="mt-3 text-sm font-light text-neutral-400 text-center max-w-md leading-relaxed">Funciona al instante. Si quieres más potencia, activa Groq en 30 segundos — gratis y sin tarjeta.</p>
         <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg fade-in-d">
           <button onclick="sendSuggestion('Explícame la relatividad de forma sencilla')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:atom" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Explícame la relatividad de forma sencilla</p></div></button>
           <button onclick="sendSuggestion('Escribe un poema corto sobre el silencio')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:feather" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Escribe un poema sobre el silencio</p></div></button>
           <button onclick="sendSuggestion('Dame 5 ideas de startup para 2025')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:lightbulb" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Dame 5 ideas de startup para 2025</p></div></button>
           <button onclick="sendSuggestion('Crea una función en Python para ordenar una lista')" class="suggestion-chip text-left p-4 rounded-2xl border border-neutral-200/80 bg-white group"><div class="flex items-start gap-3"><iconify-icon icon="lucide:code-2" width="16" class="text-[#b8976a] mt-0.5 flex-shrink-0"></iconify-icon><p class="text-sm font-light text-neutral-600 group-hover:text-neutral-800 transition-colors">Crea una función en Python para ordenar</p></div></button>
         </div>
-        <div class="mt-8 flex items-center gap-4 text-[11px] text-neutral-300">
-          <span class="flex items-center gap-1.5"><iconify-icon icon="lucide:zap" width="12"></iconify-icon>Sin API Key</span>
-          <span class="flex items-center gap-1.5"><iconify-icon icon="lucide:image" width="12"></iconify-icon>Genera imágenes</span>
-          <span class="flex items-center gap-1.5"><iconify-icon icon="lucide:infinity" width="12"></iconify-icon>Sin límite</span>
-        </div>
+        <button onclick="openProviderModal()" class="mt-8 flex items-center gap-2 text-[11px] text-[#86623d] hover:text-[#5c4430] transition-colors">
+          <iconify-icon icon="lucide:zap" width="13"></iconify-icon>
+          <span class="underline underline-offset-2">Activar motor potente (Groq — gratis)</span>
+        </button>
       </div>
       <div id="messages" class="max-w-3xl mx-auto px-4 md:px-6 py-6 space-y-6 hidden"></div>
     </div>
 
     <div class="flex-shrink-0 border-t border-neutral-100/80 bg-white/60 backdrop-blur-md px-4 md:px-6 py-4">
       <div class="max-w-3xl mx-auto">
-        <div id="img-mode-bar" class="hidden mb-3 flex items-center gap-2">
-          <div class="flex items-center gap-2 px-3 py-1.5 bg-[#f0eeeb] rounded-full">
-            <iconify-icon icon="lucide:image" width="13" class="text-[#86623d]"></iconify-icon>
-            <span class="text-[11px] text-[#86623d] font-medium tracking-wide">Modo imagen</span>
-            <button onclick="toggleImageMode()" class="text-[#86623d] hover:text-[#5c4430] ml-1"><iconify-icon icon="lucide:x" width="12"></iconify-icon></button>
-          </div>
-        </div>
+        <div id="img-mode-bar" class="hidden mb-3"><div class="flex items-center gap-2 px-3 py-1.5 bg-[#f0eeeb] rounded-full"><iconify-icon icon="lucide:image" width="13" class="text-[#86623d]"></iconify-icon><span class="text-[11px] text-[#86623d] font-medium tracking-wide">Modo imagen</span><button onclick="toggleImageMode()" class="text-[#86623d] hover:text-[#5c4430] ml-1"><iconify-icon icon="lucide:x" width="12"></iconify-icon></button></div></div>
         <div class="input-glow flex items-end gap-3 bg-white border border-neutral-200 rounded-2xl px-4 py-3 transition-all duration-300">
           <textarea id="user-input" placeholder="Escribe tu mensaje..." class="flex-1 text-sm font-light bg-transparent border-none placeholder:text-neutral-300 py-0 leading-relaxed focus:outline-none" rows="1" onkeydown="handleKeyDown(event)"></textarea>
           <button id="send-btn" onclick="sendMessage()" class="p-1.5 text-neutral-300 hover:text-[#1a1a1a] transition-all duration-300 flex-shrink-0 mb-0.5 disabled:opacity-30" disabled><iconify-icon icon="lucide:arrow-up" width="18"></iconify-icon></button>
         </div>
-        <p class="text-center text-[10px] text-neutral-300 mt-3 tracking-wide">Koya · Pollinations AI · Gratuito · <button onclick="openApiKeyModal()" class="underline hover:text-neutral-500 transition-colors">OpenAI opcional</button></p>
+        <p class="text-center text-[10px] text-neutral-300 mt-3 tracking-wide">Koya · <span id="footer-engine">Pollinations AI</span> · <button onclick="openProviderModal()" class="underline hover:text-neutral-500 transition-colors">Cambiar motor</button></p>
       </div>
     </div>
   </main>
 </div>
 
-<!-- API KEY MODAL -->
-<div id="apikey-modal" class="modal-bg fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-center justify-center p-6">
-  <div class="modal-box bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-    <div class="p-8">
-      <div class="flex items-center justify-between mb-6">
-        <div><h3 class="font-serif text-xl">Conectar OpenAI</h3><p class="text-xs text-neutral-400 mt-1">Completamente opcional</p></div>
-        <button onclick="closeApiKeyModal()" class="text-neutral-300 hover:text-neutral-500 transition-colors"><iconify-icon icon="lucide:x" width="20"></iconify-icon></button>
+<!-- PROVIDER MODAL -->
+<div id="provider-modal" class="modal-bg fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="modal-box bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] overflow-y-auto">
+    <div class="p-6 md:p-8">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="font-serif text-xl">Motor de IA</h3>
+        <button onclick="closeProviderModal()" class="text-neutral-300 hover:text-neutral-500 transition-colors"><iconify-icon icon="lucide:x" width="20"></iconify-icon></button>
       </div>
-      <div class="bg-neutral-50 rounded-xl p-4 mb-6">
-        <p class="text-xs font-light text-neutral-500 leading-relaxed">Koya ya funciona con <strong class="font-medium text-neutral-600">Pollinations AI</strong> sin configurar nada. Esto es solo si quieres usar OpenAI como motor alternativo.</p>
+      <p class="text-xs text-neutral-400 mb-6">Elige quién procesa tus mensajes. Todos son gratuitos.</p>
+
+      <!-- Pollinations -->
+      <div class="provider-card selected border border-neutral-200 rounded-2xl p-5 mb-3" data-provider="pollinations" onclick="selectProvider('pollinations')">
+        <div class="flex items-start gap-4">
+          <div class="provider-radio mt-0.5"><div class="provider-radio-inner"></div></div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium">Pollinations</span>
+              <span class="text-[9px] tracking-wider uppercase bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded-full font-medium">Por defecto</span>
+            </div>
+            <p class="text-[11px] text-neutral-400 mt-1 leading-relaxed">Funciona al instante. Sin registro, sin configuración. Modelo pequeño pero suficiente para lo básico.</p>
+            <div class="flex items-center gap-3 mt-2">
+              <span class="text-[10px] text-neutral-300 flex items-center gap-1"><iconify-icon icon="lucide:check" width="10"></iconify-icon>Sin registro</span>
+              <span class="text-[10px] text-neutral-300 flex items-center gap-1"><iconify-icon icon="lucide:check" width="10"></iconify-icon>Sin tarjeta</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="space-y-4">
-        <div>
-          <label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">API Key</label>
-          <input id="apikey-input" type="password" placeholder="sk-proj-..." class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light transition-colors focus:outline-none focus:border-neutral-400">
+
+      <!-- Groq -->
+      <div class="provider-card border border-neutral-200 rounded-2xl p-5 mb-3" data-provider="groq" onclick="selectProvider('groq')">
+        <div class="flex items-start gap-4">
+          <div class="provider-radio mt-0.5"><div class="provider-radio-inner"></div></div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium">Groq</span>
+              <span class="text-[9px] tracking-wider uppercase bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-medium">Recomendado</span>
+            </div>
+            <p class="text-[11px] text-neutral-400 mt-1 leading-relaxed"><strong class="text-neutral-500">Llama 3.3 70B</strong> — Modelo enorme, respuestas en ~200ms. El más rápido del mundo. Gratis sin tarjeta.</p>
+            <div class="flex items-center gap-3 mt-2">
+              <span class="text-[10px] text-neutral-300 flex items-center gap-1"><iconify-icon icon="lucide:zap" width="10" class="text-amber-400"></iconify-icon>Ultra rápido</span>
+              <span class="text-[10px] text-neutral-300 flex items-center gap-1"><iconify-icon icon="lucide:check" width="10"></iconify-icon>Sin tarjeta</span>
+              <span class="text-[10px] text-neutral-300 flex items-center gap-1"><iconify-icon icon="lucide:check" width="10"></iconify-icon>70B parámetros</span>
+            </div>
+          </div>
         </div>
-        <div>
-          <label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">Base URL <span class="normal-case tracking-normal">(solo proxy)</span></label>
-          <input id="baseurl-input" type="text" placeholder="https://api.openai.com/v1" class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light transition-colors focus:outline-none focus:border-neutral-400">
-        </div>
-        <div class="flex gap-3">
-          <button onclick="disconnectAPI()" class="flex-1 py-3 text-[11px] tracking-[.12em] uppercase font-medium border border-neutral-200 rounded-xl text-neutral-500 hover:border-neutral-400 transition-colors">Desconectar</button>
-          <button onclick="saveApiKey()" class="flex-1 bg-[#1a1a1a] text-white py-3 text-[11px] tracking-[.12em] uppercase font-medium rounded-xl hover:bg-neutral-800 transition-colors">Conectar</button>
+        <!-- Groq config (hidden until selected) -->
+        <div id="groq-config" class="hidden mt-4 pt-4 border-t border-neutral-100">
+          <label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">API Key de Groq</label>
+          <input id="groq-key-input" type="password" placeholder="gsk_..." class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light transition-colors focus:outline-none focus:border-neutral-400">
+          <div class="mt-3 bg-amber-50/50 rounded-lg p-3">
+            <p class="text-[11px] text-amber-700/80 leading-relaxed">
+              <strong>Cómo obtenerla (30 segundos):</strong><br>
+              1. Ve a <a href="https://console.groq.com/keys" target="_blank" class="underline">console.groq.com/keys</a><br>
+              2. Inicia sesión con Google/GitHub<br>
+              3. Click "Create API Key"<br>
+              4. Copia y pega aquí
+            </p>
+          </div>
         </div>
       </div>
+
+      <!-- Gemini -->
+      <div class="provider-card border border-neutral-200 rounded-2xl p-5 mb-3" data-provider="gemini" onclick="selectProvider('gemini')">
+        <div class="flex items-start gap-4">
+          <div class="provider-radio mt-0.5"><div class="provider-radio-inner"></div></div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium">Google Gemini</span>
+              <span class="text-[9px] tracking-wider uppercase bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium">1M tokens</span>
+            </div>
+            <p class="text-[11px] text-neutral-400 mt-1 leading-relaxed"><strong class="text-neutral-500">Gemini 2.0 Flash</strong> — Contexto enorme (1 millón de tokens). Gratis sin tarjeta desde Google AI Studio.</p>
+            <div class="flex items-center gap-3 mt-2">
+              <span class="text-[10px] text-neutral-300 flex items-center gap-1"><iconify-icon icon="lucide:database" width="10" class="text-blue-400"></iconify-icon>1M contexto</span>
+              <span class="text-[10px] text-neutral-300 flex items-center gap-1"><iconify-icon icon="lucide:check" width="10"></iconify-icon>Sin tarjeta</span>
+            </div>
+          </div>
+        </div>
+        <div id="gemini-config" class="hidden mt-4 pt-4 border-t border-neutral-100">
+          <label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">API Key de Gemini</label>
+          <input id="gemini-key-input" type="password" placeholder="AIza..." class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light transition-colors focus:outline-none focus:border-neutral-400">
+          <div class="mt-3 bg-blue-50/50 rounded-lg p-3">
+            <p class="text-[11px] text-blue-700/80 leading-relaxed">
+              <strong>Cómo obtenerla (1 minuto):</strong><br>
+              1. Ve a <a href="https://aistudio.google.com/apikey" target="_blank" class="underline">aistudio.google.com/apikey</a><br>
+              2. Inicia sesión con Google<br>
+              3. Click "Create API Key"<br>
+              4. Copia y pega aquí
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- OpenAI -->
+      <div class="provider-card border border-neutral-200 rounded-2xl p-5 mb-6" data-provider="openai" onclick="selectProvider('openai')">
+        <div class="flex items-start gap-4">
+          <div class="provider-radio mt-0.5"><div class="provider-radio-inner"></div></div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium">OpenAI</span>
+              <span class="text-[9px] tracking-wider uppercase bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded-full font-medium">De pago</span>
+            </div>
+            <p class="text-[11px] text-neutral-400 mt-1 leading-relaxed"><strong class="text-neutral-500">GPT-4o / GPT-4o Mini</strong> — La opción más potente pero requiere crédito ($5 mínimo).</p>
+            <div class="flex items-center gap-3 mt-2">
+              <span class="text-[10px] text-neutral-300 flex items-center gap-1"><iconify-icon icon="lucide:star" width="10" class="text-amber-400"></iconify-icon>Más potente</span>
+              <span class="text-[10px] text-neutral-300 flex items-center gap-1"><iconify-icon icon="lucide:credit-card" width="10" class="text-red-300"></iconify-icon>$5 mínimo</span>
+            </div>
+          </div>
+        </div>
+        <div id="openai-config" class="hidden mt-4 pt-4 border-t border-neutral-100">
+          <label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium">API Key de OpenAI</label>
+          <input id="openai-key-input" type="password" placeholder="sk-proj-..." class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light transition-colors focus:outline-none focus:border-neutral-400">
+          <label class="text-[10px] tracking-[.12em] uppercase text-neutral-400 font-medium mt-3 block">Base URL <span class="normal-case tracking-normal">(solo proxy)</span></label>
+          <input id="openai-url-input" type="text" placeholder="https://api.openai.com/v1" class="w-full mt-2 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-transparent placeholder:text-neutral-200 font-light transition-colors focus:outline-none focus:border-neutral-400">
+          <select id="openai-model-input" class="w-full mt-3 px-4 py-3 text-sm border border-neutral-200 rounded-xl bg-white font-light focus:outline-none focus:border-neutral-400">
+            <option value="gpt-4o-mini">GPT-4o Mini (rápido, económico)</option>
+            <option value="gpt-4o">GPT-4o (potente)</option>
+            <option value="gpt-3.5-turbo">GPT-3.5 Turbo (el más rápido)</option>
+          </select>
+        </div>
+      </div>
+
+      <button onclick="saveProvider()" class="w-full bg-[#1a1a1a] text-white py-3.5 text-[11px] tracking-[.15em] uppercase font-medium rounded-xl hover:bg-neutral-800 transition-colors">
+        Guardar y usar
+      </button>
     </div>
   </div>
 </div>
@@ -216,21 +301,23 @@
 
 <script>
   // ===== STATE =====
-  let API_KEY = localStorage.getItem('koya_apikey') || '';
-  let BASE_URL = localStorage.getItem('koya_baseurl') || 'https://api.openai.com/v1';
-  let MODEL = localStorage.getItem('koya_model') || 'gpt-4o-mini';
-  let SYSTEM_PROMPT = 'Eres Koya, un asistente de IA minimalista, amable y conciso. Respondes en español. Usas markdown cuando ayuda.';
+  let currentProvider = localStorage.getItem('koya_provider') || 'pollinations';
+  let GROQ_KEY = localStorage.getItem('koya_groq_key') || '';
+  let GEMINI_KEY = localStorage.getItem('koya_gemini_key') || '';
+  let OPENAI_KEY = localStorage.getItem('koya_openai_key') || '';
+  let OPENAI_URL = localStorage.getItem('koya_openai_url') || 'https://api.openai.com/v1';
+  let OPENAI_MODEL = localStorage.getItem('koya_openai_model') || 'gpt-4o-mini';
+  let SYSTEM_PROMPT = 'Eres Koya, un asistente de IA minimalista, amable y conciso. Respondes en español. Usas markdown cuando ayuda a clarificar.';
   let TEMPERATURE = 0.7;
   let conversations = JSON.parse(localStorage.getItem('koya_conversations') || '[]');
   let currentConvoId = null;
   let messages = [];
   let isStreaming = false;
   let imageMode = false;
-  let isApiMode = false;
 
   // ===== INIT =====
   document.addEventListener('DOMContentLoaded', () => {
-    updateApiStatus(); updateModeUI(); renderChatList(); updateSendButton();
+    updateProviderUI(); renderChatList(); updateSendButton();
     document.getElementById('user-input').addEventListener('input', updateSendButton);
     marked.setOptions({
       highlight: (code, lang) => lang && hljs.getLanguage(lang) ? hljs.highlight(code, {language: lang}).value : hljs.highlightAuto(code).value,
@@ -238,11 +325,68 @@
     });
   });
 
-  function updateModeUI() {
-    isApiMode = !!API_KEY;
-    document.getElementById('model-badge').textContent = isApiMode ? 'OpenAI · ' + MODEL : 'Pollinations AI';
+  // ===== PROVIDER =====
+  function getProviderName() {
+    const names = { pollinations: 'Pollinations AI', groq: 'Groq · Llama 3.3 70B', gemini: 'Gemini 2.0 Flash', openai: 'OpenAI · ' + OPENAI_MODEL };
+    return names[currentProvider] || 'Pollinations AI';
+  }
+  function updateProviderUI() {
+    document.getElementById('model-badge').textContent = getProviderName();
+    document.getElementById('footer-engine').textContent = getProviderName();
+    const dotColor = currentProvider === 'pollinations' ? 'bg-amber-300' : 'bg-emerald-400';
+    document.querySelectorAll('#engine-dot, #engine-dot-mobile').forEach(el => el.className = 'ml-auto w-2 h-2 rounded-full ' + dotColor);
+  }
+  function openProviderModal() {
+    document.getElementById('provider-modal').classList.add('open');
+    document.getElementById('groq-key-input').value = GROQ_KEY;
+    document.getElementById('gemini-key-input').value = GEMINI_KEY;
+    document.getElementById('openai-key-input').value = OPENAI_KEY;
+    document.getElementById('openai-url-input').value = OPENAI_URL === 'https://api.openai.com/v1' ? '' : OPENAI_URL;
+    document.getElementById('openai-model-input').value = OPENAI_MODEL;
+    // Highlight current
+    document.querySelectorAll('.provider-card').forEach(card => {
+      const p = card.dataset.provider;
+      card.classList.toggle('selected', p === currentProvider);
+    });
+    // Show/hide configs
+    document.getElementById('groq-config').classList.toggle('hidden', currentProvider !== 'groq');
+    document.getElementById('gemini-config').classList.toggle('hidden', currentProvider !== 'gemini');
+    document.getElementById('openai-config').classList.toggle('hidden', currentProvider !== 'openai');
+  }
+  function closeProviderModal() { document.getElementById('provider-modal').classList.remove('open'); }
+  function selectProvider(p) {
+    currentProvider = p;
+    document.querySelectorAll('.provider-card').forEach(card => {
+      card.classList.toggle('selected', card.dataset.provider === p);
+    });
+    document.getElementById('groq-config').classList.toggle('hidden', p !== 'groq');
+    document.getElementById('gemini-config').classList.toggle('hidden', p !== 'gemini');
+    document.getElementById('openai-config').classList.toggle('hidden', p !== 'openai');
+  }
+  function saveProvider() {
+    GROQ_KEY = document.getElementById('groq-key-input').value.trim();
+    GEMINI_KEY = document.getElementById('gemini-key-input').value.trim();
+    OPENAI_KEY = document.getElementById('openai-key-input').value.trim();
+    OPENAI_URL = document.getElementById('openai-url-input').value.trim() || 'https://api.openai.com/v1';
+    OPENAI_MODEL = document.getElementById('openai-model-input').value;
+
+    // Validate
+    if (currentProvider === 'groq' && !GROQ_KEY) { showToast('Ingresa tu API Key de Groq', 'warn'); return; }
+    if (currentProvider === 'gemini' && !GEMINI_KEY) { showToast('Ingresa tu API Key de Gemini', 'warn'); return; }
+    if (currentProvider === 'openai' && !OPENAI_KEY) { showToast('Ingresa tu API Key de OpenAI', 'warn'); return; }
+
+    localStorage.setItem('koya_provider', currentProvider);
+    localStorage.setItem('koya_groq_key', GROQ_KEY);
+    localStorage.setItem('koya_gemini_key', GEMINI_KEY);
+    localStorage.setItem('koya_openai_key', OPENAI_KEY);
+    localStorage.setItem('koya_openai_url', OPENAI_URL);
+    localStorage.setItem('koya_openai_model', OPENAI_MODEL);
+
+    updateProviderUI(); closeProviderModal();
+    showToast('Motor cambiado a ' + getProviderName() + ' ✓');
   }
 
+  // ===== IMAGE MODE =====
   function toggleImageMode() {
     imageMode = !imageMode;
     document.getElementById('img-mode-bar').classList.toggle('hidden', !imageMode);
@@ -251,33 +395,6 @@
     btn.classList.toggle('bg-[#f0eeeb]', imageMode);
     btn.classList.toggle('text-neutral-400', !imageMode);
     document.getElementById('user-input').placeholder = imageMode ? 'Describe la imagen...' : 'Escribe tu mensaje...';
-  }
-
-  // ===== API KEY =====
-  function openApiKeyModal() {
-    document.getElementById('apikey-input').value = API_KEY;
-    document.getElementById('baseurl-input').value = BASE_URL === 'https://api.openai.com/v1' ? '' : BASE_URL;
-    document.getElementById('apikey-modal').classList.add('open');
-  }
-  function closeApiKeyModal() { document.getElementById('apikey-modal').classList.remove('open'); }
-  function saveApiKey() {
-    const key = document.getElementById('apikey-input').value.trim();
-    const url = document.getElementById('baseurl-input').value.trim() || 'https://api.openai.com/v1';
-    if (!key) { showToast('Ingresa una API Key', 'warn'); return; }
-    API_KEY = key; BASE_URL = url;
-    localStorage.setItem('koya_apikey', API_KEY);
-    localStorage.setItem('koya_baseurl', BASE_URL);
-    updateApiStatus(); updateModeUI(); closeApiKeyModal();
-    showToast('Conectado a OpenAI ✓');
-  }
-  function disconnectAPI() {
-    API_KEY = ''; localStorage.removeItem('koya_apikey');
-    updateApiStatus(); updateModeUI(); closeApiKeyModal();
-    showToast('Pollinations AI activado');
-  }
-  function updateApiStatus() {
-    const c = API_KEY ? 'bg-emerald-400' : 'bg-neutral-200';
-    document.querySelectorAll('#api-status-dot,#api-status-dot-mobile').forEach(el => el.className = 'ml-auto w-2 h-2 rounded-full ' + c);
   }
 
   // ===== CONVERSATIONS =====
@@ -292,12 +409,7 @@
   function renderChatList() {
     [document.getElementById('chat-list'), document.getElementById('mobile-chat-list')].forEach(list => {
       if (!list) return;
-      list.innerHTML = conversations.map(c => `
-        <button onclick="loadConversation('${c.id}')" class="sidebar-item ${c.id===currentConvoId?'active':''} w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left group">
-          <iconify-icon icon="lucide:message-square" width="14" class="text-neutral-300 flex-shrink-0"></iconify-icon>
-          <span class="text-sm font-light text-neutral-600 truncate flex-1">${c.title}</span>
-          <button onclick="event.stopPropagation();deleteConversation('${c.id}')" class="opacity-0 group-hover:opacity-100 text-neutral-300 hover:text-red-400 transition-all p-1"><iconify-icon icon="lucide:x" width="12"></iconify-icon></button>
-        </button>`).join('');
+      list.innerHTML = conversations.map(c => '<button onclick="loadConversation(\'' + c.id + '\')" class="sidebar-item ' + (c.id === currentConvoId ? 'active' : '') + ' w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left group"><iconify-icon icon="lucide:message-square" width="14" class="text-neutral-300 flex-shrink-0"></iconify-icon><span class="text-sm font-light text-neutral-600 truncate flex-1">' + c.title + '</span><button onclick="event.stopPropagation();deleteConversation(\'' + c.id + '\')" class="opacity-0 group-hover:opacity-100 text-neutral-300 hover:text-red-400 transition-all p-1"><iconify-icon icon="lucide:x" width="12"></iconify-icon></button></button>').join('');
     });
     const el = document.getElementById('chat-list-empty');
     if (el) el.style.display = conversations.length === 0 ? 'block' : 'none';
@@ -323,19 +435,14 @@
     document.getElementById('chat-title').textContent = c.title;
     document.getElementById('welcome-screen').classList.add('hidden');
     document.getElementById('messages').classList.remove('hidden');
-    const container = document.getElementById('messages');
-    container.innerHTML = '';
-    messages.forEach(m => {
-      if (m.image) appendImageToDOM(m.image, m.content, false);
-      else appendMessageToDOM(m.role, m.content, false);
-    });
+    const container = document.getElementById('messages'); container.innerHTML = '';
+    messages.forEach(m => { if (m.image) appendImageToDOM(m.image, m.content, false); else appendMessageToDOM(m.role, m.content, false); });
     scrollToBottom(); renderChatList(); closeMobileSidebar();
   }
   function deleteConversation(id) {
     conversations = conversations.filter(c => c.id !== id);
     localStorage.setItem('koya_conversations', JSON.stringify(conversations));
-    if (id === currentConvoId) newChat();
-    renderChatList();
+    if (id === currentConvoId) newChat(); renderChatList();
   }
   function clearChat() { if (messages.length === 0) return; newChat(); showToast('Chat limpiado'); }
 
@@ -349,8 +456,7 @@
     } else {
       div.innerHTML = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[75%] min-w-0"><div class="msg-content text-sm font-light leading-relaxed text-neutral-700">' + renderMarkdown(content) + '</div><div class="flex items-center gap-2 mt-2"><button onclick="copyMessage(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors" title="Copiar"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button></div></div>';
     }
-    container.appendChild(div);
-    addCopyButtons(div);
+    container.appendChild(div); addCopyButtons(div);
   }
   function appendImageToDOM(imageUrl, prompt, animate) {
     const container = document.getElementById('messages');
@@ -378,7 +484,6 @@
     container.appendChild(div); scrollToBottom();
   }
   function removeTypingIndicator() { const el = document.getElementById('typing-indicator'); if (el) el.remove(); }
-
   function appendStreamingContent(chunk) {
     let streamEl = document.getElementById('streaming-message');
     if (!streamEl) {
@@ -386,37 +491,30 @@
       const container = document.getElementById('messages');
       const div = document.createElement('div'); div.id = 'streaming-message'; div.className = 'flex gap-4 msg-enter';
       div.innerHTML = '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#b8976a] to-[#86623d] flex items-center justify-center flex-shrink-0 mt-1"><span class="text-white text-[9px] font-serif italic">K</span></div><div class="max-w-[85%] md:max-w-[75%] min-w-0"><div class="msg-content text-sm font-light leading-relaxed text-neutral-700" id="streaming-content"></div></div>';
-      container.appendChild(div); streamEl = document.getElementById('streaming-message');
+      container.appendChild(div);
     }
     const contentEl = document.getElementById('streaming-content');
     contentEl.dataset.full = (contentEl.dataset.full || '') + chunk;
     contentEl.innerHTML = renderMarkdown(contentEl.dataset.full);
-    addCopyButtons(contentEl);
-    scrollToBottom();
+    addCopyButtons(contentEl); scrollToBottom();
   }
   function finalizeStreaming() {
-    const streamEl = document.getElementById('streaming-message');
-    if (streamEl) streamEl.removeAttribute('id');
-    const contentEl = document.getElementById('streaming-content');
-    if (contentEl) {
-      contentEl.removeAttribute('id'); contentEl.removeAttribute('data-full');
-      const actions = document.createElement('div'); actions.className = 'flex items-center gap-2 mt-2';
-      actions.innerHTML = '<button onclick="copyMessage(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors" title="Copiar"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button>';
-      contentEl.parentElement.appendChild(actions);
+    const s = document.getElementById('streaming-message'); if (s) s.removeAttribute('id');
+    const c = document.getElementById('streaming-content');
+    if (c) {
+      c.removeAttribute('id'); c.removeAttribute('data-full');
+      const a = document.createElement('div'); a.className = 'flex items-center gap-2 mt-2';
+      a.innerHTML = '<button onclick="copyMessage(this)" class="text-neutral-300 hover:text-neutral-500 transition-colors" title="Copiar"><iconify-icon icon="lucide:copy" width="13"></iconify-icon></button>';
+      c.parentElement.appendChild(a);
     }
   }
 
-  // ===== BUILD CONTEXT PROMPT (para GET) =====
-  function buildContextPrompt(userMsg) {
-    let ctx = '';
-    if (SYSTEM_PROMPT) ctx += '[Instrucciones del sistema]: ' + SYSTEM_PROMPT + '\n\n';
-    // Incluir últimas 10 mensajes de historial para contexto
+  // ===== BUILD CONTEXT (for GET providers) =====
+  function buildContext(userMsg) {
+    let ctx = SYSTEM_PROMPT + '\n\n';
     const recent = messages.slice(-10);
-    for (const m of recent) {
-      if (m.role === 'user') ctx += '[Usuario]: ' + m.content + '\n';
-      else if (!m.image) ctx += '[Asistente]: ' + m.content + '\n';
-    }
-    ctx += '[Usuario]: ' + userMsg + '\n[Asistente]: ';
+    for (const m of recent) { if (m.role === 'user') ctx += 'Usuario: ' + m.content + '\n'; else if (!m.image) ctx += 'Asistente: ' + m.content + '\n'; }
+    ctx += 'Usuario: ' + userMsg + '\nAsistente: ';
     return ctx;
   }
 
@@ -433,9 +531,7 @@
       appendMessageToDOM('user', text);
       input.value = ''; input.style.height = 'auto'; updateSendButton(); scrollToBottom();
       isStreaming = true; updateSendButton(); showTypingIndicator();
-      await generateImage(text);
-      isStreaming = false; updateSendButton();
-      return;
+      await generateImage(text); isStreaming = false; updateSendButton(); return;
     }
 
     messages.push({ role: 'user', content: text, image: null });
@@ -443,121 +539,133 @@
     input.value = ''; input.style.height = 'auto'; updateSendButton(); scrollToBottom();
     isStreaming = true; updateSendButton(); showTypingIndicator();
 
-    if (isApiMode) {
-      await sendToOpenAI(text);
-    } else {
-      await sendToPollinations(text);
+    try {
+      if (currentProvider === 'pollinations') await sendPollinations(text);
+      else if (currentProvider === 'groq') await sendGroq(text);
+      else if (currentProvider === 'gemini') await sendGemini(text);
+      else if (currentProvider === 'openai') await sendOpenAI(text);
+    } catch (err) {
+      removeTypingIndicator();
+      appendMessageToDOM('assistant', 'Error: ' + err.message + '\n\nCambia de motor en la configuración si el problema persiste.');
     }
     isStreaming = false; updateSendButton();
   }
 
-  // ===== POLLINATIONS (GET — funciona sin CORS) =====
-  async function sendToPollinations(userMsg) {
-    try {
-      const fullPrompt = buildContextPrompt(userMsg);
-      const url = 'https://text.pollinations.ai/' + encodeURIComponent(fullPrompt) + '?model=openai&seed=' + Math.floor(Math.random() * 999999);
-
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Error ' + res.status);
-
-      const fullText = await res.text();
-      removeTypingIndicator();
-
-      // Simular streaming
-      const words = fullText.split(/(\s+)/);
-      let accumulated = '';
-      for (let i = 0; i < words.length; i++) {
-        accumulated += words[i];
-        if (i % 3 === 0 || i === words.length - 1) {
-          appendStreamingContent(words.slice(Math.max(0, i - 2), i + 1).join(''));
-          await sleep(12 + Math.random() * 18);
-        }
+  // ===== POLLINATIONS (GET, sin CORS) =====
+  async function sendPollinations(userMsg) {
+    const fullPrompt = buildContext(userMsg);
+    const url = 'https://text.pollinations.ai/' + encodeURIComponent(fullPrompt) + '?model=openai&seed=' + Math.floor(Math.random() * 999999);
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Error ' + res.status);
+    const fullText = await res.text();
+    removeTypingIndicator();
+    const words = fullText.split(/(\s+)/);
+    for (let i = 0; i < words.length; i++) {
+      if (i % 3 === 0 || i === words.length - 1) {
+        appendStreamingContent(words.slice(Math.max(0, i - 2), i + 1).join(''));
+        await sleep(12 + Math.random() * 18);
       }
-      finalizeStreaming();
-      messages.push({ role: 'assistant', content: fullText, image: null });
-      saveConversation();
-    } catch (err) {
-      removeTypingIndicator();
-      appendMessageToDOM('assistant', 'No pude conectar: ' + err.message + '\n\nVerifica tu conexión a internet e intenta de nuevo.');
     }
+    finalizeStreaming();
+    messages.push({ role: 'assistant', content: fullText, image: null }); saveConversation();
   }
 
-  // ===== OPENAI (POST con streaming) =====
-  async function sendToOpenAI(userMsg) {
-    let fullResponse = '';
-    try {
-      const apiMessages = [];
-      if (SYSTEM_PROMPT) apiMessages.push({ role: 'system', content: SYSTEM_PROMPT });
-      apiMessages.push(...messages.map(m => ({ role: m.role, content: m.content })));
-      const res = await fetch(BASE_URL + '/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API_KEY },
-        body: JSON.stringify({ model: MODEL, messages: apiMessages, temperature: TEMPERATURE, max_tokens: 4096, stream: true })
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error?.message || 'Error ' + res.status);
-      }
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n'); buffer = lines.pop() || '';
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed || !trimmed.startsWith('data:')) continue;
-          const data = trimmed.slice(5).trim();
-          if (data === '[DONE]') break;
-          try {
-            const parsed = JSON.parse(data);
-            const delta = parsed.choices?.[0]?.delta?.content;
-            if (delta) { fullResponse += delta; appendStreamingContent(delta); }
-          } catch {}
-        }
-      }
-      finalizeStreaming();
-      messages.push({ role: 'assistant', content: fullResponse, image: null });
-      saveConversation();
-    } catch (err) {
-      removeTypingIndicator();
-      if (err.message.includes('401') || err.message.includes('Incorrect API key')) {
-        API_KEY = ''; localStorage.removeItem('koya_apikey');
-        updateApiStatus(); updateModeUI();
-        appendMessageToDOM('assistant', 'API Key inválida. Volviendo a **Pollinations AI**.\n\nPara reconectar, ve al menú lateral.');
-        showToast('Key inválida — Pollinations activado', 'warn');
-      } else {
-        appendMessageToDOM('assistant', 'Error con OpenAI: ' + err.message + '\n\nIntentando con Pollinations...');
-        await sendToPollinations(userMsg);
+  // ===== GROQ (POST + streaming) =====
+  async function sendGroq(userMsg) {
+    const apiMessages = [{ role: 'system', content: SYSTEM_PROMPT }];
+    apiMessages.push(...messages.map(m => ({ role: m.role, content: m.content })));
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_KEY },
+      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: apiMessages, temperature: TEMPERATURE, max_tokens: 4096, stream: true })
+    });
+    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error?.message || 'Error ' + res.status); }
+    const reader = res.body.getReader(); const decoder = new TextDecoder(); let buffer = ''; let full = '';
+    while (true) {
+      const { done, value } = await reader.read(); if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n'); buffer = lines.pop() || '';
+      for (const line of lines) {
+        const t = line.trim(); if (!t || !t.startsWith('data:')) continue;
+        const d = t.slice(5).trim(); if (d === '[DONE]') break;
+        try { const p = JSON.parse(d); const delta = p.choices?.[0]?.delta?.content; if (delta) { full += delta; appendStreamingContent(delta); } } catch {}
       }
     }
+    finalizeStreaming();
+    messages.push({ role: 'assistant', content: full, image: null }); saveConversation();
+  }
+
+  // ===== GEMINI (POST + streaming) =====
+  async function sendGemini(userMsg) {
+    const contents = [];
+    for (const m of messages) {
+      if (m.image) continue;
+      contents.push({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.content }] });
+    }
+    contents.push({ role: 'user', parts: [{ text: userMsg }] });
+
+    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=' + GEMINI_KEY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents, generationConfig: { temperature: TEMPERATURE, maxOutputTokens: 8192 } })
+    });
+    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error?.message || 'Error ' + res.status); }
+    const reader = res.body.getReader(); const decoder = new TextDecoder(); let buffer = ''; let full = '';
+    while (true) {
+      const { done, value } = await reader.read(); if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n'); buffer = lines.pop() || '';
+      for (const line of lines) {
+        const t = line.trim(); if (!t.startsWith('data:')) continue;
+        try {
+          const p = JSON.parse(t.slice(5).trim());
+          const text = p.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) { full += text; appendStreamingContent(text); }
+        } catch {}
+      }
+    }
+    finalizeStreaming();
+    messages.push({ role: 'assistant', content: full, image: null }); saveConversation();
+  }
+
+  // ===== OPENAI (POST + streaming) =====
+  async function sendOpenAI(userMsg) {
+    const apiMessages = [{ role: 'system', content: SYSTEM_PROMPT }];
+    apiMessages.push(...messages.map(m => ({ role: m.role, content: m.content })));
+    const res = await fetch(OPENAI_URL + '/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + OPENAI_KEY },
+      body: JSON.stringify({ model: OPENAI_MODEL, messages: apiMessages, temperature: TEMPERATURE, max_tokens: 4096, stream: true })
+    });
+    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error?.message || 'Error ' + res.status); }
+    const reader = res.body.getReader(); const decoder = new TextDecoder(); let buffer = ''; let full = '';
+    while (true) {
+      const { done, value } = await reader.read(); if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n'); buffer = lines.pop() || '';
+      for (const line of lines) {
+        const t = line.trim(); if (!t || !t.startsWith('data:')) continue;
+        const d = t.slice(5).trim(); if (d === '[DONE]') break;
+        try { const p = JSON.parse(d); const delta = p.choices?.[0]?.delta?.content; if (delta) { full += delta; appendStreamingContent(delta); } } catch {}
+      }
+    }
+    finalizeStreaming();
+    messages.push({ role: 'assistant', content: full, image: null }); saveConversation();
   }
 
   // ===== IMAGE =====
   async function generateImage(prompt) {
-    try {
-      let clean = prompt;
-      ['genera','dibuja','crea','haz','una imagen de','un dibujo de','imagen de','dibujo de'].forEach(w => { clean = clean.replace(new RegExp(w, 'gi'), ''); });
-      clean = clean.trim();
-      if (!clean) { removeTypingIndicator(); appendMessageToDOM('assistant', '¿Qué imagen quieres generar?'); return; }
-      const seed = Math.floor(Math.random() * 999999);
-      const imageUrl = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(clean) + '?width=768&height=768&seed=' + seed + '&nologo=true&model=flux';
-      removeTypingIndicator();
-      appendImageToDOM(imageUrl, clean);
-      messages.push({ role: 'assistant', content: clean, image: imageUrl });
-      saveConversation();
-    } catch (err) {
-      removeTypingIndicator();
-      appendMessageToDOM('assistant', 'No pude generar la imagen: ' + err.message);
-    }
+    let clean = prompt;
+    ['genera','dibuja','crea','haz','una imagen de','un dibujo de','imagen de','dibujo de'].forEach(w => { clean = clean.replace(new RegExp(w, 'gi'), ''); });
+    clean = clean.trim();
+    if (!clean) { removeTypingIndicator(); appendMessageToDOM('assistant', '¿Qué imagen quieres generar?'); return; }
+    const seed = Math.floor(Math.random() * 999999);
+    const imageUrl = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(clean) + '?width=768&height=768&seed=' + seed + '&nologo=true&model=flux';
+    removeTypingIndicator(); appendImageToDOM(imageUrl, clean);
+    messages.push({ role: 'assistant', content: clean, image: imageUrl }); saveConversation();
   }
 
-  function openImagePreview(src) {
-    document.getElementById('preview-img').src = src;
-    document.getElementById('image-preview').classList.remove('hidden');
-  }
+  function openImagePreview(src) { document.getElementById('preview-img').src = src; document.getElementById('image-preview').classList.remove('hidden'); }
   function closeImagePreview() { document.getElementById('image-preview').classList.add('hidden'); }
   function sendSuggestion(t) { document.getElementById('user-input').value = t; sendMessage(); }
   function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -569,16 +677,15 @@
   }
   function handleKeyDown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
   function copyMessage(btn) {
-    const msgDiv = btn.closest('.max-w-\\[85\\%\\]') || btn.parentElement.previousElementSibling;
-    navigator.clipboard.writeText((msgDiv?.innerText || '').trim()).then(() => showToast('Copiado ✓'));
+    const m = btn.closest('.max-w-\\[85\\%\\]') || btn.parentElement.previousElementSibling;
+    navigator.clipboard.writeText((m?.innerText || '').trim()).then(() => showToast('Copiado ✓'));
   }
   function exportChat() {
     if (messages.length === 0) { showToast('No hay mensajes', 'warn'); return; }
     let t = '# Koya — Conversación\n\n';
-    messages.forEach(m => { if (m.image) t += '**Koya:** [Imagen: ' + m.content + '](' + m.image + ')\n\n'; else t += m.role === 'user' ? '**Tú:**\n' + m.content + '\n\n' : '**Koya:**\n' + m.content + '\n\n'; });
-    t += '\n---\nMotor: ' + (isApiMode ? 'OpenAI ' + MODEL : 'Pollinations AI') + ' | ' + new Date().toLocaleString();
-    const blob = new Blob([t], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
+    messages.forEach(m => { if (m.image) t += '**Koya:** [Imagen](' + m.image + ')\n\n'; else t += (m.role === 'user' ? '**Tú:**\n' : '**Koya:**\n') + m.content + '\n\n'; });
+    t += '---\nMotor: ' + getProviderName() + ' | ' + new Date().toLocaleString();
+    const blob = new Blob([t], { type: 'text/markdown' }); const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = url; a.download = 'koya-' + Date.now() + '.md'; a.click(); URL.revokeObjectURL(url);
     showToast('Exportado ✓');
   }
@@ -587,10 +694,9 @@
 
   function showToast(message, type) {
     type = type || 'success';
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    const icons = { success: 'lucide:check-circle', warn: 'lucide:alert-circle', info: 'lucide:info' };
-    const colors = { success: 'text-[#b8976a]', warn: 'text-amber-500', info: 'text-neutral-400' };
+    const container = document.getElementById('toast-container'); const toast = document.createElement('div');
+    const icons = { success: 'lucide:check-circle', warn: 'lucide:alert-circle' };
+    const colors = { success: 'text-[#b8976a]', warn: 'text-amber-500' };
     toast.className = 'bg-white rounded-xl shadow-lg border border-neutral-100 px-5 py-3 flex items-center gap-3';
     toast.style.cssText = 'transform:translateY(16px);opacity:0;transition:all .4s cubic-bezier(.16,1,.3,1);';
     toast.innerHTML = '<iconify-icon icon="' + icons[type] + '" width="16" class="' + colors[type] + '"></iconify-icon><span class="text-xs font-light text-neutral-600">' + message + '</span>';
@@ -599,8 +705,8 @@
     setTimeout(() => { toast.style.transform = 'translateY(16px)'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 3000);
   }
 
-  document.getElementById('apikey-modal').addEventListener('click', function(e) { if (e.target === this) closeApiKeyModal(); });
-  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeApiKeyModal(); closeMobileSidebar(); closeImagePreview(); } });
+  document.getElementById('provider-modal').addEventListener('click', function(e) { if (e.target === this) closeProviderModal(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeProviderModal(); closeMobileSidebar(); closeImagePreview(); } });
 </script>
 </body>
 </html>
